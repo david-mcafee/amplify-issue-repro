@@ -65,7 +65,6 @@ function App() {
   const [state, setState] = useState([]);
   const [task, setTask] = useState(null);
   const [isPosting, setIsPosting] = useState(false);
-  const taskObserver = useRef({ unsubscribe: () => {} });
   const timeSet = useRef(null);
   const taskId = "8c8e49ea-0187-4777-a779-3d9c8f2d4a2c";
   const prevVersion = useRef(null);
