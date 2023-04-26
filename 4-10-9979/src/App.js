@@ -42,24 +42,6 @@ export function determineTaskStatus(task) {
   }
 }
 
-export async function waitForEmptyOutbox(verbose = false) {
-  return new Promise((resolve) => {
-    const { Hub } = require("@aws-amplify/core");
-    const hubCallback = (message) => {
-      if (verbose) console.log("hub event", message);
-      if (
-        message.payload.event === "outboxStatus" &&
-        message.payload.data.isEmpty
-      ) {
-        console.log("outbox is empty", message.payload.data.isEmpty);
-        Hub.remove("datastore", hubCallback);
-        resolve();
-      }
-    };
-    Hub.listen("datastore", hubCallback);
-  });
-}
-
 async function saveTaskTimeWithKey(key, value, taskId) {
   let isoString = null;
   if (value) {
@@ -71,15 +53,14 @@ async function saveTaskTimeWithKey(key, value, taskId) {
     ...existingTask,
     [key]: isoString,
   });
-  const result = DataStore.save(
+  // const result = DataStore.save(
+  DataStore.save(
     models.Task.copyOf(existingTask, (updated) => {
       updated[key] = value ? isoString : null;
       updated.status = status;
     })
   );
-  // Resolves issue:
-  // await waitForEmptyOutbox();
-  return result;
+  // return result;
 }
 
 function App() {
@@ -135,20 +116,6 @@ function App() {
       const task = await DataStore.query(models.Task, taskId);
       if (!task) throw new Error("Task not found");
       setTask(task);
-      // taskObserver.current.unsubscribe();
-      // taskObserver.current = DataStore.observe(models.Task, taskId).subscribe(
-      //   async ({ opType, element }) => {
-      //     if (
-      //       ["INSERT", "UPDATE"].includes(opType)
-      //       // uncomment for a fix that only works while online
-      //       //&& element._version > prevVersion.current
-      //     ) {
-      //       console.log(element);
-      //       setTask(element);
-      //       prevVersion.current = element._version;
-      //     }
-      //   }
-      // );
     } catch (e) {
       console.log(e);
     }
@@ -187,6 +154,7 @@ function App() {
     setTimeWithKey(key, !checked ? null : new Date());
   }
 
+  // For testing:
   async function queryRecord() {
     const result = await DataStore.query(models.Task, taskId);
     console.log(result);
