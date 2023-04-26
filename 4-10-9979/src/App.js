@@ -53,12 +53,13 @@ async function saveTaskTimeWithKey(key, value, taskId) {
     ...existingTask,
     [key]: isoString,
   });
-  return DataStore.save(
+  const result = await DataStore.save(
     models.Task.copyOf(existingTask, (updated) => {
       updated[key] = value ? isoString : null;
       updated.status = status;
     })
   );
+  return result;
 }
 
 function App() {
@@ -121,6 +122,7 @@ function App() {
     // Testing here:
     const sub = DataStore.observe(models.Task, taskId).subscribe(
       ({ opType, element }) => {
+        console.log("Version from sub:", element._version);
         if (
           ["INSERT", "UPDATE"].includes(opType)
           // uncomment for a fix that only works while online
