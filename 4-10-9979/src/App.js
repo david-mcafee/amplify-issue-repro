@@ -53,14 +53,12 @@ async function saveTaskTimeWithKey(key, value, taskId) {
     ...existingTask,
     [key]: isoString,
   });
-  // const result = DataStore.save(
-  DataStore.save(
+  return DataStore.save(
     models.Task.copyOf(existingTask, (updated) => {
       updated[key] = value ? isoString : null;
       updated.status = status;
     })
   );
-  // return result;
 }
 
 function App() {
@@ -154,7 +152,7 @@ function App() {
     setTimeWithKey(key, !checked ? null : new Date());
   }
 
-  // For testing:
+  // Validate that the task is in the correct state:
   async function queryRecord() {
     const result = await DataStore.query(models.Task, taskId);
     console.log(result);
