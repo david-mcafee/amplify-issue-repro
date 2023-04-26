@@ -121,7 +121,7 @@ function App() {
     // Testing here:
     const sub = DataStore.observe(models.Task, taskId).subscribe(
       // async ({ opType, element }) => {
-      async ({ opType, element }) => {
+      ({ opType, element }) => {
         if (
           ["INSERT", "UPDATE"].includes(opType)
           // uncomment for a fix that only works while online
