@@ -67,7 +67,7 @@ function App() {
   const [isPosting, setIsPosting] = useState(false);
   const taskObserver = useRef({ unsubscribe: () => {} });
   const timeSet = useRef(null);
-  const taskId = "38b35b73-2b4a-406a-bcf0-de0bc56ee8d0";
+  const taskId = "f53b67ef-b49d-4f13-b803-4464349a96ed";
   const prevVersion = useRef(null);
 
   function checkDisabled(key) {
@@ -132,7 +132,9 @@ function App() {
       console.log(e);
     }
   }
-  useEffect(() => getTaskAndUpdateState(), []);
+  useEffect(() => {
+    getTaskAndUpdateState();
+  }, []);
 
   function calculateState() {
     if (!task) return;
@@ -152,7 +154,7 @@ function App() {
     <div>
       {task ? task.status : ""}
       <div>
-        <form class="form">
+        <form>
           {Object.entries(fields).map(([key, label]) => {
             return (
               <label>
