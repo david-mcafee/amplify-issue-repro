@@ -120,7 +120,6 @@ function App() {
   useEffect(() => {
     // Testing here:
     const sub = DataStore.observe(models.Task, taskId).subscribe(
-      // async ({ opType, element }) => {
       ({ opType, element }) => {
         if (
           ["INSERT", "UPDATE"].includes(opType)
