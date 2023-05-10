@@ -1,0 +1,12 @@
+{
+  "AppSyncApiName": "synctesting",
+  "DynamoDBBillingMode": "PAY_PER_REQUEST",
+  "DynamoDBEnableServerSideEncryption": false,
+  "AuthCognitoUserPoolId": {
+    "Fn::GetAtt": [
+      "authsynctestingb22ac44f",
+      "Outputs.UserPoolId"
+    ]
+  },
+  "AuthModeLastUpdated": "2023-05-10T18:49:02.441Z"
+}
