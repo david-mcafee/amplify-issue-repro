@@ -23,7 +23,6 @@ yarn-debug.log*
 yarn-error.log*
 
 #amplify-do-not-edit-begin
-aws-exports.js
 amplify/\#current-cloud-backend
 amplify/.config/local-*
 amplify/logs
@@ -34,6 +33,7 @@ amplify/backend/.temp
 build/
 dist/
 node_modules/
+aws-exports.js
 awsconfiguration.json
 amplifyconfiguration.json
 amplifyconfiguration.dart
