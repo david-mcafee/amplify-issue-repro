@@ -1,8 +1,14 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import "./App.css";
 
 import DataStoreOperations from "./Components/DataStoreOperations";
-import { Amplify, DataStore, Predicates, syncExpression } from "aws-amplify";
+import {
+  Auth,
+  Amplify,
+  DataStore,
+  Predicates,
+  syncExpression,
+} from "aws-amplify";
 import { Authenticator } from "@aws-amplify/ui-react";
 // import "@aws-amplify/ui-react/styles.css";
 import { Note } from "./models";
@@ -10,42 +16,35 @@ import awsconfig from "./aws-exports";
 
 Amplify.configure(awsconfig);
 
-let syncValue = 2;
-
-DataStore.configure({
-  syncExpressions: [
-    syncExpression(Note, () => {
-      return (note) => note.userd.lt(syncValue);
-    }),
-  ],
-});
-
 // Amplify.Logger.LOG_LEVEL = "DEBUG";
 
 function App() {
   const [notes, setNotes] = useState([]);
+  const [userId, setUserId] = useState(null);
+
+  useEffect(() => {
+    Auth.currentUserCredentials().then((creds) => {
+      console.log(creds.identityId);
+      DataStore.configure({
+        syncExpressions: [
+          syncExpression(Note, () => {
+            return (note) => note.userd.eq(creds.identityId);
+          }),
+        ],
+      });
+      setUserId(creds.identityId);
+    });
+  }, []);
 
   async function onCreate() {
     const result = await DataStore.save(
       new Note({
-        userd: "1",
+        userd: userId,
         sequence: Math.floor(Math.random() * 10000),
         noteType: "noteType",
       })
     );
     console.log(result);
-  }
-
-  async function createNonSyncRecords() {
-    for (let i = 0; i < 5; i++) {
-      await DataStore.save(
-        new Note({
-          userd: "2",
-          sequence: Math.floor(Math.random() * 10000),
-          noteType: "noteType",
-        })
-      );
-    }
   }
 
   function deleteAll() {
@@ -62,21 +61,6 @@ function App() {
     setNotes([]);
   }
 
-  // Update docs: we should include `clear` here, as well.
-  async function changeSyncAll() {
-    syncValue = 3;
-    await DataStore.clear();
-    await DataStore.stop();
-    await DataStore.start();
-  }
-
-  async function changeSyncLimited() {
-    syncValue = 2;
-    await DataStore.clear();
-    await DataStore.stop();
-    await DataStore.start();
-  }
-
   return (
     <Authenticator>
       {({ signOut, user }) => (
@@ -90,12 +74,7 @@ function App() {
               <hr />
               <h2>Note operations:</h2>
               <button onClick={getNotes}>Query all</button>
-              <button onClick={createNonSyncRecords}>
-                Create unsyncable records
-              </button>
               <button onClick={onCreate}>Create syncable record</button>
-              <button onClick={changeSyncAll}>Change Sync All</button>
-              <button onClick={changeSyncLimited}>Change Sync Limited</button>
               <button onClick={clearLocalState}>Clear Local State</button>
               <pre>notes: {JSON.stringify(notes, null, 2)}</pre>
             </div>
