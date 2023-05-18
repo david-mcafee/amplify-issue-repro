@@ -3,10 +3,18 @@ import ReactDOM from "react-dom/client";
 import "./index.css";
 import App from "./App";
 import reportWebVitals from "./reportWebVitals";
-import { Amplify } from "aws-amplify";
 import awsExports from "./aws-exports";
+import { Amplify, DataStore } from "aws-amplify";
 
 Amplify.configure(awsExports);
+
+// https://docs.amplify.aws/lib/datastore/real-time/q/platform/js/#observe-query-results-in-real-time
+DataStore.configure({
+  // Default is 1000:
+  syncPageSize: 50000,
+  // Default is 10,000:
+  maxRecordsToSync: 50000,
+});
 
 const root = ReactDOM.createRoot(
   document.getElementById("root") as HTMLElement

@@ -40,8 +40,6 @@ function App() {
         title: `name ${Date.now()}`,
       })
     );
-    //@ts-ignore
-    setCurrentTodo(result);
   }
 
   async function create1000() {
