@@ -11,7 +11,7 @@ Amplify.configure(awsExports);
 // https://docs.amplify.aws/lib/datastore/real-time/q/platform/js/#observe-query-results-in-real-time
 DataStore.configure({
   // syncPageSize: 1000,
-  maxRecordsToSync: 50000,
+  maxRecordsToSync: 100000,
 });
 
 const root = ReactDOM.createRoot(
