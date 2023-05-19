@@ -10,9 +10,7 @@ Amplify.configure(awsExports);
 
 // https://docs.amplify.aws/lib/datastore/real-time/q/platform/js/#observe-query-results-in-real-time
 DataStore.configure({
-  // Default is 1000:
-  syncPageSize: 50000,
-  // Default is 10,000:
+  // syncPageSize: 1000,
   maxRecordsToSync: 50000,
 });
 

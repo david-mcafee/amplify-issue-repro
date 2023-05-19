@@ -13,33 +13,34 @@ Amplify.configure(awsconfig);
 function App() {
   const [todos, setTodos] = useState([]);
 
-  // useEffect(() => {
-  //   const subscription = DataStore.observeQuery(Todo, Predicates.ALL, {
-  //     sort: (s) => s.title(SortDirection.ASCENDING),
-  //   }).subscribe((snapshot) => {
-  //     const { items, isSynced } = snapshot;
-  //     console.log(
-  //       `[Snapshot] item count: ${items.length}, isSynced: ${isSynced}`
-  //     );
-  //     // if (items.length > 0) {
-  //     //   SetCheckParentList(items);
-  //     // } else {
-  //     //   SetCheckParentList([]);
-  //     // }
-  //   });
-  //   // console.log("parentResponses: " + JSON.stringify(parentResponses));
+  useEffect(() => {
+    const subscription = DataStore.observeQuery(Todo, Predicates.ALL, {
+      sort: (s) => s.title(SortDirection.ASCENDING),
+    }).subscribe((snapshot) => {
+      const { items, isSynced } = snapshot;
+      console.log(
+        `[Snapshot] item count: ${items.length}, isSynced: ${isSynced}`
+      );
+    });
 
-  //   return () => {
-  //     subscription.unsubscribe();
-  //   };
-  // }, []);
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, []);
 
   async function onCreate() {
+    console.log("before create");
     const result = await DataStore.save(
       new Todo({
         title: `name ${Date.now()}`,
       })
     );
+    console.log("after create", result);
+  }
+
+  async function deleteLast() {
+    const [_todo] = await DataStore.query(Todo);
+    await DataStore.delete(Todo, _todo.id);
   }
 
   async function create1000() {
@@ -102,7 +103,8 @@ function App() {
           <button onClick={onCreate}>Create one Todo</button>
           <button onClick={create1000}>Create 1000 Todos</button>
           <button onClick={create10000}>Create 10000 Todos</button>
-          <button onClick={create10000}>Create 40000 Todos</button>
+          <button onClick={create40000}>Create 40000 Todos</button>
+          <button onClick={deleteLast}>Delete Last</button>
           <button onClick={clearLocalState}>Clear Local State</button>
           <pre>todos: {JSON.stringify(todos, null, 2)}</pre>
         </div>
