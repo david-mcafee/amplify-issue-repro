@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import "./App.css";
 
 import { Amplify, DataStore, Predicates, SortDirection } from "aws-amplify";
@@ -10,23 +10,49 @@ Amplify.configure(awsconfig);
 
 // Amplify.Logger.LOG_LEVEL = "DEBUG";
 
+let subscriptions: any[] = [];
+
 function App() {
   const [todos, setTodos] = useState([]);
 
+  const initSubs = useCallback(() => {
+    if (subscriptions.length) {
+      unsubSubs();
+    }
+
+    subscriptions.push(
+      DataStore.observeQuery(Todo, Predicates.ALL, {
+        sort: (s) => s.title(SortDirection.ASCENDING),
+      }).subscribe((snapshot) => {
+        const { items, isSynced } = snapshot;
+        console.log(
+          `[Snapshot] item count: ${items.length}, isSynced: ${isSynced}`
+        );
+      })
+    );
+  }, []);
+
+  function unsubSubs() {
+    subscriptions &&
+      subscriptions.length &&
+      subscriptions.forEach((sub) => sub.unsubscribe());
+  }
+
   useEffect(() => {
-    const subscription = DataStore.observeQuery(Todo, Predicates.ALL, {
-      sort: (s) => s.title(SortDirection.ASCENDING),
-    }).subscribe((snapshot) => {
-      const { items, isSynced } = snapshot;
-      console.log(
-        `[Snapshot] item count: ${items.length}, isSynced: ${isSynced}`
-      );
-    });
+    initSubs();
 
     return () => {
-      subscription.unsubscribe();
+      unsubSubs();
     };
-  }, []);
+  }, [initSubs]);
+
+  async function getTodos() {
+    const _todos = await DataStore.query(Todo);
+    //@ts-ignore
+    setTodos(_todos);
+    console.log("Todos", _todos);
+    return _todos;
+  }
 
   async function onCreate() {
     console.log("before create");
@@ -76,15 +102,21 @@ function App() {
     }
   }
 
-  function deleteAll() {
-    DataStore.delete(Todo, Predicates.ALL);
+  async function updateAll() {
+    await getTodos().then(async (todos) => {
+      todos.forEach(async (todo) => {
+        console.log("updating", todo);
+        await DataStore.save(
+          Todo.copyOf(todo, (updated) => {
+            updated.title = `updated at ${Date.now()}`;
+          })
+        );
+      });
+    });
   }
 
-  async function getTodos() {
-    const _todos = await DataStore.query(Todo);
-    //@ts-ignore
-    setTodos(_todos);
-    console.log("Todos", _todos);
+  function deleteAll() {
+    DataStore.delete(Todo, Predicates.ALL);
   }
 
   function clearLocalState() {
@@ -95,7 +127,7 @@ function App() {
     <div className="App">
       <header className="App-header">
         <div>
-          <h1>Basic Amplify DataStore Demo</h1>
+          <h1>Large data sets:</h1>
           <DataStoreOperations deleteAll={deleteAll} />
           <hr />
           <h2>Todo operations:</h2>
@@ -105,8 +137,11 @@ function App() {
           <button onClick={create10000}>Create 10000 Todos</button>
           <button onClick={create40000}>Create 40000 Todos</button>
           <button onClick={deleteLast}>Delete Last</button>
+          <button onClick={updateAll}>Update All</button>
+          <button onClick={unsubSubs}>Unsubscribe</button>
+          <button onClick={initSubs}>Resubscribe</button>
           <button onClick={clearLocalState}>Clear Local State</button>
-          <pre>todos: {JSON.stringify(todos, null, 2)}</pre>
+          <pre>todo count: {todos.length}</pre>
         </div>
       </header>
     </div>
