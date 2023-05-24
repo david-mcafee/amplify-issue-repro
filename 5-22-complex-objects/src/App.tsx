@@ -47,7 +47,8 @@ function App() {
     const file = e.target.files[0];
 
     try {
-      // Date for testing purposes (i.e. using same image for multiple uploads)
+      // Unique identifier added for testing purposes (i.e. using same image for multiple uploads)
+      // Will remove for docs.
       const result = await Storage.put(`${file.name}-${Date.now()}`, file, {
         contentType: "image/png", // contentType is optional
       });
@@ -58,7 +59,8 @@ function App() {
     }
   }
 
-  // Upload image, add to song, retrieve presigned URL and retrieve the image:
+  // Upload image, add to song, retrieve presigned URL and retrieve the image.
+  // Also updates image if one already exists.
   async function addImageToSong(e: any) {
     if (!currentSong) return;
 
@@ -70,7 +72,7 @@ function App() {
       fileKey: key,
     };
 
-    // Add the new image to the current song:
+    // Add the image to the current song:
     try {
       const updatedSong = await API.graphql<GraphQLQuery<UpdateSongMutation>>({
         query: mutations.updateSong,
@@ -171,6 +173,7 @@ function App() {
       setCurrentSong(null);
 
       if (!currentSongImageKey) return;
+
       try {
         const deletedImage = await Storage.remove(currentSongImageKey);
         console.log("Image deleted: ", deletedImage);
