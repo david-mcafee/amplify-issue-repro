@@ -1,0 +1,14 @@
+{
+  "resourceName": "522co",
+  "policyUUID": "2d15ccf1",
+  "bucketName": "522complexobjectsad767a9528c34a97b7b870f731b8ad",
+  "storageAccess": "auth",
+  "guestAccess": [],
+  "authAccess": [
+    "CREATE_AND_UPDATE",
+    "READ",
+    "DELETE"
+  ],
+  "triggerFunction": "NONE",
+  "groupAccess": {}
+}
