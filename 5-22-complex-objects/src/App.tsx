@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { v4 as uuidv4 } from "uuid";
 import { API, Storage } from "aws-amplify";
 import { GraphQLQuery } from "@aws-amplify/api";
 import * as queries from "./graphql/queries";
@@ -48,10 +47,8 @@ function App() {
     const file = e.target.files[0];
 
     try {
-      // UUID for testing purposes only, remove before adding to docs:
-      let fileUUID = uuidv4();
-
-      const result = await Storage.put(`${file.name}-${fileUUID}`, file, {
+      // Date for testing purposes (i.e. using same image for multiple uploads)
+      const result = await Storage.put(`${file.name}-${Date.now()}`, file, {
         contentType: "image/png", // contentType is optional
       });
 
