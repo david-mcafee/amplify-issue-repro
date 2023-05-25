@@ -15,6 +15,6 @@ input AMPLIFY {
 type Song @model {
   id: ID!
   name: String!
-  fileKey: String
+  covertArtKey: String
 }
 ```

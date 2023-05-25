@@ -47,9 +47,7 @@ function App() {
     const file = e.target.files[0];
 
     try {
-      // Unique identifier added for testing purposes (i.e. using same image for multiple uploads)
-      // Will remove for docs.
-      const result = await Storage.put(`${file.name}-${Date.now()}`, file, {
+      const result = await Storage.put(file.name, file, {
         contentType: "image/png", // contentType is optional
       });
 
@@ -61,7 +59,7 @@ function App() {
 
   // Upload image, add to song, retrieve presigned URL and retrieve the image.
   // Also updates image if one already exists.
-  async function addImageToSong(e: any) {
+  async function addImageToSong(e: React.ChangeEvent<HTMLInputElement>) {
     if (!currentSong) return;
 
     // Upload the image to S3:
