@@ -17,16 +17,14 @@ import { Authenticator } from "@aws-amplify/ui-react";
 import "@aws-amplify/ui-react/styles.css";
 
 function App() {
-  // For the docs, we're only performing CRUD on one song at a time:
   const [currentSong, setCurrentSong] = useState<any>();
-  // For displaying the image for the current song:
   const [currentImageUrl, setCurrentImageUrl] = useState<
     string | null | undefined
   >("");
 
   async function createSong() {
     const songDetails: CreateSongInput = {
-      name: `Song ${Date.now()}`,
+      name: "My first song",
     };
 
     try {
@@ -36,11 +34,10 @@ function App() {
       });
       setCurrentSong(response?.data?.createSong);
     } catch (error) {
-      console.log("Error creating song: ", error);
+      console.error("Error creating song: ", error);
     }
   }
 
-  // Helper function, perhaps combine with `addImageToSong`?
   async function uploadImage(e: React.ChangeEvent<HTMLInputElement>) {
     if (!e.target.files) return;
 
@@ -53,11 +50,11 @@ function App() {
 
       return result?.key;
     } catch (error) {
-      console.log("Error uploading image: ", error);
+      console.error("Error uploading image: ", error);
     }
   }
 
-  // Upload image, add to song, retrieve presigned URL and retrieve the image.
+  // Upload image, add to song, retrieve signed URL and retrieve the image.
   // Also updates image if one already exists.
   async function addImageToSong(e: React.ChangeEvent<HTMLInputElement>) {
     if (!currentSong) return;
@@ -67,7 +64,7 @@ function App() {
 
     const songDetails: UpdateSongInput = {
       id: currentSong.id,
-      fileKey: key,
+      coverArtKey: key,
     };
 
     // Add the image to the current song:
@@ -81,7 +78,7 @@ function App() {
       // Retrieve the image for the current song:
       await getImageForCurrentSong();
     } catch (error) {
-      console.log("Error adding image to song: ", error);
+      console.error("Error adding image to song: ", error);
     }
   }
 
@@ -96,25 +93,27 @@ function App() {
 
       return oneSong.data?.getSong;
     } catch (error) {
-      console.log("Error retrieving song: ", error);
+      console.error("Error retrieving song: ", error);
     }
   }
 
-  // Retrieves the signed url and sets the current image url:
   async function getImageForCurrentSong() {
+    // Query the record to get the file key:
     const _song = await getSong();
-    if (!_song?.fileKey) return;
-    const signedURL = await Storage.get(_song?.fileKey);
+    // Check that the record has an associated image:
+    if (!_song?.coverArtKey) return;
+    // Retrieve the signed URL:
+    const signedURL = await Storage.get(_song?.coverArtKey);
     setCurrentImageUrl(signedURL);
   }
 
-  // Removes the image from the song, but does NOT delete from storage:
+  // Removes the image from the song, but does not delete from Storage:
   async function removeImageFromSong() {
     if (!currentSong) return;
 
     const songDetails: UpdateSongInput = {
       id: currentSong.id,
-      fileKey: null,
+      coverArtKey: null,
     };
 
     try {
@@ -122,11 +121,12 @@ function App() {
         query: mutations.updateSong,
         variables: { input: songDetails },
       });
-      console.log("Image removed from song: ", updatedSong?.data?.updateSong);
+
+      // If successful, the response here will be `null`:
       setCurrentSong(updatedSong?.data?.updateSong);
-      setCurrentImageUrl(updatedSong?.data?.updateSong?.fileKey);
+      setCurrentImageUrl(updatedSong?.data?.updateSong?.coverArtKey);
     } catch (error) {
-      console.log("Error removing image from song: ", error);
+      console.error("Error removing image from song: ", error);
     }
   }
 
@@ -136,26 +136,26 @@ function App() {
 
     const _song = await getSong();
 
-    if (!_song?.fileKey) return;
+    if (!_song?.coverArtKey) return;
 
     await removeImageFromSong();
 
     try {
-      const deletedImage = await Storage.remove(_song?.fileKey);
-      console.log("Image deleted: ", deletedImage);
+      // Delete the file from S3:
+      const deletedImage = await Storage.remove(_song?.coverArtKey);
     } catch (error) {
-      console.log("Error deleting image: ", error);
+      console.error("Error deleting image: ", error);
     }
   }
 
-  // Deletes current song. If song has an image, deletes image from storage:
+  // Deletes current song. If song has an image, deletes image from Storage:
   async function deleteCurrentSong() {
     if (!currentSong) return;
 
     const _song = await getSong();
 
-    // Save for deleting image after song is deleted:
-    const currentSongImageKey = _song?.fileKey;
+    // Save the file key for deleting the file after the record is deleted:
+    const currentSongImageKey = _song?.coverArtKey;
 
     const songDetails: DeleteSongInput = {
       id: currentSong.id,
@@ -167,20 +167,18 @@ function App() {
         variables: { input: songDetails },
       });
 
-      console.log("Song deleted: ", deletedSong?.data?.deleteSong);
       setCurrentSong(null);
 
       if (!currentSongImageKey) return;
 
       try {
         const deletedImage = await Storage.remove(currentSongImageKey);
-        console.log("Image deleted: ", deletedImage);
         clearLocalState();
       } catch (error) {
-        console.log("Error deleting image: ", error);
+        console.error("Error deleting image: ", error);
       }
     } catch (error) {
-      console.log("Error deleting song: ", error);
+      console.error("Error deleting song: ", error);
     }
   }
 
@@ -261,7 +259,7 @@ function App() {
             flexDirection: "column",
           }}
         >
-          <h1>Hello {user?.username}</h1>
+          <h1>Hello {user?.username}!</h1>
           <h2>{`Current Song: ${currentSong?.id}`}</h2>
           <button onClick={createSong}>Create Song</button>
           <label>
@@ -292,9 +290,8 @@ function App() {
             Remove image from current song, then delete image
           </button>
           <button onClick={deleteCurrentSong} disabled={!currentSong}>
-            Delete current song)
+            Delete current song
           </button>
-          <button onClick={deleteAll}>Delete All</button>
           <button onClick={signOut}>Sign out</button>
           {currentImageUrl && (
             <img src={currentImageUrl} alt="Image for current song"></img>
