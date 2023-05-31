@@ -22,23 +22,7 @@ function App() {
     string | null | undefined
   >("");
 
-  async function createSong() {
-    const songDetails: CreateSongInput = {
-      name: "My first song",
-    };
-
-    try {
-      const response = await API.graphql<GraphQLQuery<CreateSongMutation>>({
-        query: mutations.createSong,
-        variables: { input: songDetails },
-      });
-      setCurrentSong(response?.data?.createSong);
-    } catch (error) {
-      console.error("Error creating song: ", error);
-    }
-  }
-
-  async function uploadImage(e: React.ChangeEvent<HTMLInputElement>) {
+  async function createSongWithImage(e: React.ChangeEvent<HTMLInputElement>) {
     if (!e.target.files) return;
 
     const file = e.target.files[0];
@@ -48,75 +32,86 @@ function App() {
         contentType: "image/png", // contentType is optional
       });
 
-      return result?.key;
+      const songDetails: CreateSongInput = {
+        name: `My first song`,
+        coverArtKey: result?.key,
+      };
+
+      const response = await API.graphql<GraphQLQuery<CreateSongMutation>>({
+        query: mutations.createSong,
+        variables: { input: songDetails },
+      });
+
+      setCurrentSong(response?.data?.createSong);
     } catch (error) {
-      console.error("Error uploading image: ", error);
+      console.error("Error create song / file:", error);
     }
   }
 
   // Upload image, add to song, retrieve signed URL and retrieve the image.
   // Also updates image if one already exists.
-  async function addImageToSong(e: React.ChangeEvent<HTMLInputElement>) {
+  async function addNewImageToSong(e: React.ChangeEvent<HTMLInputElement>) {
     if (!currentSong) return;
 
-    // Upload the image to S3:
-    const key = await uploadImage(e);
+    if (!e.target.files) return;
 
-    const songDetails: UpdateSongInput = {
-      id: currentSong.id,
-      coverArtKey: key,
-    };
+    const file = e.target.files[0];
 
-    // Add the image to the current song:
     try {
+      const result = await Storage.put(file.name, file, {
+        contentType: "image/png", // contentType is optional
+      });
+
+      const songDetails: UpdateSongInput = {
+        id: currentSong.id,
+        coverArtKey: result?.key,
+      };
+
       const updatedSong = await API.graphql<GraphQLQuery<UpdateSongMutation>>({
         query: mutations.updateSong,
         variables: { input: songDetails },
       });
-      setCurrentSong(updatedSong?.data?.updateSong);
-
-      // Retrieve the image for the current song:
-      await getImageForCurrentSong();
     } catch (error) {
-      console.error("Error adding image to song: ", error);
-    }
-  }
-
-  async function getSong() {
-    if (!currentSong) return;
-
-    try {
-      const oneSong = await API.graphql<GraphQLQuery<GetSongQuery>>({
-        query: queries.getSong,
-        variables: { id: currentSong.id },
-      });
-
-      return oneSong.data?.getSong;
-    } catch (error) {
-      console.error("Error retrieving song: ", error);
+      console.error("Error uploading image / adding image to song: ", error);
     }
   }
 
   async function getImageForCurrentSong() {
     // Query the record to get the file key:
-    const _song = await getSong();
+    const response = await API.graphql<GraphQLQuery<GetSongQuery>>({
+      query: queries.getSong,
+      variables: { id: currentSong.id },
+    });
+    const _song = response.data?.getSong;
+
     // Check that the record has an associated image:
     if (!_song?.coverArtKey) return;
+
     // Retrieve the signed URL:
     const signedURL = await Storage.get(_song?.coverArtKey);
+
     setCurrentImageUrl(signedURL);
   }
 
-  // Removes the image from the song, but does not delete from Storage:
+  // Remove the file association, continue to persist both file and record
   async function removeImageFromSong() {
     if (!currentSong) return;
 
-    const songDetails: UpdateSongInput = {
-      id: currentSong.id,
-      coverArtKey: null,
-    };
-
     try {
+      const response = await API.graphql<GraphQLQuery<GetSongQuery>>({
+        query: queries.getSong,
+        variables: { id: currentSong.id },
+      });
+
+      const _song = response?.data?.getSong;
+
+      if (!_song?.coverArtKey) return;
+
+      const songDetails: UpdateSongInput = {
+        id: _song.id,
+        coverArtKey: null,
+      };
+
       const updatedSong = await API.graphql<GraphQLQuery<UpdateSongMutation>>({
         query: mutations.updateSong,
         variables: { input: songDetails },
@@ -130,53 +125,69 @@ function App() {
     }
   }
 
-  // Removes image from song, then deletes image from storage:
+  // Remove the record association and delete the file
   async function deleteImageForCurrentSong() {
     if (!currentSong) return;
 
-    const _song = await getSong();
-
-    if (!_song?.coverArtKey) return;
-
-    await removeImageFromSong();
-
     try {
+      const response = await API.graphql<GraphQLQuery<GetSongQuery>>({
+        query: queries.getSong,
+        variables: { id: currentSong.id },
+      });
+
+      const _song = response?.data?.getSong;
+
+      if (!_song?.coverArtKey) return;
+
+      const songDetails: UpdateSongInput = {
+        id: _song.id,
+        coverArtKey: null, // Set the file association to `null`
+      };
+
+      // Remove associated file from record
+      const updatedSong = await API.graphql<GraphQLQuery<UpdateSongMutation>>({
+        query: mutations.updateSong,
+        variables: { input: songDetails },
+      });
+
       // Delete the file from S3:
-      const deletedImage = await Storage.remove(_song?.coverArtKey);
+      await Storage.remove(_song?.coverArtKey);
+
+      // If successful, the response here will be `null`:
+      setCurrentSong(updatedSong?.data?.updateSong);
+      setCurrentImageUrl(updatedSong?.data?.updateSong?.coverArtKey);
     } catch (error) {
       console.error("Error deleting image: ", error);
     }
   }
 
-  // Deletes current song. If song has an image, deletes image from Storage:
-  async function deleteCurrentSong() {
+  // Delete both file and record
+  async function deleteCurrentSongAndImage() {
     if (!currentSong) return;
 
-    const _song = await getSong();
-
-    // Save the file key for deleting the file after the record is deleted:
-    const currentSongImageKey = _song?.coverArtKey;
-
-    const songDetails: DeleteSongInput = {
-      id: currentSong.id,
-    };
-
     try {
-      const deletedSong = await API.graphql<GraphQLQuery<DeleteSongMutation>>({
+      const response = await API.graphql<GraphQLQuery<GetSongQuery>>({
+        query: queries.getSong,
+        variables: { id: currentSong.id },
+      });
+
+      const _song = response?.data?.getSong;
+
+      if (!_song?.coverArtKey) return;
+
+      await Storage.remove(_song?.coverArtKey);
+
+      const songDetails: DeleteSongInput = {
+        id: _song.id,
+      };
+
+      // const deletedSong = await API.graphql<GraphQLQuery<DeleteSongMutation>>({
+      await API.graphql<GraphQLQuery<DeleteSongMutation>>({
         query: mutations.deleteSong,
         variables: { input: songDetails },
       });
 
-      setCurrentSong(null);
-
-      if (!currentSongImageKey) return;
-
-      try {
-        const deletedImage = await Storage.remove(currentSongImageKey);
-        clearLocalState();
-      } catch (error) {
-        console.error("Error deleting image: ", error);
-      }
+      clearLocalState();
     } catch (error) {
       console.error("Error deleting song: ", error);
     }
@@ -261,13 +272,16 @@ function App() {
         >
           <h1>Hello {user?.username}!</h1>
           <h2>{`Current Song: ${currentSong?.id}`}</h2>
-          <button onClick={createSong}>Create Song</button>
           <label>
-            Add / Update current song image:
+            Create song with file:
+            <input id="name" type="file" onChange={createSongWithImage} />
+          </label>
+          <label>
+            Add / update song image:
             <input
               id="name"
               type="file"
-              onChange={addImageToSong}
+              onChange={addNewImageToSong}
               disabled={!currentSong}
             />
           </label>
@@ -289,8 +303,8 @@ function App() {
           >
             Remove image from current song, then delete image
           </button>
-          <button onClick={deleteCurrentSong} disabled={!currentSong}>
-            Delete current song
+          <button onClick={deleteCurrentSongAndImage} disabled={!currentSong}>
+            Delete current song (and image, if it exists)
           </button>
           <button onClick={signOut}>Sign out</button>
           {currentImageUrl && (
