@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { API, Storage } from "aws-amplify";
+import { Authenticator } from "@aws-amplify/ui-react";
+import "@aws-amplify/ui-react/styles.css";
 import { GraphQLQuery } from "@aws-amplify/api";
 import * as queries from "./graphql/queries";
 import * as mutations from "./graphql/mutations";
@@ -13,11 +15,11 @@ import {
   UpdateSongInput,
   UpdateSongMutation,
 } from "./API";
-import { Authenticator } from "@aws-amplify/ui-react";
-import "@aws-amplify/ui-react/styles.css";
 
 function App() {
   const [currentSong, setCurrentSong] = useState<any>();
+
+  // Used to display image for current song:
   const [currentImageUrl, setCurrentImageUrl] = useState<
     string | null | undefined
   >("");
@@ -71,26 +73,33 @@ function App() {
         query: mutations.updateSong,
         variables: { input: songDetails },
       });
+
+      const signedURL = await Storage.get(updatedSong?.coverArtKey);
+      setCurrentImageUrl(signedURL);
     } catch (error) {
       console.error("Error uploading image / adding image to song: ", error);
     }
   }
 
   async function getImageForCurrentSong() {
-    // Query the record to get the file key:
-    const response = await API.graphql<GraphQLQuery<GetSongQuery>>({
-      query: queries.getSong,
-      variables: { id: currentSong.id },
-    });
-    const _song = response.data?.getSong;
+    try {
+      // Query the record to get the file key:
+      const response = await API.graphql<GraphQLQuery<GetSongQuery>>({
+        query: queries.getSong,
+        variables: { id: currentSong.id },
+      });
+      const _song = response.data?.getSong;
 
-    // Check that the record has an associated image:
-    if (!_song?.coverArtKey) return;
+      // Check that the record has an associated image:
+      if (!_song?.coverArtKey) return;
 
-    // Retrieve the signed URL:
-    const signedURL = await Storage.get(_song?.coverArtKey);
+      // Retrieve the signed URL:
+      const signedURL = await Storage.get(_song?.coverArtKey);
 
-    setCurrentImageUrl(signedURL);
+      setCurrentImageUrl(signedURL);
+    } catch (error) {
+      console.error("Error getting song / image:", error);
+    }
   }
 
   // Remove the file association, continue to persist both file and record
