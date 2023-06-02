@@ -30,27 +30,46 @@ function App() {
     const file = e.target.files[0];
 
     try {
-      const result = await Storage.put(file.name, file, {
-        contentType: "image/png", // contentType is optional
-      });
-
-      const songDetails: CreateSongInput = {
+      const createSongDetails: CreateSongInput = {
         name: `My first song`,
-        coverArtKey: result?.key,
       };
 
+      // Create the API record:
       const response = await API.graphql<GraphQLQuery<CreateSongMutation>>({
         query: mutations.createSong,
-        variables: { input: songDetails },
+        variables: { input: createSongDetails },
       });
 
       const _song = response?.data?.createSong;
 
-      setCurrentSong(_song);
+      if (!_song) return;
 
-      if (!_song?.coverArtKey) return;
+      // Upload the Storage file:
+      const result = await Storage.put(`${_song.id}-${file.name}`, file, {
+        contentType: "image/png", // contentType is optional
+      });
 
-      const signedURL = await Storage.get(_song?.coverArtKey);
+      const updateSongDetails: UpdateSongInput = {
+        id: _song.id,
+        coverArtKey: result?.key,
+      };
+
+      // Add the file association to the record:
+      const updateResponse = await API.graphql<
+        GraphQLQuery<UpdateSongMutation>
+      >({
+        query: mutations.updateSong,
+        variables: { input: updateSongDetails },
+      });
+
+      const updatedSong = updateResponse?.data?.updateSong;
+
+      setCurrentSong(updatedSong);
+
+      if (!updatedSong?.coverArtKey) return;
+
+      // Retrieve the file's signed URL:
+      const signedURL = await Storage.get(updatedSong?.coverArtKey);
       setCurrentImageUrl(signedURL);
     } catch (error) {
       console.error("Error create song / file:", error);
@@ -67,25 +86,30 @@ function App() {
     const file = e.target.files[0];
 
     try {
-      const result = await Storage.put(file.name, file, {
+      // Upload the Storage file:
+      const result = await Storage.put(`${currentSong.id}-${file.name}`, file, {
         contentType: "image/png", // contentType is optional
       });
 
-      const songDetails: UpdateSongInput = {
+      const updateSongDetails: UpdateSongInput = {
         id: currentSong.id,
         coverArtKey: result?.key,
       };
 
+      // Add the file association to the record:
       const response = await API.graphql<GraphQLQuery<UpdateSongMutation>>({
         query: mutations.updateSong,
-        variables: { input: songDetails },
+        variables: { input: updateSongDetails },
       });
 
       const updatedSong = response?.data?.updateSong;
 
+      setCurrentSong(updatedSong);
+
       // Check that the record has an associated image:
       if (!updatedSong?.coverArtKey) return;
 
+      // Retrieve the file's signed URL:
       const signedURL = await Storage.get(updatedSong?.coverArtKey);
       setCurrentImageUrl(signedURL);
     } catch (error) {

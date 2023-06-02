@@ -14,8 +14,8 @@ const root = ReactDOM.createRoot(
 );
 root.render(
   <React.StrictMode>
-    {/* <App /> */}
-    <MultipleFiles />
+    <App />
+    {/* <MultipleFiles /> */}
   </React.StrictMode>
 );
 
