@@ -5,6 +5,7 @@ import App from "./App";
 import reportWebVitals from "./reportWebVitals";
 import { Amplify } from "aws-amplify";
 import awsExports from "./aws-exports";
+import MultipleFiles from "./MultipleFiles";
 
 Amplify.configure(awsExports);
 
@@ -13,7 +14,8 @@ const root = ReactDOM.createRoot(
 );
 root.render(
   <React.StrictMode>
-    <App />
+    {/* <App /> */}
+    <MultipleFiles />
   </React.StrictMode>
 );
 

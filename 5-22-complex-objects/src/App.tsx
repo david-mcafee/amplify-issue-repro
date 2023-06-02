@@ -44,7 +44,14 @@ function App() {
         variables: { input: songDetails },
       });
 
-      setCurrentSong(response?.data?.createSong);
+      const _song = response?.data?.createSong;
+
+      setCurrentSong(_song);
+
+      if (!_song?.coverArtKey) return;
+
+      const signedURL = await Storage.get(_song?.coverArtKey);
+      setCurrentImageUrl(signedURL);
     } catch (error) {
       console.error("Error create song / file:", error);
     }
@@ -69,10 +76,15 @@ function App() {
         coverArtKey: result?.key,
       };
 
-      const updatedSong = await API.graphql<GraphQLQuery<UpdateSongMutation>>({
+      const response = await API.graphql<GraphQLQuery<UpdateSongMutation>>({
         query: mutations.updateSong,
         variables: { input: songDetails },
       });
+
+      const updatedSong = response?.data?.updateSong;
+
+      // Check that the record has an associated image:
+      if (!updatedSong?.coverArtKey) return;
 
       const signedURL = await Storage.get(updatedSong?.coverArtKey);
       setCurrentImageUrl(signedURL);
@@ -315,6 +327,7 @@ function App() {
           <button onClick={deleteCurrentSongAndImage} disabled={!currentSong}>
             Delete current song (and image, if it exists)
           </button>
+          <button onClick={deleteAll}>Delete All</button>
           <button onClick={signOut}>Sign out</button>
           {currentImageUrl && (
             <img src={currentImageUrl} alt="Image for current song"></img>
