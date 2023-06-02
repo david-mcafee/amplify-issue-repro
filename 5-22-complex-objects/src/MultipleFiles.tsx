@@ -20,9 +20,10 @@ function App() {
   const [currentPhotoAlbum, setCurrentPhotoAlbum] = useState<any>();
 
   // Used to display image for current photoAlbum:
-  const [currentImageUrl, setCurrentImageUrl] = useState<
-    string | null | undefined
-  >("");
+  // const [currentImages, setCurrentImages] = useState<
+  //   (string | null | undefined)[]
+  // >([]);
+  const [currentImages, setCurrentImages] = useState<any>([]);
 
   async function createPhotoAlbumWithFirstImage(
     e: React.ChangeEvent<HTMLInputElement>
@@ -53,7 +54,7 @@ function App() {
 
       // @ts-ignore
       const signedURL = await Storage.get(_photoAlbum?.imageKeys[0]);
-      setCurrentImageUrl(signedURL);
+      setCurrentImages([signedURL]);
     } catch (error) {
       console.error("Error create photoAlbum / file:", error);
     }
@@ -64,22 +65,24 @@ function App() {
   ) {
     if (!e.target.files) return;
 
-    const imageKeys: (string | null)[] = [];
-
     try {
-      Array.from(e.target.files).forEach(async (file) => {
-        const result = await Storage.put(file.name, file, {
-          contentType: "image/png", // contentType is optional
-        });
+      // Upload all files to Storage:
+      const imageKeys = await Promise.all(
+        Array.from(e.target.files).map(async (file) => {
+          const result = await Storage.put(file.name, file, {
+            contentType: "image/png", // contentType is optional
+          });
 
-        imageKeys.push(result?.key);
-      });
+          return result?.key;
+        })
+      );
 
       const photoAlbumDetails: CreatePhotoAlbumInput = {
         name: `My first photoAlbum`,
         imageKeys,
       };
 
+      // Create album with associated files:
       const response = await API.graphql<
         GraphQLQuery<CreatePhotoAlbumMutation>
       >({
@@ -92,194 +95,94 @@ function App() {
 
       if (!_photoAlbum?.imageKeys) return;
 
-      // const signedURL = await Storage.get(_photoAlbum?.imageKeys);
-      // setCurrentImageUrl(signedURL);
+      // Retrieve signed urls for all files:
+      // @ts-ignore
+      const signedUrls = await Promise.all(
+        _photoAlbum?.imageKeys.map(async (key) => await Storage.get(key!))
+      );
 
-      Storage.list("") // for listing ALL files without prefix, pass '' instead
-        .then((res) => {
-          console.log(res);
-          debugger;
-        })
-        .catch((err) => console.log(err));
+      if (!signedUrls) return;
+      setCurrentImages(signedUrls);
     } catch (error) {
       console.error("Error create photoAlbum / file:", error);
     }
   }
 
-  // Upload image, add to photoAlbum, retrieve signed URL and retrieve the image.
-  // Also updates image if one already exists.
-  // async function addNewImageToPhotoAlbum(
-  //   e: React.ChangeEvent<HTMLInputElement>
-  // ) {
-  //   if (!currentPhotoAlbum) return;
+  async function addNewImagesToPhotoAlbum(
+    e: React.ChangeEvent<HTMLInputElement>
+  ) {
+    if (!currentPhotoAlbum) return;
 
-  //   if (!e.target.files) return;
+    if (!e.target.files) return;
 
-  //   const file = e.target.files[0];
+    const file = e.target.files[0];
 
-  //   try {
-  //     const result = await Storage.put(file.name, file, {
-  //       contentType: "image/png", // contentType is optional
-  //     });
+    try {
+      // Upload all files to Storage:
+      const newImageKeys = await Promise.all(
+        Array.from(e.target.files).map(async (file) => {
+          const result = await Storage.put(file.name, file, {
+            contentType: "image/png", // contentType is optional
+          });
 
-  //     const photoAlbumDetails: UpdatePhotoAlbumInput = {
-  //       id: currentPhotoAlbum.id,
-  //       imageKeys: result?.key,
-  //     };
+          return result?.key;
+        })
+      );
 
-  //     const response = await API.graphql<
-  //       GraphQLQuery<UpdatePhotoAlbumMutation>
-  //     >({
-  //       query: mutations.updatePhotoAlbum,
-  //       variables: { input: photoAlbumDetails },
-  //     });
+      // Query existing record to retrieve currently associated files:
+      const queriedResponse = await API.graphql<
+        GraphQLQuery<GetPhotoAlbumQuery>
+      >({
+        query: queries.getPhotoAlbum,
+        variables: { id: currentPhotoAlbum.id },
+      });
 
-  //     const updatedPhotoAlbum = response?.data?.updatePhotoAlbum;
+      const _photoAlbum = queriedResponse.data?.getPhotoAlbum;
 
-  //     // Check that the record has an associated image:
-  //     if (!updatedPhotoAlbum?.imageKeys) return;
+      if (!_photoAlbum?.imageKeys) return;
 
-  //     const signedURL = await Storage.get(updatedPhotoAlbum?.imageKeys);
-  //     setCurrentImageUrl(signedURL);
-  //   } catch (error) {
-  //     console.error(
-  //       "Error uploading image / adding image to photoAlbum: ",
-  //       error
-  //     );
-  //   }
-  // }
+      // Merge existing and new file keys:
+      const updatedImageKeys = [...newImageKeys, ..._photoAlbum.imageKeys];
 
-  // async function getImageForCurrentPhotoAlbum() {
-  //   try {
-  //     // Query the record to get the file key:
-  //     const response = await API.graphql<GraphQLQuery<GetPhotoAlbumQuery>>({
-  //       query: queries.getPhotoAlbum,
-  //       variables: { id: currentPhotoAlbum.id },
-  //     });
-  //     const _photoAlbum = response.data?.getPhotoAlbum;
+      const photoAlbumDetails: UpdatePhotoAlbumInput = {
+        id: currentPhotoAlbum.id,
+        imageKeys: updatedImageKeys,
+      };
 
-  //     // Check that the record has an associated image:
-  //     if (!_photoAlbum?.imageKeys) return;
+      // Update record with merged file associations:
+      const response = await API.graphql<
+        GraphQLQuery<UpdatePhotoAlbumMutation>
+      >({
+        query: mutations.updatePhotoAlbum,
+        variables: { input: photoAlbumDetails },
+      });
 
-  //     // Retrieve the signed URL:
-  //     const signedURL = await Storage.get(_photoAlbum?.imageKeys);
+      const updatedPhotoAlbum = response?.data?.updatePhotoAlbum;
+      setCurrentPhotoAlbum(updatedPhotoAlbum);
 
-  //     setCurrentImageUrl(signedURL);
-  //   } catch (error) {
-  //     console.error("Error getting photoAlbum / image:", error);
-  //   }
-  // }
+      // Check that the record has an associated image:
+      if (!updatedPhotoAlbum?.imageKeys) return;
 
-  // // Remove the file association, continue to persist both file and record
-  // async function removeImageFromPhotoAlbum() {
-  //   if (!currentPhotoAlbum) return;
+      // Retrieve signed urls for merged image keys:
+      // @ts-ignore
+      const signedUrls = await Promise.all(
+        updatedPhotoAlbum?.imageKeys.map(async (key) => await Storage.get(key!))
+      );
 
-  //   try {
-  //     const response = await API.graphql<GraphQLQuery<GetPhotoAlbumQuery>>({
-  //       query: queries.getPhotoAlbum,
-  //       variables: { id: currentPhotoAlbum.id },
-  //     });
+      if (!signedUrls) return;
 
-  //     const _photoAlbum = response?.data?.getPhotoAlbum;
-
-  //     if (!_photoAlbum?.imageKeys) return;
-
-  //     const photoAlbumDetails: UpdatePhotoAlbumInput = {
-  //       id: _photoAlbum.id,
-  //       imageKeys: null,
-  //     };
-
-  //     const updatedPhotoAlbum = await API.graphql<
-  //       GraphQLQuery<UpdatePhotoAlbumMutation>
-  //     >({
-  //       query: mutations.updatePhotoAlbum,
-  //       variables: { input: photoAlbumDetails },
-  //     });
-
-  //     // If successful, the response here will be `null`:
-  //     setCurrentPhotoAlbum(updatedPhotoAlbum?.data?.updatePhotoAlbum);
-  //     setCurrentImageUrl(
-  //       updatedPhotoAlbum?.data?.updatePhotoAlbum?.imageKeys
-  //     );
-  //   } catch (error) {
-  //     console.error("Error removing image from photoAlbum: ", error);
-  //   }
-  // }
-
-  // // Remove the record association and delete the file
-  // async function deleteImageForCurrentPhotoAlbum() {
-  //   if (!currentPhotoAlbum) return;
-
-  //   try {
-  //     const response = await API.graphql<GraphQLQuery<GetPhotoAlbumQuery>>({
-  //       query: queries.getPhotoAlbum,
-  //       variables: { id: currentPhotoAlbum.id },
-  //     });
-
-  //     const _photoAlbum = response?.data?.getPhotoAlbum;
-
-  //     if (!_photoAlbum?.imageKeys) return;
-
-  //     const photoAlbumDetails: UpdatePhotoAlbumInput = {
-  //       id: _photoAlbum.id,
-  //       imageKeys: null, // Set the file association to `null`
-  //     };
-
-  //     // Remove associated file from record
-  //     const updatedPhotoAlbum = await API.graphql<
-  //       GraphQLQuery<UpdatePhotoAlbumMutation>
-  //     >({
-  //       query: mutations.updatePhotoAlbum,
-  //       variables: { input: photoAlbumDetails },
-  //     });
-
-  //     // Delete the file from S3:
-  //     await Storage.remove(_photoAlbum?.imageKeys);
-
-  //     // If successful, the response here will be `null`:
-  //     setCurrentPhotoAlbum(updatedPhotoAlbum?.data?.updatePhotoAlbum);
-  //     setCurrentImageUrl(
-  //       updatedPhotoAlbum?.data?.updatePhotoAlbum?.imageKeys
-  //     );
-  //   } catch (error) {
-  //     console.error("Error deleting image: ", error);
-  //   }
-  // }
-
-  // // Delete both file and record
-  // async function deleteCurrentPhotoAlbumAndImage() {
-  //   if (!currentPhotoAlbum) return;
-
-  //   try {
-  //     const response = await API.graphql<GraphQLQuery<GetPhotoAlbumQuery>>({
-  //       query: queries.getPhotoAlbum,
-  //       variables: { id: currentPhotoAlbum.id },
-  //     });
-
-  //     const _photoAlbum = response?.data?.getPhotoAlbum;
-
-  //     if (!_photoAlbum?.imageKeys) return;
-
-  //     await Storage.remove(_photoAlbum?.imageKeys);
-
-  //     const photoAlbumDetails: DeletePhotoAlbumInput = {
-  //       id: _photoAlbum.id,
-  //     };
-
-  //     await API.graphql<GraphQLQuery<DeletePhotoAlbumMutation>>({
-  //       query: mutations.deletePhotoAlbum,
-  //       variables: { input: photoAlbumDetails },
-  //     });
-
-  //     clearLocalState();
-  //   } catch (error) {
-  //     console.error("Error deleting photoAlbum: ", error);
-  //   }
-  // }
+      setCurrentImages(signedUrls);
+    } catch (error) {
+      console.error(
+        "Error uploading image / adding image to photoAlbum: ",
+        error
+      );
+    }
+  }
 
   function clearLocalState() {
     setCurrentPhotoAlbum(null);
-    setCurrentImageUrl("");
+    setCurrentImages("");
   }
 
   // NOTE: For test / sample cleanup purposes only (not for docs example)
@@ -382,46 +285,23 @@ function App() {
               multiple
             />
           </label>
-          {/* <label>
-            Add / update photoAlbum image:
+          <label>
+            Add multiple images to current photoAlbum:
             <input
               id="name"
               type="file"
               accept="image/*"
-              onChange={addNewImageToPhotoAlbum}
-              disabled={!currentPhotoAlbum}
+              onChange={addNewImagesToPhotoAlbum}
               multiple
             />
           </label>
-          <button
-            onClick={getImageForCurrentPhotoAlbum}
-            disabled={!currentPhotoAlbum || !currentImageUrl}
-          >
-            Get image for current photoAlbum
-          </button>
-          <button
-            onClick={removeImageFromPhotoAlbum}
-            disabled={!currentPhotoAlbum || !currentImageUrl}
-          >
-            Remove image from current photoAlbum (does not delete image)
-          </button>
-          <button
-            onClick={deleteImageForCurrentPhotoAlbum}
-            disabled={!currentPhotoAlbum || !currentImageUrl}
-          >
-            Remove image from current photoAlbum, then delete image
-          </button>
-          <button
-            onClick={deleteCurrentPhotoAlbumAndImage}
-            disabled={!currentPhotoAlbum}
-          >
-            Delete current photoAlbum (and image, if it exists)
-          </button> */}
           <button onClick={deleteAll}>Delete all</button>
           <button onClick={signOut}>Sign out</button>
-          {currentImageUrl && (
-            <img src={currentImageUrl} alt="Image for current photoAlbum"></img>
-          )}
+          {}
+          {currentImages &&
+            currentImages.map((url: string) => (
+              <img src={url} alt="Image for current photoAlbum"></img>
+            ))}
         </main>
       )}
     </Authenticator>
