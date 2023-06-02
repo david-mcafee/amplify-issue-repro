@@ -60,3 +60,32 @@ export const listUserProfiles = /* GraphQL */ `
     }
   }
 `;
+export const getPhotoAlbum = /* GraphQL */ `
+  query GetPhotoAlbum($id: ID!) {
+    getPhotoAlbum(id: $id) {
+      id
+      name
+      imageKeys
+      createdAt
+      updatedAt
+    }
+  }
+`;
+export const listPhotoAlbums = /* GraphQL */ `
+  query ListPhotoAlbums(
+    $filter: ModelPhotoAlbumFilterInput
+    $limit: Int
+    $nextToken: String
+  ) {
+    listPhotoAlbums(filter: $filter, limit: $limit, nextToken: $nextToken) {
+      items {
+        id
+        name
+        imageKeys
+        createdAt
+        updatedAt
+      }
+      nextToken
+    }
+  }
+`;

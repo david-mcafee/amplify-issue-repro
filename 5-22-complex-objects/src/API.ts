@@ -108,6 +108,39 @@ export type DeleteUserProfileInput = {
   id: string,
 };
 
+export type CreatePhotoAlbumInput = {
+  id?: string | null,
+  name: string,
+  imageKeys?: Array< string | null > | null,
+};
+
+export type ModelPhotoAlbumConditionInput = {
+  name?: ModelStringInput | null,
+  imageKeys?: ModelStringInput | null,
+  and?: Array< ModelPhotoAlbumConditionInput | null > | null,
+  or?: Array< ModelPhotoAlbumConditionInput | null > | null,
+  not?: ModelPhotoAlbumConditionInput | null,
+};
+
+export type PhotoAlbum = {
+  __typename: "PhotoAlbum",
+  id: string,
+  name: string,
+  imageKeys?: Array< string | null > | null,
+  createdAt: string,
+  updatedAt: string,
+};
+
+export type UpdatePhotoAlbumInput = {
+  id: string,
+  name?: string | null,
+  imageKeys?: Array< string | null > | null,
+};
+
+export type DeletePhotoAlbumInput = {
+  id: string,
+};
+
 export type ModelSongFilterInput = {
   id?: ModelIDInput | null,
   name?: ModelStringInput | null,
@@ -151,6 +184,21 @@ export type ModelUserProfileFilterInput = {
 export type ModelUserProfileConnection = {
   __typename: "ModelUserProfileConnection",
   items:  Array<UserProfile | null >,
+  nextToken?: string | null,
+};
+
+export type ModelPhotoAlbumFilterInput = {
+  id?: ModelIDInput | null,
+  name?: ModelStringInput | null,
+  imageKeys?: ModelStringInput | null,
+  and?: Array< ModelPhotoAlbumFilterInput | null > | null,
+  or?: Array< ModelPhotoAlbumFilterInput | null > | null,
+  not?: ModelPhotoAlbumFilterInput | null,
+};
+
+export type ModelPhotoAlbumConnection = {
+  __typename: "ModelPhotoAlbumConnection",
+  items:  Array<PhotoAlbum | null >,
   nextToken?: string | null,
 };
 
@@ -198,6 +246,14 @@ export type ModelSubscriptionUserProfileFilterInput = {
   imageKeys?: ModelSubscriptionStringInput | null,
   and?: Array< ModelSubscriptionUserProfileFilterInput | null > | null,
   or?: Array< ModelSubscriptionUserProfileFilterInput | null > | null,
+};
+
+export type ModelSubscriptionPhotoAlbumFilterInput = {
+  id?: ModelSubscriptionIDInput | null,
+  name?: ModelSubscriptionStringInput | null,
+  imageKeys?: ModelSubscriptionStringInput | null,
+  and?: Array< ModelSubscriptionPhotoAlbumFilterInput | null > | null,
+  or?: Array< ModelSubscriptionPhotoAlbumFilterInput | null > | null,
 };
 
 export type CreateSongMutationVariables = {
@@ -296,6 +352,54 @@ export type DeleteUserProfileMutation = {
   } | null,
 };
 
+export type CreatePhotoAlbumMutationVariables = {
+  input: CreatePhotoAlbumInput,
+  condition?: ModelPhotoAlbumConditionInput | null,
+};
+
+export type CreatePhotoAlbumMutation = {
+  createPhotoAlbum?:  {
+    __typename: "PhotoAlbum",
+    id: string,
+    name: string,
+    imageKeys?: Array< string | null > | null,
+    createdAt: string,
+    updatedAt: string,
+  } | null,
+};
+
+export type UpdatePhotoAlbumMutationVariables = {
+  input: UpdatePhotoAlbumInput,
+  condition?: ModelPhotoAlbumConditionInput | null,
+};
+
+export type UpdatePhotoAlbumMutation = {
+  updatePhotoAlbum?:  {
+    __typename: "PhotoAlbum",
+    id: string,
+    name: string,
+    imageKeys?: Array< string | null > | null,
+    createdAt: string,
+    updatedAt: string,
+  } | null,
+};
+
+export type DeletePhotoAlbumMutationVariables = {
+  input: DeletePhotoAlbumInput,
+  condition?: ModelPhotoAlbumConditionInput | null,
+};
+
+export type DeletePhotoAlbumMutation = {
+  deletePhotoAlbum?:  {
+    __typename: "PhotoAlbum",
+    id: string,
+    name: string,
+    imageKeys?: Array< string | null > | null,
+    createdAt: string,
+    updatedAt: string,
+  } | null,
+};
+
 export type GetSongQueryVariables = {
   id: string,
 };
@@ -358,6 +462,42 @@ export type ListUserProfilesQuery = {
     __typename: "ModelUserProfileConnection",
     items:  Array< {
       __typename: "UserProfile",
+      id: string,
+      name: string,
+      imageKeys?: Array< string | null > | null,
+      createdAt: string,
+      updatedAt: string,
+    } | null >,
+    nextToken?: string | null,
+  } | null,
+};
+
+export type GetPhotoAlbumQueryVariables = {
+  id: string,
+};
+
+export type GetPhotoAlbumQuery = {
+  getPhotoAlbum?:  {
+    __typename: "PhotoAlbum",
+    id: string,
+    name: string,
+    imageKeys?: Array< string | null > | null,
+    createdAt: string,
+    updatedAt: string,
+  } | null,
+};
+
+export type ListPhotoAlbumsQueryVariables = {
+  filter?: ModelPhotoAlbumFilterInput | null,
+  limit?: number | null,
+  nextToken?: string | null,
+};
+
+export type ListPhotoAlbumsQuery = {
+  listPhotoAlbums?:  {
+    __typename: "ModelPhotoAlbumConnection",
+    items:  Array< {
+      __typename: "PhotoAlbum",
       id: string,
       name: string,
       imageKeys?: Array< string | null > | null,
@@ -450,6 +590,51 @@ export type OnDeleteUserProfileSubscriptionVariables = {
 export type OnDeleteUserProfileSubscription = {
   onDeleteUserProfile?:  {
     __typename: "UserProfile",
+    id: string,
+    name: string,
+    imageKeys?: Array< string | null > | null,
+    createdAt: string,
+    updatedAt: string,
+  } | null,
+};
+
+export type OnCreatePhotoAlbumSubscriptionVariables = {
+  filter?: ModelSubscriptionPhotoAlbumFilterInput | null,
+};
+
+export type OnCreatePhotoAlbumSubscription = {
+  onCreatePhotoAlbum?:  {
+    __typename: "PhotoAlbum",
+    id: string,
+    name: string,
+    imageKeys?: Array< string | null > | null,
+    createdAt: string,
+    updatedAt: string,
+  } | null,
+};
+
+export type OnUpdatePhotoAlbumSubscriptionVariables = {
+  filter?: ModelSubscriptionPhotoAlbumFilterInput | null,
+};
+
+export type OnUpdatePhotoAlbumSubscription = {
+  onUpdatePhotoAlbum?:  {
+    __typename: "PhotoAlbum",
+    id: string,
+    name: string,
+    imageKeys?: Array< string | null > | null,
+    createdAt: string,
+    updatedAt: string,
+  } | null,
+};
+
+export type OnDeletePhotoAlbumSubscriptionVariables = {
+  filter?: ModelSubscriptionPhotoAlbumFilterInput | null,
+};
+
+export type OnDeletePhotoAlbumSubscription = {
+  onDeletePhotoAlbum?:  {
+    __typename: "PhotoAlbum",
     id: string,
     name: string,
     imageKeys?: Array< string | null > | null,

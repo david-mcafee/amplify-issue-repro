@@ -86,3 +86,45 @@ export const deleteUserProfile = /* GraphQL */ `
     }
   }
 `;
+export const createPhotoAlbum = /* GraphQL */ `
+  mutation CreatePhotoAlbum(
+    $input: CreatePhotoAlbumInput!
+    $condition: ModelPhotoAlbumConditionInput
+  ) {
+    createPhotoAlbum(input: $input, condition: $condition) {
+      id
+      name
+      imageKeys
+      createdAt
+      updatedAt
+    }
+  }
+`;
+export const updatePhotoAlbum = /* GraphQL */ `
+  mutation UpdatePhotoAlbum(
+    $input: UpdatePhotoAlbumInput!
+    $condition: ModelPhotoAlbumConditionInput
+  ) {
+    updatePhotoAlbum(input: $input, condition: $condition) {
+      id
+      name
+      imageKeys
+      createdAt
+      updatedAt
+    }
+  }
+`;
+export const deletePhotoAlbum = /* GraphQL */ `
+  mutation DeletePhotoAlbum(
+    $input: DeletePhotoAlbumInput!
+    $condition: ModelPhotoAlbumConditionInput
+  ) {
+    deletePhotoAlbum(input: $input, condition: $condition) {
+      id
+      name
+      imageKeys
+      createdAt
+      updatedAt
+    }
+  }
+`;

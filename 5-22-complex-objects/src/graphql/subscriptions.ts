@@ -74,3 +74,42 @@ export const onDeleteUserProfile = /* GraphQL */ `
     }
   }
 `;
+export const onCreatePhotoAlbum = /* GraphQL */ `
+  subscription OnCreatePhotoAlbum(
+    $filter: ModelSubscriptionPhotoAlbumFilterInput
+  ) {
+    onCreatePhotoAlbum(filter: $filter) {
+      id
+      name
+      imageKeys
+      createdAt
+      updatedAt
+    }
+  }
+`;
+export const onUpdatePhotoAlbum = /* GraphQL */ `
+  subscription OnUpdatePhotoAlbum(
+    $filter: ModelSubscriptionPhotoAlbumFilterInput
+  ) {
+    onUpdatePhotoAlbum(filter: $filter) {
+      id
+      name
+      imageKeys
+      createdAt
+      updatedAt
+    }
+  }
+`;
+export const onDeletePhotoAlbum = /* GraphQL */ `
+  subscription OnDeletePhotoAlbum(
+    $filter: ModelSubscriptionPhotoAlbumFilterInput
+  ) {
+    onDeletePhotoAlbum(filter: $filter) {
+      id
+      name
+      imageKeys
+      createdAt
+      updatedAt
+    }
+  }
+`;
