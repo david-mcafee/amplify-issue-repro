@@ -180,6 +180,139 @@ function App() {
     }
   }
 
+  async function getImagesForPhotoAlbum() {
+    try {
+      // Query the record to get the file keys:
+      const response = await API.graphql<GraphQLQuery<GetPhotoAlbumQuery>>({
+        query: queries.getPhotoAlbum,
+        variables: { id: currentPhotoAlbum.id },
+      });
+      const _photoAlbum = response.data?.getPhotoAlbum;
+
+      // Check that the record has associated images:
+      if (!_photoAlbum?.imageKeys) return;
+
+      // Retrieve the signed URLs for the associated images:
+      const signedUrls = await Promise.all(
+        _photoAlbum.imageKeys.map(async (imageKey) => {
+          if (!imageKey) return;
+          return await Storage.get(imageKey);
+        })
+      );
+
+      setCurrentImages(signedUrls);
+    } catch (error) {
+      console.error("Error getting photoAlbum / image:", error);
+    }
+  }
+
+  // Remove the file associations, continue to persist both files and record
+  async function removeImagesFromPhotoAlbum() {
+    if (!currentPhotoAlbum) return;
+
+    try {
+      const response = await API.graphql<GraphQLQuery<GetPhotoAlbumQuery>>({
+        query: queries.getPhotoAlbum,
+        variables: { id: currentPhotoAlbum.id },
+      });
+
+      const _photoAlbum = response?.data?.getPhotoAlbum;
+
+      // Check that the record has an associated image:
+      if (!_photoAlbum?.imageKeys) return;
+
+      const photoAlbumDetails: UpdatePhotoAlbumInput = {
+        id: _photoAlbum.id,
+        imageKeys: null,
+      };
+
+      const updatedPhotoAlbum = await API.graphql<
+        GraphQLQuery<UpdatePhotoAlbumMutation>
+      >({
+        query: mutations.updatePhotoAlbum,
+        variables: { input: photoAlbumDetails },
+      });
+
+      // If successful, the response here will be `null`:
+      setCurrentPhotoAlbum(updatedPhotoAlbum?.data?.updatePhotoAlbum);
+      setCurrentImages(updatedPhotoAlbum?.data?.updatePhotoAlbum?.imageKeys);
+    } catch (error) {
+      console.error("Error removing image from photoAlbum: ", error);
+    }
+  }
+
+  // Remove the record association and delete the file
+  async function deleteImagesForCurrentPhotoAlbum() {
+    if (!currentPhotoAlbum) return;
+
+    try {
+      const response = await API.graphql<GraphQLQuery<GetPhotoAlbumQuery>>({
+        query: queries.getPhotoAlbum,
+        variables: { id: currentPhotoAlbum.id },
+      });
+
+      const _photoAlbum = response?.data?.getPhotoAlbum;
+
+      // Check that the record has an associated image:
+      if (!_photoAlbum?.imageKeys) return;
+
+      const photoAlbumDetails: UpdatePhotoAlbumInput = {
+        id: _photoAlbum.id,
+        imageKeys: null, // Set the file association to `null`
+      };
+
+      // Remove associated file from record
+      const updatedPhotoAlbum = await API.graphql<
+        GraphQLQuery<UpdatePhotoAlbumMutation>
+      >({
+        query: mutations.updatePhotoAlbum,
+        variables: { input: photoAlbumDetails },
+      });
+
+      // Delete the file from S3:
+      await Storage.remove(_photoAlbum?.imageKeys);
+
+      // If successful, the response here will be `null`:
+      setCurrentPhotoAlbum(updatedPhotoAlbum?.data?.updatePhotoAlbum);
+      setCurrentImages(updatedPhotoAlbum?.data?.updatePhotoAlbum?.imageKeys);
+    } catch (error) {
+      console.error("Error deleting image: ", error);
+    }
+  }
+
+  // Delete both file and record
+  async function deleteCurrentPhotoAlbumAndImages() {
+    if (!currentPhotoAlbum) return;
+
+    try {
+      const response = await API.graphql<GraphQLQuery<GetPhotoAlbumQuery>>({
+        query: queries.getPhotoAlbum,
+        variables: { id: currentPhotoAlbum.id },
+      });
+
+      const _photoAlbum = response?.data?.getPhotoAlbum;
+
+      // Check that the record has an associated image:
+      if (!_photoAlbum?.imageKeys) return;
+
+      await Storage.remove(_photoAlbum?.imageKeys);
+
+      const photoAlbumDetails: DeletePhotoAlbumInput = {
+        id: _photoAlbum.id,
+      };
+
+      // const deletedPhotoAlbum = await API.graphql<GraphQLQuery<DeletePhotoAlbumMutation>>({
+      await API.graphql<GraphQLQuery<DeletePhotoAlbumMutation>>({
+        query: mutations.deletePhotoAlbum,
+        variables: { input: photoAlbumDetails },
+      });
+
+      clearLocalState();
+    } catch (error) {
+      console.error("Error deleting photoAlbum: ", error);
+    }
+  }
+
   function clearLocalState() {
     setCurrentPhotoAlbum(null);
     setCurrentImages("");
@@ -295,6 +428,12 @@ function App() {
               multiple
             />
           </label>
+          <button onClick={getImagesForPhotoAlbum}>
+            Get Images for Current Photo Album
+          </button>
+          <button onClick={removeImagesFromPhotoAlbum}>
+            Remove Images for Current Photo Album (does not delete images)
+          </button>
           <button onClick={deleteAll}>Delete all</button>
           <button onClick={signOut}>Sign out</button>
           {}

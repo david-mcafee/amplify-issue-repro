@@ -66,6 +66,7 @@ function App() {
 
       setCurrentSong(updatedSong);
 
+      // Check that the record has an associated image:
       if (!updatedSong?.coverArtKey) return;
 
       // Retrieve the file's signed URL:
@@ -150,6 +151,7 @@ function App() {
 
       const _song = response?.data?.getSong;
 
+      // Check that the record has an associated image:
       if (!_song?.coverArtKey) return;
 
       const songDetails: UpdateSongInput = {
@@ -182,6 +184,7 @@ function App() {
 
       const _song = response?.data?.getSong;
 
+      // Check that the record has an associated image:
       if (!_song?.coverArtKey) return;
 
       const songDetails: UpdateSongInput = {
@@ -218,6 +221,7 @@ function App() {
 
       const _song = response?.data?.getSong;
 
+      // Check that the record has an associated image:
       if (!_song?.coverArtKey) return;
 
       await Storage.remove(_song?.coverArtKey);
