@@ -49,11 +49,11 @@ function App() {
         variables: { input: photoAlbumDetails },
       });
 
-      const _photoAlbum = response?.data?.createPhotoAlbum;
-      setCurrentPhotoAlbum(_photoAlbum);
+      const photoAlbum = response?.data?.createPhotoAlbum;
+      setCurrentPhotoAlbum(photoAlbum);
 
       // @ts-ignore
-      const signedURL = await Storage.get(_photoAlbum?.imageKeys[0]);
+      const signedURL = await Storage.get(photoAlbum?.imageKeys[0]);
       setCurrentImages([signedURL]);
     } catch (error) {
       console.error("Error create photoAlbum / file:", error);
@@ -90,15 +90,15 @@ function App() {
         variables: { input: photoAlbumDetails },
       });
 
-      const _photoAlbum = response?.data?.createPhotoAlbum;
-      setCurrentPhotoAlbum(_photoAlbum);
+      const photoAlbum = response?.data?.createPhotoAlbum;
+      setCurrentPhotoAlbum(photoAlbum);
 
-      if (!_photoAlbum?.imageKeys) return;
+      if (!photoAlbum?.imageKeys) return;
 
       // Retrieve signed urls for all files:
       // @ts-ignore
       const signedUrls = await Promise.all(
-        _photoAlbum?.imageKeys.map(async (key) => await Storage.get(key!))
+        photoAlbum?.imageKeys.map(async (key) => await Storage.get(key!))
       );
 
       if (!signedUrls) return;
@@ -137,12 +137,12 @@ function App() {
         variables: { id: currentPhotoAlbum.id },
       });
 
-      const _photoAlbum = queriedResponse.data?.getPhotoAlbum;
+      const photoAlbum = queriedResponse.data?.getPhotoAlbum;
 
-      if (!_photoAlbum?.imageKeys) return;
+      if (!photoAlbum?.imageKeys) return;
 
       // Merge existing and new file keys:
-      const updatedImageKeys = [...newImageKeys, ..._photoAlbum.imageKeys];
+      const updatedImageKeys = [...newImageKeys, ...photoAlbum.imageKeys];
 
       const photoAlbumDetails: UpdatePhotoAlbumInput = {
         id: currentPhotoAlbum.id,
@@ -160,7 +160,7 @@ function App() {
       const updatedPhotoAlbum = response?.data?.updatePhotoAlbum;
       setCurrentPhotoAlbum(updatedPhotoAlbum);
 
-      // Check that the record has an associated image:
+      // Ensure that the record has an associated image:
       if (!updatedPhotoAlbum?.imageKeys) return;
 
       // Retrieve signed urls for merged image keys:
@@ -187,14 +187,14 @@ function App() {
         query: queries.getPhotoAlbum,
         variables: { id: currentPhotoAlbum.id },
       });
-      const _photoAlbum = response.data?.getPhotoAlbum;
+      const photoAlbum = response.data?.getPhotoAlbum;
 
-      // Check that the record has associated images:
-      if (!_photoAlbum?.imageKeys) return;
+      // Ensure that the record has associated images:
+      if (!photoAlbum?.imageKeys) return;
 
       // Retrieve the signed URLs for the associated images:
       const signedUrls = await Promise.all(
-        _photoAlbum.imageKeys.map(async (imageKey) => {
+        photoAlbum.imageKeys.map(async (imageKey) => {
           if (!imageKey) return;
           return await Storage.get(imageKey);
         })
@@ -216,13 +216,13 @@ function App() {
         variables: { id: currentPhotoAlbum.id },
       });
 
-      const _photoAlbum = response?.data?.getPhotoAlbum;
+      const photoAlbum = response?.data?.getPhotoAlbum;
 
-      // Check that the record has an associated image:
-      if (!_photoAlbum?.imageKeys) return;
+      // Ensure that the record has an associated image:
+      if (!photoAlbum?.imageKeys) return;
 
       const photoAlbumDetails: UpdatePhotoAlbumInput = {
-        id: _photoAlbum.id,
+        id: photoAlbum.id,
         imageKeys: null,
       };
 
@@ -251,17 +251,17 @@ function App() {
         variables: { id: currentPhotoAlbum.id },
       });
 
-      const _photoAlbum = response?.data?.getPhotoAlbum;
+      const photoAlbum = response?.data?.getPhotoAlbum;
 
-      // Check that the record has an associated image:
-      if (!_photoAlbum?.imageKeys) return;
+      // Ensure that the record has an associated images:
+      if (!photoAlbum?.imageKeys) return;
 
       const photoAlbumDetails: UpdatePhotoAlbumInput = {
-        id: _photoAlbum.id,
+        id: photoAlbum.id,
         imageKeys: null, // Set the file association to `null`
       };
 
-      // Remove associated file from record
+      // Remove associated files from record
       const updatedPhotoAlbum = await API.graphql<
         GraphQLQuery<UpdatePhotoAlbumMutation>
       >({
@@ -269,8 +269,13 @@ function App() {
         variables: { input: photoAlbumDetails },
       });
 
-      // Delete the file from S3:
-      await Storage.remove(_photoAlbum?.imageKeys);
+      // Delete the files from S3:
+      await Promise.all(
+        photoAlbum?.imageKeys.map(async (imageKey) => {
+          if (!imageKey) return;
+          await Storage.remove(imageKey);
+        })
+      );
 
       // If successful, the response here will be `null`:
       setCurrentPhotoAlbum(updatedPhotoAlbum?.data?.updatePhotoAlbum);
@@ -290,15 +295,15 @@ function App() {
         variables: { id: currentPhotoAlbum.id },
       });
 
-      const _photoAlbum = response?.data?.getPhotoAlbum;
+      const photoAlbum = response?.data?.getPhotoAlbum;
 
-      // Check that the record has an associated image:
-      if (!_photoAlbum?.imageKeys) return;
+      // Ensure that the record has an associated image:
+      if (!photoAlbum?.imageKeys) return;
 
-      await Storage.remove(_photoAlbum?.imageKeys);
+      await Storage.remove(photoAlbum?.imageKeys);
 
       const photoAlbumDetails: DeletePhotoAlbumInput = {
-        id: _photoAlbum.id,
+        id: photoAlbum.id,
       };
 
       // const deletedPhotoAlbum = await API.graphql<GraphQLQuery<DeletePhotoAlbumMutation>>({
@@ -425,14 +430,33 @@ function App() {
               type="file"
               accept="image/*"
               onChange={addNewImagesToPhotoAlbum}
+              disabled={!currentPhotoAlbum}
               multiple
             />
           </label>
-          <button onClick={getImagesForPhotoAlbum}>
+          <button
+            onClick={getImagesForPhotoAlbum}
+            disabled={!currentPhotoAlbum || !currentImages}
+          >
             Get Images for Current Photo Album
           </button>
-          <button onClick={removeImagesFromPhotoAlbum}>
-            Remove Images for Current Photo Album (does not delete images)
+          <button
+            onClick={removeImagesFromPhotoAlbum}
+            disabled={!currentPhotoAlbum || !currentImages}
+          >
+            Remove images from current PhotoAlbum (does not delete images)
+          </button>
+          <button
+            onClick={deleteImagesForCurrentPhotoAlbum}
+            disabled={!currentPhotoAlbum || !currentImages}
+          >
+            Remove images from current PhotoAlbum, then delete images
+          </button>
+          <button
+            onClick={deleteCurrentPhotoAlbumAndImages}
+            disabled={!currentPhotoAlbum}
+          >
+            Delete current PhotoAlbum (and images, if they exist)
           </button>
           <button onClick={deleteAll}>Delete all</button>
           <button onClick={signOut}>Sign out</button>
