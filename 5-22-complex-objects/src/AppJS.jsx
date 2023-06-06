@@ -2,39 +2,27 @@ import { useState } from "react";
 import { API, Storage } from "aws-amplify";
 import { Authenticator } from "@aws-amplify/ui-react";
 import "@aws-amplify/ui-react/styles.css";
-import { GraphQLQuery } from "@aws-amplify/api";
 import * as queries from "./graphql/queries";
 import * as mutations from "./graphql/mutations";
-import {
-  CreateSongInput,
-  CreateSongMutation,
-  DeleteSongInput,
-  DeleteSongMutation,
-  GetSongQuery,
-  UpdateSongInput,
-  UpdateSongMutation,
-} from "./API";
 
 function App() {
-  const [currentSong, setCurrentSong] = useState<any>();
+  const [currentSong, setCurrentSong] = useState();
 
   // Used to display image for current song:
-  const [currentImageUrl, setCurrentImageUrl] = useState<
-    string | null | undefined
-  >("");
+  const [currentImageUrl, setCurrentImageUrl] = useState("");
 
-  async function createSongWithImage(e: React.ChangeEvent<HTMLInputElement>) {
+  async function createSongWithImage(e) {
     if (!e.target.files) return;
 
     const file = e.target.files[0];
 
     try {
-      const createSongDetails: CreateSongInput = {
+      const createSongDetails = {
         name: `My first song`,
       };
 
       // Create the API record:
-      const response = await API.graphql<GraphQLQuery<CreateSongMutation>>({
+      const response = await API.graphql({
         query: mutations.createSong,
         variables: { input: createSongDetails },
       });
@@ -48,15 +36,13 @@ function App() {
         contentType: "image/png", // contentType is optional
       });
 
-      const updateSongDetails: UpdateSongInput = {
+      const updateSongDetails = {
         id: song.id,
         coverArtKey: result?.key,
       };
 
       // Add the file association to the record:
-      const updateResponse = await API.graphql<
-        GraphQLQuery<UpdateSongMutation>
-      >({
+      const updateResponse = await API.graphql({
         query: mutations.updateSong,
         variables: { input: updateSongDetails },
       });
@@ -78,7 +64,7 @@ function App() {
 
   // Upload image, add to song, retrieve signed URL and retrieve the image.
   // Also updates image if one already exists.
-  async function addNewImageToSong(e: React.ChangeEvent<HTMLInputElement>) {
+  async function addNewImageToSong(e) {
     if (!currentSong) return;
 
     if (!e.target.files) return;
@@ -91,13 +77,13 @@ function App() {
         contentType: "image/png", // contentType is optional
       });
 
-      const updateSongDetails: UpdateSongInput = {
+      const updateSongDetails = {
         id: currentSong.id,
         coverArtKey: result?.key,
       };
 
       // Add the file association to the record:
-      const response = await API.graphql<GraphQLQuery<UpdateSongMutation>>({
+      const response = await API.graphql({
         query: mutations.updateSong,
         variables: { input: updateSongDetails },
       });
@@ -120,7 +106,7 @@ function App() {
   async function getImageForCurrentSong() {
     try {
       // Query the record to get the file key:
-      const response = await API.graphql<GraphQLQuery<GetSongQuery>>({
+      const response = await API.graphql({
         query: queries.getSong,
         variables: { id: currentSong.id },
       });
@@ -143,7 +129,7 @@ function App() {
     if (!currentSong) return;
 
     try {
-      const response = await API.graphql<GraphQLQuery<GetSongQuery>>({
+      const response = await API.graphql({
         query: queries.getSong,
         variables: { id: currentSong.id },
       });
@@ -153,12 +139,12 @@ function App() {
       // Ensure that the record has an associated image:
       if (!song?.coverArtKey) return;
 
-      const songDetails: UpdateSongInput = {
+      const songDetails = {
         id: song.id,
         coverArtKey: null,
       };
 
-      const updatedSong = await API.graphql<GraphQLQuery<UpdateSongMutation>>({
+      const updatedSong = await API.graphql({
         query: mutations.updateSong,
         variables: { input: songDetails },
       });
@@ -176,7 +162,7 @@ function App() {
     if (!currentSong) return;
 
     try {
-      const response = await API.graphql<GraphQLQuery<GetSongQuery>>({
+      const response = await API.graphql({
         query: queries.getSong,
         variables: { id: currentSong.id },
       });
@@ -186,13 +172,13 @@ function App() {
       // Ensure that the record has an associated image:
       if (!song?.coverArtKey) return;
 
-      const songDetails: UpdateSongInput = {
+      const songDetails = {
         id: song.id,
         coverArtKey: null, // Set the file association to `null`
       };
 
       // Remove associated file from record
-      const updatedSong = await API.graphql<GraphQLQuery<UpdateSongMutation>>({
+      const updatedSong = await API.graphql({
         query: mutations.updateSong,
         variables: { input: songDetails },
       });
@@ -213,7 +199,7 @@ function App() {
     if (!currentSong) return;
 
     try {
-      const response = await API.graphql<GraphQLQuery<GetSongQuery>>({
+      const response = await API.graphql({
         query: queries.getSong,
         variables: { id: currentSong.id },
       });
@@ -225,11 +211,11 @@ function App() {
 
       await Storage.remove(song?.coverArtKey);
 
-      const songDetails: DeleteSongInput = {
+      const songDetails = {
         id: song.id,
       };
 
-      await API.graphql<GraphQLQuery<DeleteSongMutation>>({
+      await API.graphql({
         query: mutations.deleteSong,
         variables: { input: songDetails },
       });
