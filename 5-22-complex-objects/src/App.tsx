@@ -275,6 +275,7 @@ function App() {
     // Delete all images:
     await Storage.list("", { pageSize: "ALL" })
       .then(({ results }) => {
+        console.log("Images to delete:", results);
         results.forEach(async (result) => {
           if (!result?.key) return;
           try {

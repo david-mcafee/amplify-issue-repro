@@ -19,11 +19,11 @@ import {
 function App() {
   const [currentPhotoAlbum, setCurrentPhotoAlbum] = useState<any>();
 
-  // Used to display image for current photoAlbum:
-  // const [currentImages, setCurrentImages] = useState<
-  //   (string | null | undefined)[]
-  // >([]);
-  const [currentImages, setCurrentImages] = useState<any>([]);
+  // Used to display images for current photoAlbum:
+  const [currentImages, setCurrentImages] = useState<
+    (string | null | undefined)[] | null | undefined
+  >([]);
+  // const [currentImages, setCurrentImages] = useState([]);
 
   async function createPhotoAlbumWithFirstImage(
     e: React.ChangeEvent<HTMLInputElement>
@@ -285,7 +285,7 @@ function App() {
     }
   }
 
-  // Delete both file and record
+  // Delete both files and record
   async function deleteCurrentPhotoAlbumAndImages() {
     if (!currentPhotoAlbum) return;
 
@@ -300,13 +300,17 @@ function App() {
       // Ensure that the record has an associated image:
       if (!photoAlbum?.imageKeys) return;
 
-      await Storage.remove(photoAlbum?.imageKeys);
+      await Promise.all(
+        photoAlbum?.imageKeys.map(async (imageKey) => {
+          if (!imageKey) return;
+          await Storage.remove(imageKey);
+        })
+      );
 
       const photoAlbumDetails: DeletePhotoAlbumInput = {
         id: photoAlbum.id,
       };
 
-      // const deletedPhotoAlbum = await API.graphql<GraphQLQuery<DeletePhotoAlbumMutation>>({
       await API.graphql<GraphQLQuery<DeletePhotoAlbumMutation>>({
         query: mutations.deletePhotoAlbum,
         variables: { input: photoAlbumDetails },
@@ -320,7 +324,7 @@ function App() {
 
   function clearLocalState() {
     setCurrentPhotoAlbum(null);
-    setCurrentImages("");
+    setCurrentImages([]);
   }
 
   // NOTE: For test / sample cleanup purposes only (not for docs example)
@@ -338,28 +342,29 @@ function App() {
     await response?.data?.listPhotoAlbums?.items.forEach(async (photoAlbum) => {
       if (!photoAlbum?.id) return;
 
-      const todoDetails: DeletePhotoAlbumInput = {
+      const PhotoAlbumDetails: DeletePhotoAlbumInput = {
         id: photoAlbum?.id,
       };
 
-      const deletedTodo = await API.graphql<
+      const deletedPhotoAlbum = await API.graphql<
         GraphQLQuery<DeletePhotoAlbumMutation>
       >({
         query: mutations.deletePhotoAlbum,
-        variables: { input: todoDetails },
+        variables: { input: PhotoAlbumDetails },
       });
 
-      console.log("PhotoAlbum deleted: ", deletedTodo);
+      console.log("PhotoAlbum deleted: ", deletedPhotoAlbum);
     });
     //endregion
 
     // Delete all images:
     await Storage.list("", { pageSize: "ALL" })
       .then(({ results }) => {
+        console.log("Images to delete:", results);
         results.forEach(async (result) => {
           if (!result?.key) return;
           try {
-            const deletedImage = await Storage.remove(result?.key);
+            const deletedImage = await Storage.remove(result.key);
             console.log("Image deleted:", deletedImage);
           } catch (error) {
             console.log("Error deleting image: ", error);
@@ -460,11 +465,11 @@ function App() {
           </button>
           <button onClick={deleteAll}>Delete all</button>
           <button onClick={signOut}>Sign out</button>
-          {}
           {currentImages &&
-            currentImages.map((url: string) => (
-              <img src={url} alt="Image for current photoAlbum"></img>
-            ))}
+            currentImages.map((url) => {
+              if (!url) return;
+              return <img src={url} alt="Image for current photoAlbum"></img>;
+            })}
         </main>
       )}
     </Authenticator>
