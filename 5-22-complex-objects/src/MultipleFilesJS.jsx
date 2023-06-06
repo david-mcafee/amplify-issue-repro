@@ -34,6 +34,8 @@ function App() {
       const photoAlbum = response?.data?.createPhotoAlbum;
       setCurrentPhotoAlbum(photoAlbum);
 
+      if (!photoAlbum?.imageKeys?.length) return;
+
       const signedURL = await Storage.get(photoAlbum?.imageKeys[0]);
       setCurrentImages([signedURL]);
     } catch (error) {

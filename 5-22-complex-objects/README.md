@@ -17,4 +17,10 @@ type Song @model {
   name: String!
   covertArtKey: String
 }
+
+type PhotoAlbum @model @auth(rules: [{ allow: public }]) {
+  id: ID!
+  name: String!
+  imageKeys: [String] #Set as optional to allow adding file(s) after initial create
+}
 ```
