@@ -17,26 +17,45 @@ function App() {
     const file = e.target.files[0];
 
     try {
-      const result = await Storage.put(file.name, file, {
-        contentType: "image/png", // contentType is optional
-      });
-
       const photoAlbumDetails = {
         name: `My first photoAlbum`,
-        imageKeys: [result?.key],
       };
 
+      // Create the API record:
       const response = await API.graphql({
         query: mutations.createPhotoAlbum,
         variables: { input: photoAlbumDetails },
       });
 
       const photoAlbum = response?.data?.createPhotoAlbum;
-      setCurrentPhotoAlbum(photoAlbum);
 
-      if (!photoAlbum?.imageKeys?.length) return;
+      if (!photoAlbum) return;
 
-      const signedURL = await Storage.get(photoAlbum?.imageKeys[0]);
+      // Upload the Storage file:
+      const result = await Storage.put(`${photoAlbum.id}-${file.name}`, file, {
+        contentType: "image/png", // contentType is optional
+      });
+
+      const updatePhotoAlbumDetails = {
+        id: photoAlbum.id,
+        imageKeys: [result?.key],
+      };
+
+      // Add the file association to the record:
+      const updateResponse = await API.graphql({
+        query: mutations.updatePhotoAlbum,
+        variables: { input: updatePhotoAlbumDetails },
+      });
+
+      const updatedPhotoAlbum = updateResponse?.data?.updatePhotoAlbum;
+
+      setCurrentPhotoAlbum(updatedPhotoAlbum);
+
+      // Ensure that the record has an associated image:
+      if (!updatedPhotoAlbum?.imageKeys?.length) return;
+
+      // Retrieve the file's signed URL:
+      const signedURL = await Storage.get(updatedPhotoAlbum.imageKeys[0]);
       setCurrentImages([signedURL]);
     } catch (error) {
       console.error("Error create photoAlbum / file:", error);
@@ -47,37 +66,56 @@ function App() {
     if (!e.target.files) return;
 
     try {
-      // Upload all files to Storage:
-      const imageKeys = await Promise.all(
-        Array.from(e.target.files).map(async (file) => {
-          const result = await Storage.put(file.name, file, {
-            contentType: "image/png", // contentType is optional
-          });
-
-          return result?.key;
-        })
-      );
-
       const photoAlbumDetails = {
         name: `My first photoAlbum`,
-        imageKeys,
       };
 
-      // Create album with associated files:
+      // Create the API record:
       const response = await API.graphql({
         query: mutations.createPhotoAlbum,
         variables: { input: photoAlbumDetails },
       });
 
       const photoAlbum = response?.data?.createPhotoAlbum;
-      setCurrentPhotoAlbum(photoAlbum);
 
-      if (!photoAlbum?.imageKeys) return;
+      if (!photoAlbum) return;
+
+      // Upload all files to Storage:
+      const imageKeys = await Promise.all(
+        Array.from(e.target.files).map(async (file) => {
+          const result = await Storage.put(
+            `${photoAlbum.id}-${file.name}`,
+            file,
+            {
+              contentType: "image/png", // contentType is optional
+            }
+          );
+
+          return result?.key;
+        })
+      );
+
+      const updatePhotoAlbumDetails = {
+        id: photoAlbum.id,
+        imageKeys: imageKeys,
+      };
+
+      // Add the file association to the record:
+      const updateResponse = await API.graphql({
+        query: mutations.updatePhotoAlbum,
+        variables: { input: updatePhotoAlbumDetails },
+      });
+
+      const updatedPhotoAlbum = updateResponse?.data?.updatePhotoAlbum;
+
+      setCurrentPhotoAlbum(updatedPhotoAlbum);
+
+      // Ensure that the record has an associated image:
+      if (!updatedPhotoAlbum?.imageKeys?.length) return;
 
       // Retrieve signed urls for all files:
-      // @ts-ignore
       const signedUrls = await Promise.all(
-        photoAlbum?.imageKeys.map(async (key) => await Storage.get(key))
+        updatedPhotoAlbum.imageKeys.map(async (key) => await Storage.get(key))
       );
 
       if (!signedUrls) return;
@@ -96,9 +134,13 @@ function App() {
       // Upload all files to Storage:
       const newImageKeys = await Promise.all(
         Array.from(e.target.files).map(async (file) => {
-          const result = await Storage.put(file.name, file, {
-            contentType: "image/png", // contentType is optional
-          });
+          const result = await Storage.put(
+            `${currentPhotoAlbum.id}-${file.name}`,
+            file,
+            {
+              contentType: "image/png", // contentType is optional
+            }
+          );
 
           return result?.key;
         })
@@ -123,6 +165,79 @@ function App() {
       };
 
       // Update record with merged file associations:
+      const response = await API.graphql({
+        query: mutations.updatePhotoAlbum,
+        variables: { input: photoAlbumDetails },
+      });
+
+      const updatedPhotoAlbum = response?.data?.updatePhotoAlbum;
+      setCurrentPhotoAlbum(updatedPhotoAlbum);
+
+      // Ensure that the record has an associated image:
+      if (!updatedPhotoAlbum?.imageKeys) return;
+
+      // Retrieve signed urls for merged image keys:
+      const signedUrls = await Promise.all(
+        updatedPhotoAlbum?.imageKeys.map(async (key) => await Storage.get(key))
+      );
+
+      if (!signedUrls) return;
+
+      setCurrentImages(signedUrls);
+    } catch (error) {
+      console.error(
+        "Error uploading image / adding image to photoAlbum: ",
+        error
+      );
+    }
+  }
+
+  // Replace last image associated with current photoAlbum:
+  async function updateLastImage(e) {
+    if (!currentPhotoAlbum) return;
+
+    if (!e.target.files) return;
+
+    const file = e.target.files[0];
+
+    try {
+      // Upload new file to Storage:
+      const result = await Storage.put(
+        `${currentPhotoAlbum.id}-${file.name}`,
+        file,
+        {
+          contentType: "image/png", // contentType is optional
+        }
+      );
+
+      const newFileKey = result?.key;
+
+      // Query existing record to retrieve currently associated files:
+      const queriedResponse = await API.graphql({
+        query: queries.getPhotoAlbum,
+        variables: { id: currentPhotoAlbum.id },
+      });
+
+      const photoAlbum = queriedResponse.data?.getPhotoAlbum;
+
+      if (!photoAlbum?.imageKeys?.length) return;
+
+      // Retrieve last image key:
+      const [lastImageKey] = photoAlbum.imageKeys.slice(-1);
+
+      // Remove last file association by key
+      const updatedImageKeys = [
+        ...photoAlbum.imageKeys.filter((key) => key !== lastImageKey),
+        newFileKey,
+      ];
+
+      const photoAlbumDetails = {
+        id: currentPhotoAlbum.id,
+        // @ts-ignore
+        imageKeys: updatedImageKeys,
+      };
+
+      // Update record with updated file associations:
       const response = await API.graphql({
         query: mutations.updatePhotoAlbum,
         variables: { input: photoAlbumDetails },
@@ -230,10 +345,12 @@ function App() {
       };
 
       // Remove associated files from record
-      const updatedPhotoAlbum = await API.graphql({
+      const updateResponse = await API.graphql({
         query: mutations.updatePhotoAlbum,
         variables: { input: photoAlbumDetails },
       });
+
+      const updatedPhotoAlbum = updateResponse?.data?.updatePhotoAlbum;
 
       // Delete the files from S3:
       await Promise.all(
@@ -244,8 +361,8 @@ function App() {
       );
 
       // If successful, the response here will be `null`:
-      setCurrentPhotoAlbum(updatedPhotoAlbum?.data?.updatePhotoAlbum);
-      setCurrentImages(updatedPhotoAlbum?.data?.updatePhotoAlbum?.imageKeys);
+      setCurrentPhotoAlbum(updatedPhotoAlbum);
+      setCurrentImages(null);
     } catch (error) {
       console.error("Error deleting image: ", error);
     }
@@ -263,15 +380,7 @@ function App() {
 
       const photoAlbum = response?.data?.getPhotoAlbum;
 
-      // Ensure that the record has an associated image:
-      if (!photoAlbum?.imageKeys) return;
-
-      await Promise.all(
-        photoAlbum?.imageKeys.map(async (imageKey) => {
-          if (!imageKey) return;
-          await Storage.remove(imageKey);
-        })
-      );
+      if (!photoAlbum) return;
 
       const photoAlbumDetails = {
         id: photoAlbum.id,
@@ -281,6 +390,18 @@ function App() {
         query: mutations.deletePhotoAlbum,
         variables: { input: photoAlbumDetails },
       });
+
+      setCurrentPhotoAlbum(null);
+
+      // Ensure that the record has an associated image:
+      if (!photoAlbum?.imageKeys) return;
+
+      await Promise.all(
+        photoAlbum?.imageKeys.map(async (imageKey) => {
+          if (!imageKey) return;
+          await Storage.remove(imageKey);
+        })
+      );
 
       clearLocalState();
     } catch (error) {
@@ -374,7 +495,6 @@ function App() {
           <label>
             Create photoAlbum with one file:
             <input
-              id="name"
               type="file"
               accept="image/*"
               onChange={createPhotoAlbumWithFirstImage}
@@ -383,7 +503,6 @@ function App() {
           <label>
             Create photoAlbum with multiple files:
             <input
-              id="name"
               type="file"
               accept="image/*"
               onChange={createPhotoAlbumWithMultipleImages}
@@ -393,12 +512,20 @@ function App() {
           <label>
             Add multiple images to current photoAlbum:
             <input
-              id="name"
               type="file"
               accept="image/*"
               onChange={addNewImagesToPhotoAlbum}
               disabled={!currentPhotoAlbum}
               multiple
+            />
+          </label>
+          <label>
+            Replace last image:
+            <input
+              type="file"
+              accept="image/*"
+              onChange={updateLastImage}
+              disabled={!currentPhotoAlbum || !currentImages}
             />
           </label>
           <button

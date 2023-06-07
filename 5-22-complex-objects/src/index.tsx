@@ -16,10 +16,10 @@ const root = ReactDOM.createRoot(
 );
 root.render(
   <React.StrictMode>
-    {/* <App />
-    <AppJS /> */}
+    <App />
+    <AppJS />
     <MultipleFiles />
-    {/* <MultipleFilesJS /> */}
+    <MultipleFilesJS />
   </React.StrictMode>
 );
 
