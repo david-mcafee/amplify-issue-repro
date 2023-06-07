@@ -20,6 +20,12 @@
       },
       "api": {
         "522complexobjects": {}
+      },
+      "hosting": {
+        "amplifyhosting": {
+          "appId": "d2o8q74un9doxq",
+          "type": "manual"
+        }
       }
     }
   }
