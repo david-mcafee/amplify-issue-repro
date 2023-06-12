@@ -11,6 +11,9 @@ function App() {
   // Used to display image for current song:
   const [currentImageUrl, setCurrentImageUrl] = useState("");
 
+  // Private access level configuration on the Storage object:
+  Storage.configure({ level: "private" });
+
   async function createSongWithImage(e) {
     if (!e.target.files) return;
 

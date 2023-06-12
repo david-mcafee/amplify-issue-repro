@@ -1,13 +1,13 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import "./index.css";
-import App from "./App";
-import AppJS from "./AppJS";
+// import App from "./App";
+// import AppJS from "./AppJS";
 import reportWebVitals from "./reportWebVitals";
 import { Amplify } from "aws-amplify";
 import awsExports from "./aws-exports";
 import MultipleFiles from "./MultipleFiles";
-import MultipleFilesJS from "./MultipleFilesJS";
+// import MultipleFilesJS from "./MultipleFilesJS";
 
 Amplify.configure(awsExports);
 
@@ -16,10 +16,10 @@ const root = ReactDOM.createRoot(
 );
 root.render(
   <React.StrictMode>
-    <App />
-    <AppJS />
+    {/* <App /> */}
+    {/* <AppJS /> */}
     <MultipleFiles />
-    <MultipleFilesJS />
+    {/* <MultipleFilesJS /> */}
   </React.StrictMode>
 );
 

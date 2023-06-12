@@ -23,6 +23,9 @@ function App() {
     string | null | undefined
   >("");
 
+  // Private access level configuration on the Storage object:
+  Storage.configure({ level: "private" });
+
   async function createSongWithImage(e: React.ChangeEvent<HTMLInputElement>) {
     if (!e.target.files) return;
 

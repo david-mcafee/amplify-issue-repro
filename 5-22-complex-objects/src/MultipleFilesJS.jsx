@@ -11,6 +11,9 @@ function App() {
   // Used to display images for current photoAlbum:
   const [currentImages, setCurrentImages] = useState([]);
 
+  // Private access level configuration on the Storage object:
+  Storage.configure({ level: "private" });
+
   async function createPhotoAlbumWithFirstImage(e) {
     if (!e.target.files) return;
 

@@ -24,6 +24,9 @@ function App() {
     (string | null | undefined)[] | null | undefined
   >([]);
 
+  // Private access level configuration on the Storage object:
+  Storage.configure({ level: "private" });
+
   async function createPhotoAlbumWithFirstImage(
     e: React.ChangeEvent<HTMLInputElement>
   ) {
@@ -453,6 +456,14 @@ function App() {
     setCurrentImages([]);
   }
 
+  async function dataAccessCheck() {
+    await Storage.list("", { pageSize: "ALL" })
+      .then(({ results }) => {
+        console.log("Images available:", results);
+      })
+      .catch((err) => console.log(err));
+  }
+
   // NOTE: For test / sample cleanup purposes only (not for docs example)
   async function deleteAll() {
     //region: delete photoAlbums:
@@ -596,6 +607,7 @@ function App() {
             Delete current PhotoAlbum (and images, if they exist)
           </button>
           <button onClick={deleteAll}>Delete all</button>
+          <button onClick={dataAccessCheck}>dataAccessCheck</button>
           <button onClick={signOut}>Sign out</button>
           {currentImages &&
             currentImages.map((url, idx) => {
