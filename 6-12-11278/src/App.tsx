@@ -89,20 +89,17 @@ function App() {
   }
   //endregion
 
-  // Subscribe to Order:
   useEffect(() => {
-    // if (!restaurant?.id) {
-    //   return;
-    // }
+    if (!restaurantId) {
+      return;
+    }
 
     /**
      * Observe Model Order
      * ACCEPTED, NEW, COOKING AND READY_FOR_PICKUP ORDERS
      */
-    // @ts-ignore
     const subscription = DataStore.observeQuery(Order, (order) =>
       order.and((order) => [
-        // order.orderRestaurantId.eq(restaurant?.id),
         order.restaurantOrdersId.eq(restaurantId),
         order.or((o) => [
           o.status.eq(OrderStatus.ACCEPTED),
@@ -125,7 +122,6 @@ function App() {
     };
   }, []);
 
-  // Render Order / OrderDishList
   function OrderCardItem({ order }: { order: Order }) {
     return (
       <Card>
