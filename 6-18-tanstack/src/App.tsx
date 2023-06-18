@@ -23,6 +23,8 @@ function App() {
     >({
       query: queries.listRealEstateProperties,
     });
+
+    return allRealEstateProperties.data?.listRealEstateProperties?.items;
   }
 
   async function postRealEstateProperty(
