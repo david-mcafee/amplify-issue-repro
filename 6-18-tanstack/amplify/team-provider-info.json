@@ -1,0 +1,20 @@
+{
+  "dev": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-618tanstack-dev-171725-authRole",
+      "UnauthRoleArn": "arn:aws:iam::055345086115:role/amplify-618tanstack-dev-171725-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::055345086115:role/amplify-618tanstack-dev-171725-authRole",
+      "Region": "us-west-2",
+      "DeploymentBucketName": "amplify-618tanstack-dev-171725-deployment",
+      "UnauthRoleName": "amplify-618tanstack-dev-171725-unauthRole",
+      "StackName": "amplify-618tanstack-dev-171725",
+      "StackId": "arn:aws:cloudformation:us-west-2:055345086115:stack/amplify-618tanstack-dev-171725/87820670-0e1d-11ee-a688-0a9b3df181d7",
+      "AmplifyAppId": "d2dhxyrhclegs1"
+    },
+    "categories": {
+      "api": {
+        "618tanstack": {}
+      }
+    }
+  }
+}
