@@ -128,6 +128,7 @@ function App() {
         >
           Add RealEstateProperty
         </button>
+        <button onClick={deleteAll}>Delete All</button>
       </header>
     </div>
   );
