@@ -1,4 +1,3 @@
-import React from "react";
 import "./App.css";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { API } from "aws-amplify";
@@ -6,10 +5,12 @@ import * as queries from "./graphql/queries";
 import * as mutations from "./graphql/mutations";
 import { GraphQLQuery } from "@aws-amplify/api";
 import {
-  ListRealEstatePropertiesQuery,
-  RealEstateProperty,
   CreateRealEstatePropertyInput,
   CreateRealEstatePropertyMutation,
+  DeleteRealEstatePropertyInput,
+  DeleteRealEstatePropertyMutation,
+  ListRealEstatePropertiesQuery,
+  RealEstateProperty,
 } from "./API";
 
 function App() {
@@ -55,6 +56,57 @@ function App() {
       queryClient.invalidateQueries({ queryKey: ["realEstateProperties"] });
     },
   });
+
+  // NOTE: For test / sample cleanup purposes only (not for docs example)
+  async function deleteAll() {
+    //region: delete realEstateProperties:
+    const response = await API.graphql<
+      GraphQLQuery<ListRealEstatePropertiesQuery>
+    >({
+      query: queries.listRealEstateProperties,
+    });
+
+    console.log(
+      "RealEstateProperties to delete",
+      response?.data?.listRealEstateProperties?.items
+    );
+
+    await response?.data?.listRealEstateProperties?.items.forEach(
+      async (realEstateProperty) => {
+        if (!realEstateProperty?.id) return;
+
+        const todoDetails: DeleteRealEstatePropertyInput = {
+          id: realEstateProperty?.id,
+        };
+
+        const deletedTodo = await API.graphql<
+          GraphQLQuery<DeleteRealEstatePropertyMutation>
+        >({
+          query: mutations.deleteRealEstateProperty,
+          variables: { input: todoDetails },
+        });
+
+        console.log("RealEstateProperty deleted: ", deletedTodo);
+      }
+    );
+    //endregion
+
+    //region verify all deletes were successful:
+    const secondResponse = await API.graphql<
+      GraphQLQuery<ListRealEstatePropertiesQuery>
+    >({
+      query: queries.listRealEstateProperties,
+    });
+    console.log(
+      "RealEstateProperties should be empty:",
+      secondResponse?.data?.listRealEstateProperties?.items
+    );
+
+    if (secondResponse?.data?.listRealEstateProperties?.items?.length === 0) {
+      console.log("All deletes successful!");
+    }
+    //endregion
+  }
 
   return (
     <div className="App">
