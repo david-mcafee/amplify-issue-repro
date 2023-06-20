@@ -17,17 +17,24 @@ function App() {
   // Access the client
   const queryClient = useQueryClient();
 
-  // Simple GraphQL API query
-  async function getRealEstateProperties() {
-    const allRealEstateProperties = await API.graphql<
+  // TODO: improve return type
+  // GraphQL API query
+  async function getRealEstateProperties(): Promise<
+    (RealEstateProperty | null | undefined)[] | null | undefined
+  > {
+    const response = await API.graphql<
       GraphQLQuery<ListRealEstatePropertiesQuery>
     >({
       query: queries.listRealEstateProperties,
     });
 
-    return allRealEstateProperties.data?.listRealEstateProperties?.items;
+    const allRealEstateProperties =
+      response?.data?.listRealEstateProperties?.items;
+
+    return allRealEstateProperties;
   }
 
+  // GraphQL API mutation
   async function postRealEstateProperty(
     realEstatePropertyDetails: CreateRealEstatePropertyInput
   ) {
@@ -43,7 +50,12 @@ function App() {
   }
 
   // TanStack Queries
-  const query = useQuery({
+  const {
+    data: queryData, // TODO: may not need to rename here
+    isLoading,
+    isSuccess,
+    isError: isErrorQuery,
+  } = useQuery({
     queryKey: ["realEstateProperties"],
     queryFn: getRealEstateProperties,
   });
@@ -111,11 +123,17 @@ function App() {
   return (
     <div className="App">
       <header className="App-header">
+        {isErrorQuery && <div>{"Problem loading Real Estate Properties"}</div>}
+        {isLoading && <div>{"Loading Real Estate Properties..."}</div>}
         <ul>
-          {/* @ts-ignore */}
-          {query.data?.map((realEstateProperty: RealEstateProperty) => (
-            <li key={realEstateProperty.id}>{realEstateProperty.name}</li>
-          ))}
+          {/* TODO: make this work with isSuccess */}
+          {isSuccess &&
+            queryData?.map((realEstateProperty) => {
+              if (!realEstateProperty) return null;
+              return (
+                <li key={realEstateProperty.id}>{realEstateProperty.name}</li>
+              );
+            })}
         </ul>
 
         <button
