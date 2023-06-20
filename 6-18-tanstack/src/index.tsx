@@ -7,6 +7,7 @@ import { Amplify } from "aws-amplify";
 import awsExports from "./aws-exports";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+import "@aws-amplify/ui-react/styles.css";
 
 Amplify.configure(awsExports);
 
