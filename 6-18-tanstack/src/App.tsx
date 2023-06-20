@@ -1,5 +1,11 @@
+import React, { useState } from "react";
 import "./App.css";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import {
+  useQuery,
+  useQueries,
+  useMutation,
+  useQueryClient,
+} from "@tanstack/react-query";
 import { API } from "aws-amplify";
 import * as queries from "./graphql/queries";
 import * as mutations from "./graphql/mutations";
@@ -9,6 +15,7 @@ import {
   CreateRealEstatePropertyMutation,
   DeleteRealEstatePropertyInput,
   DeleteRealEstatePropertyMutation,
+  GetRealEstatePropertyQuery,
   ListRealEstatePropertiesQuery,
   RealEstateProperty,
   UpdateRealEstatePropertyInput,
@@ -22,34 +29,20 @@ import { useIsFetching } from "@tanstack/react-query";
 function GlobalLoadingIndicator() {
   const isFetching = useIsFetching();
 
-  return isFetching ? <Loader /> : null;
+  return isFetching ? <Loader size="large" /> : null;
 }
 
 // For generating random address
 const alphabet = "abcdefghijklmnopqrstuvwxyz";
 
 function App() {
+  const [currentRealEstatePropertyId, setCurrentRealEstatePropertyId] =
+    useState<string | null>(null);
+
   // Access the client
   const queryClient = useQueryClient();
 
-  // TODO: improve return type
-  // GraphQL API query
-  async function getRealEstateProperties(): Promise<
-    (RealEstateProperty | null | undefined)[] | null | undefined
-  > {
-    const response = await API.graphql<
-      GraphQLQuery<ListRealEstatePropertiesQuery>
-    >({
-      query: queries.listRealEstateProperties,
-    });
-
-    const allRealEstateProperties =
-      response?.data?.listRealEstateProperties?.items;
-
-    return allRealEstateProperties;
-  }
-
-  // TanStack Queries
+  // TanStack Query
   const {
     data: realEstateProperties,
     isLoading,
@@ -57,7 +50,23 @@ function App() {
     isError: isErrorQuery,
   } = useQuery({
     queryKey: ["realEstateProperties"],
-    queryFn: getRealEstateProperties,
+    // TODO: improve return type
+    queryFn: async (): Promise<
+      (RealEstateProperty | null | undefined)[] | null | undefined
+    > => {
+      const response = await API.graphql<
+        GraphQLQuery<ListRealEstatePropertiesQuery>
+      >({
+        query: queries.listRealEstateProperties,
+      });
+
+      const allRealEstateProperties =
+        response?.data?.listRealEstateProperties?.items;
+
+      if (!allRealEstateProperties) return null;
+
+      return allRealEstateProperties;
+    },
   });
 
   // TanStack create mutation with Optimistic Updates
@@ -287,6 +296,66 @@ function App() {
     //endregion
   }
 
+  async function RealEstatePropertyDetailView(realEstatePropertyId: string) {
+    const {
+      data: realEstateProperty,
+      isLoading,
+      isSuccess,
+      isError: isErrorQuery,
+    } = useQuery({
+      queryKey: ["realEstateProperties"],
+      // TODO: improve return type
+      queryFn: async (): Promise<RealEstateProperty | null | undefined> => {
+        const response = await API.graphql<
+          GraphQLQuery<GetRealEstatePropertyQuery>
+        >({
+          query: queries.getRealEstateProperty,
+          variables: { id: realEstatePropertyId },
+        });
+
+        return response.data?.getRealEstateProperty;
+      },
+    });
+    return (
+      <div style={{ border: "1px solid black" }}>
+        <div>Real Estate Property Detail View</div>
+        {isErrorQuery && <div>{"Problem loading Real Estate Property"}</div>}
+        {isLoading && <div>{"Loading Real Estate Property..."}</div>}
+        {isSuccess && realEstateProperty && (
+          <div>
+            <h2>{realEstateProperty.name}</h2>
+            <h3>{realEstateProperty.address}</h3>
+          </div>
+        )}
+        {realEstateProperty && (
+          <div>
+            <button
+              key={`update-${realEstateProperty.id}`}
+              onClick={() =>
+                updateMutation.mutate({
+                  id: realEstateProperty.id,
+                  name: `Updated Home ${Date.now()}`,
+                })
+              }
+            >
+              Update
+            </button>
+            <button
+              key={`delete-${realEstateProperty.id}`}
+              onClick={() =>
+                deleteMutation.mutate({
+                  id: realEstateProperty.id,
+                })
+              }
+            >
+              Delete
+            </button>
+          </div>
+        )}
+      </div>
+    );
+  }
+
   return (
     <div className="App">
       <header className="App-header">
@@ -298,30 +367,7 @@ function App() {
             realEstateProperties?.map((realEstateProperty) => {
               if (!realEstateProperty) return null;
               return (
-                <li key={realEstateProperty.id}>
-                  {realEstateProperty.name}
-                  <button
-                    key={`update-${realEstateProperty.id}`}
-                    onClick={() =>
-                      updateMutation.mutate({
-                        id: realEstateProperty.id,
-                        name: `Updated Home ${Date.now()}`,
-                      })
-                    }
-                  >
-                    Update
-                  </button>
-                  <button
-                    key={`delete-${realEstateProperty.id}`}
-                    onClick={() =>
-                      deleteMutation.mutate({
-                        id: realEstateProperty.id,
-                      })
-                    }
-                  >
-                    Delete
-                  </button>
-                </li>
+                <li key={realEstateProperty.id}>{realEstateProperty.name}</li>
               );
             })}
         </ul>
@@ -338,6 +384,7 @@ function App() {
           Add RealEstateProperty
         </button>
         <button onClick={deleteAll}>Delete All</button>
+        {currentRealEstatePropertyId && <RealEstatePropertyDetailView />}
         <GlobalLoadingIndicator />
       </header>
     </div>
