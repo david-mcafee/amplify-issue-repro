@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import "./App.css";
 import {
   useQuery,
-  useQueries,
+  // useQueries,
   useMutation,
   useQueryClient,
 } from "@tanstack/react-query";
@@ -42,7 +42,7 @@ function App() {
   // Access the client
   const queryClient = useQueryClient();
 
-  // TanStack Query
+  // TanStack Query for list
   const {
     data: realEstateProperties,
     isLoading,
@@ -296,23 +296,24 @@ function App() {
     //endregion
   }
 
-  async function RealEstatePropertyDetailView(realEstatePropertyId: string) {
+  function RealEstatePropertyDetailView() {
     const {
       data: realEstateProperty,
       isLoading,
       isSuccess,
       isError: isErrorQuery,
     } = useQuery({
-      queryKey: ["realEstateProperties"],
+      queryKey: ["realEstateProperties", currentRealEstatePropertyId],
       // TODO: improve return type
       queryFn: async (): Promise<RealEstateProperty | null | undefined> => {
         const response = await API.graphql<
           GraphQLQuery<GetRealEstatePropertyQuery>
         >({
           query: queries.getRealEstateProperty,
-          variables: { id: realEstatePropertyId },
+          variables: { id: setCurrentRealEstatePropertyId },
         });
 
+        console.log("RealEstatePropertyDetailView queryFn response", response);
         return response.data?.getRealEstateProperty;
       },
     });
@@ -367,7 +368,14 @@ function App() {
             realEstateProperties?.map((realEstateProperty) => {
               if (!realEstateProperty) return null;
               return (
-                <li key={realEstateProperty.id}>{realEstateProperty.name}</li>
+                <li
+                  key={realEstateProperty.id}
+                  onClick={() =>
+                    setCurrentRealEstatePropertyId(realEstateProperty.id)
+                  }
+                >
+                  {realEstateProperty.name}
+                </li>
               );
             })}
         </ul>
@@ -384,6 +392,7 @@ function App() {
           Add RealEstateProperty
         </button>
         <button onClick={deleteAll}>Delete All</button>
+        {/* @ts-ignore */}
         {currentRealEstatePropertyId && <RealEstatePropertyDetailView />}
         <GlobalLoadingIndicator />
       </header>
