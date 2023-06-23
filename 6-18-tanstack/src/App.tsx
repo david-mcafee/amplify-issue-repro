@@ -27,9 +27,6 @@ function GlobalLoadingIndicator() {
   return isFetching ? <Loader size="large" /> : null;
 }
 
-// For generating random address
-const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-
 function App() {
   const [currentRealEstatePropertyId, setCurrentRealEstatePropertyId] =
     useState<string | null>(null);
@@ -58,6 +55,7 @@ function App() {
       const allRealEstateProperties =
         response?.data?.listRealEstateProperties?.items;
 
+      // TODO
       if (!allRealEstateProperties) return null;
 
       return allRealEstateProperties;
@@ -381,9 +379,7 @@ function App() {
           onClick={() => {
             createMutation.mutate({
               name: `New Home ${Date.now()}`,
-              address: `${
-                alphabet[Math.floor(Math.random() * alphabet.length)]
-              } St`,
+              address: `${Math.floor(1000 + Math.random() * 9000)} Main St`,
             });
           }}
         >
