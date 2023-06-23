@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import "./App.css";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { API } from "aws-amplify";
 import * as queries from "./graphql/queries";
@@ -18,13 +17,33 @@ import {
 } from "./API";
 import { Loader } from "@aws-amplify/ui-react";
 
-// https://tanstack.com/query/v5/docs/react/guides/background-fetching-indicators#displaying-global-background-fetching-loading-state
+// https://www.tanstack.com/query/v5/docs/react/guides/background-fetching-indicators#displaying-global-background-fetching-loading-state
 import { useIsFetching } from "@tanstack/react-query";
 
+/**
+ * https://www.tanstack.com/query/v4/docs/react/guides/background-fetching-indicators#displaying-global-background-fetching-loading-state
+ * For the purposes of this demo, we show a global loading indicator when *any*
+ * queries are fetching (including in the background). See the docs for more on
+ * showing an indicator for individual query loading states.
+ */
 function GlobalLoadingIndicator() {
   const isFetching = useIsFetching();
 
-  return isFetching ? <Loader size="large" /> : null;
+  // TODO: spinner?
+  return isFetching ? (
+    <div
+      style={{
+        position: "fixed",
+        top: 0,
+        left: 0,
+        width: "100%",
+        height: "100%",
+        border: "2px solid blue",
+        pointerEvents: "none",
+        background: "rgba(255, 255, 255, 0.5)",
+      }}
+    ></div>
+  ) : null;
 }
 
 function App() {
@@ -55,7 +74,7 @@ function App() {
       const allRealEstateProperties =
         response?.data?.listRealEstateProperties?.items;
 
-      // TODO
+      // TODO: type
       if (!allRealEstateProperties) return null;
 
       return allRealEstateProperties;
@@ -261,14 +280,14 @@ function App() {
     });
 
     return (
-      <div style={{ border: "1px solid black" }}>
-        <div>Real Estate Property Detail View</div>
+      <div style={{ border: "1px solid black", padding: "3rem" }}>
+        <h2>Real Estate Property Detail View</h2>
         {isErrorQuery && <div>{"Problem loading Real Estate Property"}</div>}
         {isLoading && <div>{"Loading Real Estate Property..."}</div>}
         {isSuccess && realEstateProperty && (
           <div>
-            <h2>{realEstateProperty.name}</h2>
-            <h3>{realEstateProperty.address}</h3>
+            <p>{realEstateProperty.name}</p>
+            <p>{realEstateProperty.address}</p>
           </div>
         )}
         {realEstateProperty && (
@@ -352,44 +371,67 @@ function App() {
   }
 
   return (
-    <div className="App">
-      <header className="App-header">
-        {isErrorQuery && <div>{"Problem loading Real Estate Properties"}</div>}
-        {isLoading && <div>{"Loading Real Estate Properties..."}</div>}
-        <ul>
-          {/* TODO: make this work with isSuccess */}
-          {isSuccess &&
-            realEstateProperties?.map((realEstateProperty) => {
-              if (!realEstateProperty) return null;
-              return (
-                <li key={realEstateProperty.id}>
-                  {realEstateProperty.name}
-                  <button
-                    onClick={() =>
-                      setCurrentRealEstatePropertyId(realEstateProperty.id)
-                    }
-                  >
-                    Detail View
-                  </button>
-                </li>
-              );
-            })}
-        </ul>
-        <button
-          onClick={() => {
-            createMutation.mutate({
-              name: `New Home ${Date.now()}`,
-              address: `${Math.floor(1000 + Math.random() * 9000)} Main St`,
-            });
-          }}
-        >
-          Add RealEstateProperty
-        </button>
-        <button onClick={deleteAll}>Delete All</button>
-        {/* @ts-ignore */}
-        {currentRealEstatePropertyId && <RealEstatePropertyDetailView />}
-        <GlobalLoadingIndicator />
-      </header>
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+      }}
+    >
+      <h1>Real Estate Properties:</h1>
+      <button
+        onClick={() => {
+          createMutation.mutate({
+            name: `New Home ${Date.now()}`,
+            address: `${Math.floor(1000 + Math.random() * 9000)} Main St`,
+          });
+        }}
+      >
+        Add RealEstateProperty
+      </button>
+      <button onClick={deleteAll}>Delete All</button>
+      {isLoading && <div>{"Loading Real Estate Properties..."}</div>}
+      {isErrorQuery && <div>{"Problem loading Real Estate Properties"}</div>}
+      <ul
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "start",
+          width: "50%",
+          border: "1px solid black",
+          padding: "1rem",
+        }}
+      >
+        {/* TODO: make this work with isSuccess */}
+        {isSuccess &&
+          realEstateProperties?.map((realEstateProperty) => {
+            if (!realEstateProperty) return null;
+            return (
+              <li
+                style={{
+                  border: "1px dotted grey",
+                  padding: ".25rem",
+                  margin: ".1rem",
+                }}
+                key={realEstateProperty.id}
+              >
+                {realEstateProperty.name}
+                <button
+                  style={{ marginLeft: "1rem" }}
+                  onClick={() =>
+                    setCurrentRealEstatePropertyId(realEstateProperty.id)
+                  }
+                >
+                  Detail View
+                </button>
+              </li>
+            );
+          })}
+      </ul>
+      {/* @ts-ignore */}
+      {currentRealEstatePropertyId && <RealEstatePropertyDetailView />}
+      <GlobalLoadingIndicator />
     </div>
   );
 }
