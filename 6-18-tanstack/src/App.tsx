@@ -163,7 +163,9 @@ function App() {
         return updatedRealEstateProperty;
       },
       // When mutate is called:
-      onMutate: async (newRealEstateProperty) => {
+      onMutate: async (
+        newRealEstateProperty: UpdateRealEstatePropertyInput
+      ) => {
         // console.log("on mutate", newRealEstateProperty);
         // Cancel any outgoing refetches
         // (so they don't overwrite our optimistic update)
