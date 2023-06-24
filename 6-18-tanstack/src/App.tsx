@@ -24,13 +24,13 @@ import { useIsFetching } from "@tanstack/react-query";
 /**
  * https://www.tanstack.com/query/v4/docs/react/guides/background-fetching-indicators#displaying-global-background-fetching-loading-state
  * For the purposes of this demo, we show a global loading indicator when *any*
- * queries are fetching (including in the background). See the docs for more on
- * showing an indicator for individual query loading states.
+ * queries are fetching (including in the background) in order to help visualize
+ * what TanStack is doing in the background. This example also displays
+ * indicators for individual query and mutation loading states.
  */
 function GlobalLoadingIndicator() {
   const isFetching = useIsFetching();
 
-  // TODO: spinner?
   return isFetching ? <div style={styles.globalLoadingIndicator}></div> : null;
 }
 
@@ -108,6 +108,7 @@ function App() {
     // If the mutation fails,
     // use the context returned from onMutate to roll back
     onError: (err, newRealEstateProperty, context) => {
+      console.error("Error saving record:", err, newRealEstateProperty);
       if (context?.previousRealEstateProperties) {
         queryClient.setQueryData(
           ["realEstateProperties"],
@@ -121,6 +122,10 @@ function App() {
     },
   });
 
+  /**
+   * Note: this example does not return to the list view on delete in order
+   * to demonstrate the optimistic update.
+   */
   function RealEstatePropertyDetailView() {
     const {
       data: realEstateProperty,
@@ -189,6 +194,7 @@ function App() {
       },
       // If the mutation fails, use the context we returned above
       onError: (err, newRealEstateProperty, context) => {
+        console.error("Error updating record:", err, newRealEstateProperty);
         if (context?.previousRealEstateProperty) {
           queryClient.setQueryData(
             // TODO: fix type
@@ -200,7 +206,6 @@ function App() {
       },
       // Always refetch after error or success:
       onSettled: (newRealEstateProperty) => {
-        // console.log("does ID exist?", newRealEstateProperty);
         // console.log("does ID exist?", newRealEstateProperty);
         queryClient.invalidateQueries({
           // TODO: fix type
@@ -250,6 +255,7 @@ function App() {
       },
       // If the mutation fails, use the context we returned above
       onError: (err, newRealEstateProperty, context) => {
+        console.error("Error deleting record:", err, newRealEstateProperty);
         if (context?.previousRealEstateProperty) {
           queryClient.setQueryData(
             ["realEstateProperties", context.newRealEstateProperty.id],
@@ -274,17 +280,20 @@ function App() {
       <div style={styles.detailViewContainer}>
         <h2>Real Estate Property Detail View</h2>
         {isErrorQuery && <div>{"Problem loading Real Estate Property"}</div>}
-        {isLoading && <div>{"Loading Real Estate Property..."}</div>}
+        {isLoading && (
+          <div style={styles.loadingIndicator}>
+            {"Loading Real Estate Property..."}
+          </div>
+        )}
         {isSuccess && (
           <div>
-            <p>{realEstateProperty?.name}</p>
-            <p>{realEstateProperty?.address}</p>
+            <p>{`Name: ${realEstateProperty?.name}`}</p>
+            <p>{`Address: ${realEstateProperty?.address}`}</p>
           </div>
         )}
         {realEstateProperty && (
           <div>
             <button
-              key={`update-${realEstateProperty.id}`}
               onClick={() =>
                 updateMutation.mutate({
                   id: realEstateProperty.id,
@@ -292,10 +301,19 @@ function App() {
                 })
               }
             >
-              Update
+              Update Name
             </button>
             <button
-              key={`delete-${realEstateProperty.id}`}
+              onClick={() =>
+                updateMutation.mutate({
+                  id: realEstateProperty.id,
+                  address: `${Math.floor(1000 + Math.random() * 9000)} Main St`,
+                })
+              }
+            >
+              Update Address
+            </button>
+            <button
               onClick={() =>
                 deleteMutation.mutate({
                   id: realEstateProperty.id,
@@ -380,18 +398,25 @@ function App() {
             Add RealEstateProperty
           </button>
           <button onClick={deleteAll}>Delete All</button>
-          {isLoading && <div>{"Loading Real Estate Properties..."}</div>}
-          {isErrorQuery && (
-            <div>{"Problem loading Real Estate Properties"}</div>
-          )}
           <ul style={styles.propertiesList}>
+            {isLoading && (
+              <div style={styles.loadingIndicator}>
+                {"Loading Real Estate Properties..."}
+              </div>
+            )}
+            {isErrorQuery && (
+              <div>{"Problem loading Real Estate Properties"}</div>
+            )}
             {/* TODO: make this work with isSuccess */}
             {isSuccess &&
-              realEstateProperties?.map((realEstateProperty) => {
+              realEstateProperties?.map((realEstateProperty, idx) => {
                 if (!realEstateProperty) return null;
                 return (
-                  <li style={styles.listItem} key={realEstateProperty.id}>
-                    {realEstateProperty.name}
+                  <li
+                    style={styles.listItem}
+                    key={`${idx}-${realEstateProperty.id}`}
+                  >
+                    <p>{realEstateProperty.name}</p>
                     <button
                       style={styles.detailViewButton}
                       onClick={() =>
@@ -428,14 +453,20 @@ var styles: any = {
     left: 0,
     width: "100%",
     height: "100%",
-    border: "2px solid blue",
+    border: "4px solid blue",
     pointerEvents: "none",
-    background: "rgba(255, 255, 255, 0.5)",
   },
   listItem: {
+    display: "flex",
+    justifyContent: "space-between",
     border: "1px dotted grey",
-    padding: ".25rem",
+    padding: ".5rem",
     margin: ".1rem",
+  },
+  loadingIndicator: {
+    border: "1px solid black",
+    padding: "1rem",
+    margin: "1rem",
   },
   propertiesList: {
     display: "flex",
@@ -445,6 +476,6 @@ var styles: any = {
     width: "50%",
     border: "1px solid black",
     padding: "1rem",
-    listStyles: "none",
+    listStyleType: "none",
   },
 };
