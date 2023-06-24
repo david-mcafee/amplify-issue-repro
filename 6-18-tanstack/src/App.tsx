@@ -1,3 +1,5 @@
+// TODO: do final comparison against https://github.com/TanStack/query/tree/main/examples/react/optimistic-updates-typescript
+
 import React, { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { API } from "aws-amplify";
@@ -15,7 +17,6 @@ import {
   UpdateRealEstatePropertyInput,
   UpdateRealEstatePropertyMutation,
 } from "./API";
-import { Loader } from "@aws-amplify/ui-react";
 
 // https://www.tanstack.com/query/v5/docs/react/guides/background-fetching-indicators#displaying-global-background-fetching-loading-state
 import { useIsFetching } from "@tanstack/react-query";
@@ -49,6 +50,7 @@ function GlobalLoadingIndicator() {
 function App() {
   const [currentRealEstatePropertyId, setCurrentRealEstatePropertyId] =
     useState<string | null>(null);
+  const [isDetailView, setDetailView] = useState<boolean>(false);
 
   // Access the client
   const queryClient = useQueryClient();
@@ -97,25 +99,23 @@ function App() {
       return newRealEstateProperty;
     },
     // When mutate is called:
-    onMutate: async (newRealEstateProperty) => {
+    onMutate: async (newRealEstateProperty: CreateRealEstatePropertyInput) => {
       // Cancel any outgoing refetches
       // (so they don't overwrite our optimistic update)
       await queryClient.cancelQueries({ queryKey: ["realEstateProperties"] });
 
       // Snapshot the previous value
-      const previousRealEstateProperties = queryClient.getQueryData([
+      const previousRealEstateProperties = queryClient.getQueryData<any>([
         "realEstateProperties",
       ]);
 
       // Optimistically update to the new value
-      // TODO: fix type
-      // @ts-ignore
-      queryClient.setQueryData(["realEstateProperties"], (old) => [
-        // TODO: fix type
-        // @ts-ignore
-        ...old,
-        newRealEstateProperty,
-      ]);
+      if (previousRealEstateProperties) {
+        queryClient.setQueryData<any>(["realEstateProperties"], (old: any) => [
+          ...old,
+          newRealEstateProperty,
+        ]);
+      }
 
       // Return a context object with the snapshotted value
       return { previousRealEstateProperties };
@@ -123,12 +123,12 @@ function App() {
     // If the mutation fails,
     // use the context returned from onMutate to roll back
     onError: (err, newRealEstateProperty, context) => {
-      queryClient.setQueryData(
-        ["realEstateProperties"],
-        // TODO: fix type
-        // @ts-ignore
-        context.previousRealEstateProperties
-      );
+      if (context?.previousRealEstateProperties) {
+        queryClient.setQueryData(
+          ["realEstateProperties"],
+          context.previousRealEstateProperties
+        );
+      }
     },
     // Always refetch after error or success:
     onSettled: () => {
@@ -199,19 +199,19 @@ function App() {
       },
       // If the mutation fails, use the context we returned above
       onError: (err, newRealEstateProperty, context) => {
-        console.log("on error", newRealEstateProperty);
-        queryClient.setQueryData(
-          // TODO: fix type
-          // @ts-ignore
-          ["realEstateProperties", context.newRealEstateProperty.id],
-          // TODO: fix type
-          // @ts-ignore
-          context.previousRealEstateProperty
-        );
+        if (context?.previousRealEstateProperty) {
+          queryClient.setQueryData(
+            // TODO: fix type
+            ["realEstateProperties", context.newRealEstateProperty.id],
+            // TODO: fix type
+            context.previousRealEstateProperty
+          );
+        }
       },
       // Always refetch after error or success:
       onSettled: (newRealEstateProperty) => {
-        console.log("on settled", newRealEstateProperty);
+        console.log("does ID exist?", newRealEstateProperty);
+        console.log("does ID exist?", newRealEstateProperty);
         queryClient.invalidateQueries({
           // TODO: fix type
           // @ts-ignore
@@ -260,17 +260,16 @@ function App() {
       },
       // If the mutation fails, use the context we returned above
       onError: (err, newRealEstateProperty, context) => {
-        queryClient.setQueryData(
-          // TODO: fix type
-          // @ts-ignore
-          ["realEstateProperties", context.newRealEstateProperty.id],
-          // TODO: fix type
-          // @ts-ignore
-          context.previousRealEstateProperty
-        );
+        if (context?.previousRealEstateProperty) {
+          queryClient.setQueryData(
+            ["realEstateProperties", context.newRealEstateProperty.id],
+            context.previousRealEstateProperty
+          );
+        }
       },
       // Always refetch after error or success:
       onSettled: (newRealEstateProperty) => {
+        console.log("does ID exist?", newRealEstateProperty);
         queryClient.invalidateQueries({
           // TODO: fix type
           // @ts-ignore
@@ -429,7 +428,6 @@ function App() {
             );
           })}
       </ul>
-      {/* @ts-ignore */}
       {currentRealEstatePropertyId && <RealEstatePropertyDetailView />}
       <GlobalLoadingIndicator />
     </div>
