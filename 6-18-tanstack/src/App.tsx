@@ -31,26 +31,12 @@ function GlobalLoadingIndicator() {
   const isFetching = useIsFetching();
 
   // TODO: spinner?
-  return isFetching ? (
-    <div
-      style={{
-        position: "fixed",
-        top: 0,
-        left: 0,
-        width: "100%",
-        height: "100%",
-        border: "2px solid blue",
-        pointerEvents: "none",
-        background: "rgba(255, 255, 255, 0.5)",
-      }}
-    ></div>
-  ) : null;
+  return isFetching ? <div style={styles.globalLoadingIndicator}></div> : null;
 }
 
 function App() {
   const [currentRealEstatePropertyId, setCurrentRealEstatePropertyId] =
     useState<string | null>(null);
-  const [isDetailView, setDetailView] = useState<boolean>(false);
 
   // Access the client
   const queryClient = useQueryClient();
@@ -95,7 +81,6 @@ function App() {
         variables: { input: realEstatePropertyDetails },
       });
 
-      console.log(newRealEstateProperty);
       return newRealEstateProperty;
     },
     // When mutate is called:
@@ -153,7 +138,6 @@ function App() {
           variables: { id: currentRealEstatePropertyId },
         });
 
-        console.log("RealEstatePropertyDetailView queryFn response", response);
         return response.data?.getRealEstateProperty;
       },
     });
@@ -170,12 +154,12 @@ function App() {
           variables: { input: realEstatePropertyDetails },
         });
 
-        console.log(updatedRealEstateProperty);
+        // console.log(updatedRealEstateProperty);
         return updatedRealEstateProperty;
       },
       // When mutate is called:
       onMutate: async (newRealEstateProperty) => {
-        console.log("on mutate", newRealEstateProperty);
+        // console.log("on mutate", newRealEstateProperty);
         // Cancel any outgoing refetches
         // (so they don't overwrite our optimistic update)
         await queryClient.cancelQueries({
@@ -183,16 +167,22 @@ function App() {
         });
 
         // Snapshot the previous value
-        const previousRealEstateProperty = queryClient.getQueryData([
-          "realEstateProperties",
-          newRealEstateProperty.id,
-        ]);
+        const previousRealEstateProperty =
+          queryClient.getQueryData<RealEstateProperty>([
+            "realEstateProperties",
+            newRealEstateProperty.id,
+          ]);
 
         // Optimistically update to the new value
-        queryClient.setQueryData(
-          ["realEstateProperties", newRealEstateProperty.id],
-          newRealEstateProperty
-        );
+        if (previousRealEstateProperty) {
+          queryClient.setQueryData(
+            ["realEstateProperties", newRealEstateProperty.id],
+            // Not covered in the TanStack docs, but the new property only
+            // includes updated values the first two times it returns (final
+            // return includes all values).
+            { ...previousRealEstateProperty, ...newRealEstateProperty }
+          );
+        }
 
         // Return a context with the previous and new realEstateProperty
         return { previousRealEstateProperty, newRealEstateProperty };
@@ -210,8 +200,8 @@ function App() {
       },
       // Always refetch after error or success:
       onSettled: (newRealEstateProperty) => {
-        console.log("does ID exist?", newRealEstateProperty);
-        console.log("does ID exist?", newRealEstateProperty);
+        // console.log("does ID exist?", newRealEstateProperty);
+        // console.log("does ID exist?", newRealEstateProperty);
         queryClient.invalidateQueries({
           // TODO: fix type
           // @ts-ignore
@@ -232,7 +222,7 @@ function App() {
           variables: { input: realEstatePropertyDetails },
         });
 
-        console.log(deletedRealEstateProperty);
+        // console.log(deletedRealEstateProperty);
         return deletedRealEstateProperty;
       },
       // When mutate is called:
@@ -269,7 +259,7 @@ function App() {
       },
       // Always refetch after error or success:
       onSettled: (newRealEstateProperty) => {
-        console.log("does ID exist?", newRealEstateProperty);
+        // console.log("does ID exist?", newRealEstateProperty);
         queryClient.invalidateQueries({
           // TODO: fix type
           // @ts-ignore
@@ -278,15 +268,17 @@ function App() {
       },
     });
 
+    console.log("CHECK RETURN HERE:", realEstateProperty);
+
     return (
-      <div style={{ border: "1px solid black", padding: "3rem" }}>
+      <div style={styles.detailViewContainer}>
         <h2>Real Estate Property Detail View</h2>
         {isErrorQuery && <div>{"Problem loading Real Estate Property"}</div>}
         {isLoading && <div>{"Loading Real Estate Property..."}</div>}
-        {isSuccess && realEstateProperty && (
+        {isSuccess && (
           <div>
-            <p>{realEstateProperty.name}</p>
-            <p>{realEstateProperty.address}</p>
+            <p>{realEstateProperty?.name}</p>
+            <p>{realEstateProperty?.address}</p>
           </div>
         )}
         {realEstateProperty && (
@@ -314,6 +306,9 @@ function App() {
             </button>
           </div>
         )}
+        <button onClick={() => setCurrentRealEstatePropertyId(null)}>
+          Back
+        </button>
       </div>
     );
   }
@@ -370,64 +365,47 @@ function App() {
   }
 
   return (
-    <div
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-      }}
-    >
-      <h1>Real Estate Properties:</h1>
-      <button
-        onClick={() => {
-          createMutation.mutate({
-            name: `New Home ${Date.now()}`,
-            address: `${Math.floor(1000 + Math.random() * 9000)} Main St`,
-          });
-        }}
-      >
-        Add RealEstateProperty
-      </button>
-      <button onClick={deleteAll}>Delete All</button>
-      {isLoading && <div>{"Loading Real Estate Properties..."}</div>}
-      {isErrorQuery && <div>{"Problem loading Real Estate Properties"}</div>}
-      <ul
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "start",
-          width: "50%",
-          border: "1px solid black",
-          padding: "1rem",
-        }}
-      >
-        {/* TODO: make this work with isSuccess */}
-        {isSuccess &&
-          realEstateProperties?.map((realEstateProperty) => {
-            if (!realEstateProperty) return null;
-            return (
-              <li
-                style={{
-                  border: "1px dotted grey",
-                  padding: ".25rem",
-                  margin: ".1rem",
-                }}
-                key={realEstateProperty.id}
-              >
-                {realEstateProperty.name}
-                <button
-                  style={{ marginLeft: "1rem" }}
-                  onClick={() =>
-                    setCurrentRealEstatePropertyId(realEstateProperty.id)
-                  }
-                >
-                  Detail View
-                </button>
-              </li>
-            );
-          })}
-      </ul>
+    <div>
+      {!currentRealEstatePropertyId && (
+        <div style={styles.appContainer}>
+          <h1>Real Estate Properties:</h1>
+          <button
+            onClick={() => {
+              createMutation.mutate({
+                name: `New Home ${Date.now()}`,
+                address: `${Math.floor(1000 + Math.random() * 9000)} Main St`,
+              });
+            }}
+          >
+            Add RealEstateProperty
+          </button>
+          <button onClick={deleteAll}>Delete All</button>
+          {isLoading && <div>{"Loading Real Estate Properties..."}</div>}
+          {isErrorQuery && (
+            <div>{"Problem loading Real Estate Properties"}</div>
+          )}
+          <ul style={styles.propertiesList}>
+            {/* TODO: make this work with isSuccess */}
+            {isSuccess &&
+              realEstateProperties?.map((realEstateProperty) => {
+                if (!realEstateProperty) return null;
+                return (
+                  <li style={styles.listItem} key={realEstateProperty.id}>
+                    {realEstateProperty.name}
+                    <button
+                      style={styles.detailViewButton}
+                      onClick={() =>
+                        setCurrentRealEstatePropertyId(realEstateProperty.id)
+                      }
+                    >
+                      Detail View
+                    </button>
+                  </li>
+                );
+              })}
+          </ul>
+        </div>
+      )}
       {currentRealEstatePropertyId && <RealEstatePropertyDetailView />}
       <GlobalLoadingIndicator />
     </div>
@@ -435,3 +413,38 @@ function App() {
 }
 
 export default App;
+
+var styles: any = {
+  appContainer: {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+  },
+  detailViewButton: { marginLeft: "1rem" },
+  detailViewContainer: { border: "1px solid black", padding: "3rem" },
+  globalLoadingIndicator: {
+    position: "fixed",
+    top: 0,
+    left: 0,
+    width: "100%",
+    height: "100%",
+    border: "2px solid blue",
+    pointerEvents: "none",
+    background: "rgba(255, 255, 255, 0.5)",
+  },
+  listItem: {
+    border: "1px dotted grey",
+    padding: ".25rem",
+    margin: ".1rem",
+  },
+  propertiesList: {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "start",
+    width: "50%",
+    border: "1px solid black",
+    padding: "1rem",
+    listStyles: "none",
+  },
+};
