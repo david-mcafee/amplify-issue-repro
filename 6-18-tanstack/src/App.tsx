@@ -434,7 +434,7 @@ function App() {
 
 export default App;
 
-var styles: any = {
+const styles: any = {
   appContainer: {
     display: "flex",
     flexDirection: "column",
