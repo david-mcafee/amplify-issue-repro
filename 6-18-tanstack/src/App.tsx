@@ -289,35 +289,72 @@ function App() {
         )}
         {realEstateProperty && (
           <div>
-            <button
-              onClick={() =>
-                updateMutation.mutate({
-                  id: realEstateProperty.id,
-                  name: `Updated Home ${Date.now()}`,
-                })
-              }
-            >
-              Update Name
-            </button>
-            <button
-              onClick={() =>
-                updateMutation.mutate({
-                  id: realEstateProperty.id,
-                  address: `${Math.floor(1000 + Math.random() * 9000)} Main St`,
-                })
-              }
-            >
-              Update Address
-            </button>
-            <button
-              onClick={() =>
-                deleteMutation.mutate({
-                  id: realEstateProperty.id,
-                })
-              }
-            >
-              Delete
-            </button>
+            <div>
+              {updateMutation.isLoading ? (
+                "Updating Real Estate Property..."
+              ) : (
+                <>
+                  {updateMutation.isError &&
+                  updateMutation.error instanceof Error ? (
+                    <div>An error occurred: {updateMutation.error.message}</div>
+                  ) : null}
+
+                  {updateMutation.isSuccess ? (
+                    <div>Real Estate Property updated!</div>
+                  ) : null}
+
+                  <button
+                    onClick={() =>
+                      updateMutation.mutate({
+                        id: realEstateProperty.id,
+                        name: `Updated Home ${Date.now()}`,
+                      })
+                    }
+                  >
+                    Update Name
+                  </button>
+                  <button
+                    onClick={() =>
+                      updateMutation.mutate({
+                        id: realEstateProperty.id,
+                        address: `${Math.floor(
+                          1000 + Math.random() * 9000
+                        )} Main St`,
+                      })
+                    }
+                  >
+                    Update Address
+                  </button>
+                </>
+              )}
+            </div>
+
+            <div>
+              {deleteMutation.isLoading ? (
+                "Deleting Real Estate Property..."
+              ) : (
+                <>
+                  {deleteMutation.isError &&
+                  deleteMutation.error instanceof Error ? (
+                    <div>An error occurred: {deleteMutation.error.message}</div>
+                  ) : null}
+
+                  {deleteMutation.isSuccess ? (
+                    <div>Real Estate Property deleted!</div>
+                  ) : null}
+
+                  <button
+                    onClick={() =>
+                      deleteMutation.mutate({
+                        id: realEstateProperty.id,
+                      })
+                    }
+                  >
+                    Delete
+                  </button>
+                </>
+              )}
+            </div>
           </div>
         )}
         <button onClick={() => setCurrentRealEstatePropertyId(null)}>
@@ -383,16 +420,35 @@ function App() {
       {!currentRealEstatePropertyId && (
         <div style={styles.appContainer}>
           <h1>Real Estate Properties:</h1>
-          <button
-            onClick={() => {
-              createMutation.mutate({
-                name: `New Home ${Date.now()}`,
-                address: `${Math.floor(1000 + Math.random() * 9000)} Main St`,
-              });
-            }}
-          >
-            Add RealEstateProperty
-          </button>
+          <div>
+            {createMutation.isLoading ? (
+              "Adding Real Estate Property..."
+            ) : (
+              <>
+                {createMutation.isError &&
+                createMutation.error instanceof Error ? (
+                  <div>An error occurred: {createMutation.error.message}</div>
+                ) : null}
+
+                {createMutation.isSuccess ? (
+                  <div>Real Estate Property added!</div>
+                ) : null}
+
+                <button
+                  onClick={() => {
+                    createMutation.mutate({
+                      name: `New Home ${Date.now()}`,
+                      address: `${Math.floor(
+                        1000 + Math.random() * 9000
+                      )} Main St`,
+                    });
+                  }}
+                >
+                  Add RealEstateProperty
+                </button>
+              </>
+            )}
+          </div>
           <button onClick={deleteAll}>Delete All</button>
           <ul style={styles.propertiesList}>
             {isLoading && (
