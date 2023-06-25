@@ -179,10 +179,11 @@ function App() {
         if (previousRealEstateProperty) {
           queryClient.setQueryData(
             ["realEstateProperties", newRealEstateProperty.id],
-            // TODO: add docs for this.
-            // Not covered in the TanStack docs, but the new property only
-            // includes updated values the first two times it returns. The final
-            // return includes all fields.
+            /**
+             * `newRealEstateProperty` will at first only include updated values for
+             * the record. To avoid only rendering optimstical values for updated
+             * fields on the UI, include the previous values for all fields:
+             */
             { ...previousRealEstateProperty, ...newRealEstateProperty }
           );
         }
