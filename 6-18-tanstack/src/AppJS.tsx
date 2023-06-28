@@ -181,7 +181,7 @@ function App() {
             ["realEstateProperties", newRealEstateProperty.id],
             /**
              * `newRealEstateProperty` will at first only include updated values for
-             * the record. To avoid only rendering optimstical values for updated
+             * the record. To avoid only rendering optimstic values for updated
              * fields on the UI, include the previous values for all fields:
              */
             { ...previousRealEstateProperty, ...newRealEstateProperty }

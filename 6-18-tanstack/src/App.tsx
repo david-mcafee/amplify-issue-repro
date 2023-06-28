@@ -181,7 +181,7 @@ function App() {
             ["realEstateProperties", newRealEstateProperty.id],
             /**
              * `newRealEstateProperty` will at first only include updated values for
-             * the record. To avoid only rendering optimstical values for updated
+             * the record. To avoid only rendering optimistic values for updated
              * fields on the UI, include the previous values for all fields:
              */
             { ...previousRealEstateProperty, ...newRealEstateProperty }
@@ -365,57 +365,6 @@ function App() {
     );
   }
 
-  // NOTE: For test / sample cleanup purposes only (not for docs example)
-  async function deleteAll() {
-    //region: delete realEstateProperties:
-    const response = await API.graphql<
-      GraphQLQuery<ListRealEstatePropertiesQuery>
-    >({
-      query: queries.listRealEstateProperties,
-    });
-
-    console.log(
-      "RealEstateProperties to delete",
-      response?.data?.listRealEstateProperties?.items
-    );
-
-    await response?.data?.listRealEstateProperties?.items.forEach(
-      async (realEstateProperty) => {
-        if (!realEstateProperty?.id) return;
-
-        const realEstatePropertyDetails: DeleteRealEstatePropertyInput = {
-          id: realEstateProperty?.id,
-        };
-
-        const deletedRealEstateProperty = await API.graphql<
-          GraphQLQuery<DeleteRealEstatePropertyMutation>
-        >({
-          query: mutations.deleteRealEstateProperty,
-          variables: { input: realEstatePropertyDetails },
-        });
-
-        console.log("RealEstateProperty deleted: ", deletedRealEstateProperty);
-      }
-    );
-    //endregion
-
-    //region verify all deletes were successful:
-    const secondResponse = await API.graphql<
-      GraphQLQuery<ListRealEstatePropertiesQuery>
-    >({
-      query: queries.listRealEstateProperties,
-    });
-    console.log(
-      "RealEstateProperties should be empty:",
-      secondResponse?.data?.listRealEstateProperties?.items
-    );
-
-    if (secondResponse?.data?.listRealEstateProperties?.items?.length === 0) {
-      console.log("All deletes successful!");
-    }
-    //endregion
-  }
-
   return (
     <div>
       {!currentRealEstatePropertyId && (
@@ -450,7 +399,6 @@ function App() {
               </>
             )}
           </div>
-          <button onClick={deleteAll}>Delete All</button>
           <ul style={styles.propertiesList}>
             {isLoading && (
               <div style={styles.loadingIndicator}>
