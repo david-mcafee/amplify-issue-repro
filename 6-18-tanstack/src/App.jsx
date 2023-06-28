@@ -2,8 +2,8 @@ import React, { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useIsFetching } from "@tanstack/react-query";
 import { API } from "aws-amplify";
-import * as queries from "./graphql/queries";
 import * as mutations from "./graphql/mutations";
+import * as queries from "./graphql/queries";
 
 /**
  * https://www.tanstack.com/query/v4/docs/react/guides/background-fetching-indicators#displaying-global-background-fetching-loading-state
@@ -20,7 +20,7 @@ function GlobalLoadingIndicator() {
 
 function App() {
   const [currentRealEstatePropertyId, setCurrentRealEstatePropertyId] =
-    (useState < string) | (null > null);
+    useState(null);
 
   // Access the client
   const queryClient = useQueryClient();
@@ -71,9 +71,10 @@ function App() {
 
       // Optimistically update to the new value
       if (previousRealEstateProperties) {
-        queryClient.setQueryData <
-          any >
-          (["realEstateProperties"], (old) => [...old, newRealEstateProperty]);
+        queryClient.setQueryData(["realEstateProperties"], (old) => [
+          ...old,
+          newRealEstateProperty,
+        ]);
       }
 
       // Return a context object with the snapshotted value
@@ -108,7 +109,6 @@ function App() {
       isError: isErrorQuery,
     } = useQuery({
       queryKey: ["realEstateProperties", currentRealEstatePropertyId],
-      // TODO: improve return type
       queryFn: async () => {
         const response = await API.graphql({
           query: queries.getRealEstateProperty,

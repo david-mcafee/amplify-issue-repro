@@ -2,8 +2,8 @@ import React, { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useIsFetching } from "@tanstack/react-query";
 import { API } from "aws-amplify";
-import * as queries from "./graphql/queries";
 import * as mutations from "./graphql/mutations";
+import * as queries from "./graphql/queries";
 import { GraphQLQuery } from "@aws-amplify/api";
 import {
   CreateRealEstatePropertyInput,
