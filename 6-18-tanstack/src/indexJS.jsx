@@ -1,7 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import "./index.css";
-import App from "./AppJS";
+import App from "./App";
 import { Amplify } from "aws-amplify";
 import awsExports from "./aws-exports";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -13,9 +13,7 @@ Amplify.configure(awsExports);
 // Create a client
 const queryClient = new QueryClient();
 
-const root = ReactDOM.createRoot(
-  document.getElementById("root") as HTMLElement
-);
+const root = ReactDOM.createRoot(document.getElementById("root"));
 
 // Provide the client to your App
 root.render(
