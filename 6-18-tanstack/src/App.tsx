@@ -45,10 +45,7 @@ function App() {
     isError: isErrorQuery,
   } = useQuery({
     queryKey: ["realEstateProperties"],
-    // TODO: improve return type
-    queryFn: async (): Promise<
-      (RealEstateProperty | null | undefined)[] | null | undefined
-    > => {
+    queryFn: async () => {
       const response = await API.graphql<
         GraphQLQuery<ListRealEstatePropertiesQuery>
       >({
@@ -131,8 +128,7 @@ function App() {
       isError: isErrorQuery,
     } = useQuery({
       queryKey: ["realEstateProperties", currentRealEstatePropertyId],
-      // TODO: improve return type
-      queryFn: async (): Promise<RealEstateProperty | null | undefined> => {
+      queryFn: async () => {
         const response = await API.graphql<
           GraphQLQuery<GetRealEstatePropertyQuery>
         >({
