@@ -2,9 +2,9 @@ import React, { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useIsFetching } from "@tanstack/react-query";
 import { API } from "aws-amplify";
-import * as queries from "./graphql/queries";
 import * as mutations from "./graphql/mutations";
-import { GraphQLQuery, GraphQLResult } from "@aws-amplify/api";
+import * as queries from "./graphql/queries";
+import { GraphQLQuery } from "@aws-amplify/api";
 import {
   CreateRealEstatePropertyInput,
   CreateRealEstatePropertyMutation,
@@ -65,7 +65,7 @@ function App() {
   const createMutation = useMutation({
     mutationFn: async (
       realEstatePropertyDetails: CreateRealEstatePropertyInput
-    ): Promise<RealEstateProperty | undefined | null> => {
+    ) => {
       const response = await API.graphql<
         GraphQLQuery<CreateRealEstatePropertyMutation>
       >({
@@ -151,8 +151,6 @@ function App() {
           variables: { input: realEstatePropertyDetails },
         });
 
-        console.log(response);
-        debugger;
         return response?.data?.updateRealEstateProperty;
       },
       // When mutate is called:

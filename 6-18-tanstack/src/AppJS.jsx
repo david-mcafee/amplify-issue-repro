@@ -122,12 +122,12 @@ function App() {
     // TanStack update mutation with optimistic updates
     const updateMutation = useMutation({
       mutationFn: async (realEstatePropertyDetails) => {
-        const updatedRealEstateProperty = await API.graphql({
+        const response = await API.graphql({
           query: mutations.updateRealEstateProperty,
           variables: { input: realEstatePropertyDetails },
         });
 
-        return updatedRealEstateProperty;
+        return response?.data?.updateRealEstateProperty;
       },
       // When mutate is called:
       onMutate: async (newRealEstateProperty) => {
@@ -135,6 +135,10 @@ function App() {
         // (so they don't overwrite our optimistic update)
         await queryClient.cancelQueries({
           queryKey: ["realEstateProperties", newRealEstateProperty.id],
+        });
+
+        await queryClient.cancelQueries({
+          queryKey: ["realEstateProperties"],
         });
 
         // Snapshot the previous value
@@ -171,21 +175,26 @@ function App() {
       },
       // Always refetch after error or success:
       onSettled: (newRealEstateProperty) => {
-        queryClient.invalidateQueries({
-          queryKey: ["realEstateProperties", newRealEstateProperty.id],
-        });
+        if (newRealEstateProperty) {
+          queryClient.invalidateQueries({
+            queryKey: ["realEstateProperties", newRealEstateProperty.id],
+          });
+          queryClient.invalidateQueries({
+            queryKey: ["realEstateProperties"],
+          });
+        }
       },
     });
 
     // TanStack delete mutation with optimistic updates
     const deleteMutation = useMutation({
       mutationFn: async (realEstatePropertyDetails) => {
-        const deletedRealEstateProperty = await API.graphql({
+        const response = await API.graphql({
           query: mutations.deleteRealEstateProperty,
           variables: { input: realEstatePropertyDetails },
         });
 
-        return deletedRealEstateProperty;
+        return response?.data?.deleteRealEstateProperty;
       },
       // When mutate is called:
       onMutate: async (newRealEstateProperty) => {
@@ -193,6 +202,10 @@ function App() {
         // (so they don't overwrite our optimistic update)
         await queryClient.cancelQueries({
           queryKey: ["realEstateProperties", newRealEstateProperty.id],
+        });
+
+        await queryClient.cancelQueries({
+          queryKey: ["realEstateProperties"],
         });
 
         // Snapshot the previous value
@@ -224,9 +237,14 @@ function App() {
       },
       // Always refetch after error or success:
       onSettled: (newRealEstateProperty) => {
-        queryClient.invalidateQueries({
-          queryKey: ["realEstateProperties", newRealEstateProperty.id],
-        });
+        if (newRealEstateProperty) {
+          queryClient.invalidateQueries({
+            queryKey: ["realEstateProperties", newRealEstateProperty.id],
+          });
+          queryClient.invalidateQueries({
+            queryKey: ["realEstateProperties"],
+          });
+        }
       },
     });
 
@@ -252,7 +270,8 @@ function App() {
                 "Updating Real Estate Property..."
               ) : (
                 <>
-                  {updateMutation.isError ? (
+                  {updateMutation.isError &&
+                  updateMutation.error instanceof Error ? (
                     <div>An error occurred: {updateMutation.error.message}</div>
                   ) : null}
 
@@ -291,7 +310,7 @@ function App() {
                 "Deleting Real Estate Property..."
               ) : (
                 <>
-                  {deleteMutation.isError ? (
+                  {deleteMutation.isError && deleteMutation.error ? (
                     <div>An error occurred: {deleteMutation.error.message}</div>
                   ) : null}
 
@@ -330,7 +349,7 @@ function App() {
               "Adding Real Estate Property..."
             ) : (
               <>
-                {createMutation.isError ? (
+                {createMutation.isError && createMutation.error ? (
                   <div>An error occurred: {createMutation.error.message}</div>
                 ) : null}
 
