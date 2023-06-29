@@ -2,9 +2,9 @@ import React, { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useIsFetching } from "@tanstack/react-query";
 import { API } from "aws-amplify";
-import * as mutations from "./graphql/mutations";
 import * as queries from "./graphql/queries";
-import { GraphQLQuery } from "@aws-amplify/api";
+import * as mutations from "./graphql/mutations";
+import { GraphQLQuery, GraphQLResult } from "@aws-amplify/api";
 import {
   CreateRealEstatePropertyInput,
   CreateRealEstatePropertyMutation,
@@ -55,7 +55,6 @@ function App() {
       const allRealEstateProperties =
         response?.data?.listRealEstateProperties?.items;
 
-      // TODO: figure out return type
       if (!allRealEstateProperties) return null;
 
       return allRealEstateProperties;
@@ -78,19 +77,19 @@ function App() {
       return newRealEstateProperty;
     },
     // When mutate is called:
-    onMutate: async (newRealEstateProperty: CreateRealEstatePropertyInput) => {
+    onMutate: async (newRealEstateProperty) => {
       // Cancel any outgoing refetches
       // (so they don't overwrite our optimistic update)
       await queryClient.cancelQueries({ queryKey: ["realEstateProperties"] });
 
       // Snapshot the previous value
-      const previousRealEstateProperties = queryClient.getQueryData<any>([
+      const previousRealEstateProperties = queryClient.getQueryData([
         "realEstateProperties",
       ]);
 
       // Optimistically update to the new value
       if (previousRealEstateProperties) {
-        queryClient.setQueryData<any>(["realEstateProperties"], (old: any) => [
+        queryClient.setQueryData(["realEstateProperties"], (old: any) => [
           ...old,
           newRealEstateProperty,
         ]);
@@ -104,7 +103,7 @@ function App() {
     onError: (err, newRealEstateProperty, context) => {
       console.error("Error saving record:", err, newRealEstateProperty);
       if (context?.previousRealEstateProperties) {
-        queryClient.setQueryData<RealEstateProperty>(
+        queryClient.setQueryData(
           ["realEstateProperties"],
           context.previousRealEstateProperties
         );
@@ -145,31 +144,34 @@ function App() {
       mutationFn: async (
         realEstatePropertyDetails: UpdateRealEstatePropertyInput
       ) => {
-        const updatedRealEstateProperty = await API.graphql<
+        const response = await API.graphql<
           GraphQLQuery<UpdateRealEstatePropertyMutation>
         >({
           query: mutations.updateRealEstateProperty,
           variables: { input: realEstatePropertyDetails },
         });
 
-        return updatedRealEstateProperty;
+        console.log(response);
+        debugger;
+        return response?.data?.updateRealEstateProperty;
       },
       // When mutate is called:
-      onMutate: async (
-        newRealEstateProperty: UpdateRealEstatePropertyInput
-      ) => {
+      onMutate: async (newRealEstateProperty) => {
         // Cancel any outgoing refetches
         // (so they don't overwrite our optimistic update)
         await queryClient.cancelQueries({
           queryKey: ["realEstateProperties", newRealEstateProperty.id],
         });
 
+        await queryClient.cancelQueries({
+          queryKey: ["realEstateProperties"],
+        });
+
         // Snapshot the previous value
-        const previousRealEstateProperty =
-          queryClient.getQueryData<RealEstateProperty>([
-            "realEstateProperties",
-            newRealEstateProperty.id,
-          ]);
+        const previousRealEstateProperty = queryClient.getQueryData([
+          "realEstateProperties",
+          newRealEstateProperty.id,
+        ]);
 
         // Optimistically update to the new value
         if (previousRealEstateProperty) {
@@ -191,7 +193,7 @@ function App() {
       onError: (err, newRealEstateProperty, context) => {
         console.error("Error updating record:", err, newRealEstateProperty);
         if (context?.previousRealEstateProperty) {
-          queryClient.setQueryData<RealEstateProperty>(
+          queryClient.setQueryData(
             ["realEstateProperties", context.newRealEstateProperty.id],
             context.previousRealEstateProperty
           );
@@ -199,11 +201,14 @@ function App() {
       },
       // Always refetch after error or success:
       onSettled: (newRealEstateProperty) => {
-        queryClient.invalidateQueries({
-          // TODO: fix type
-          // @ts-ignore
-          queryKey: ["realEstateProperties", newRealEstateProperty.id],
-        });
+        if (newRealEstateProperty) {
+          queryClient.invalidateQueries({
+            queryKey: ["realEstateProperties", newRealEstateProperty.id],
+          });
+          queryClient.invalidateQueries({
+            queryKey: ["realEstateProperties"],
+          });
+        }
       },
     });
 
@@ -212,35 +217,36 @@ function App() {
       mutationFn: async (
         realEstatePropertyDetails: DeleteRealEstatePropertyInput
       ) => {
-        const deletedRealEstateProperty = await API.graphql<
+        const response = await API.graphql<
           GraphQLQuery<DeleteRealEstatePropertyMutation>
         >({
           query: mutations.deleteRealEstateProperty,
           variables: { input: realEstatePropertyDetails },
         });
 
-        return deletedRealEstateProperty;
+        return response?.data?.deleteRealEstateProperty;
       },
       // When mutate is called:
-      onMutate: async (
-        newRealEstateProperty: DeleteRealEstatePropertyInput
-      ) => {
+      onMutate: async (newRealEstateProperty) => {
         // Cancel any outgoing refetches
         // (so they don't overwrite our optimistic update)
         await queryClient.cancelQueries({
           queryKey: ["realEstateProperties", newRealEstateProperty.id],
         });
 
+        await queryClient.cancelQueries({
+          queryKey: ["realEstateProperties"],
+        });
+
         // Snapshot the previous value
-        const previousRealEstateProperty =
-          queryClient.getQueryData<RealEstateProperty>([
-            "realEstateProperties",
-            newRealEstateProperty.id,
-          ]);
+        const previousRealEstateProperty = queryClient.getQueryData([
+          "realEstateProperties",
+          newRealEstateProperty.id,
+        ]);
 
         // Optimistically update to the new value
         if (previousRealEstateProperty) {
-          queryClient.setQueryData<DeleteRealEstatePropertyInput>(
+          queryClient.setQueryData(
             ["realEstateProperties", newRealEstateProperty.id],
             newRealEstateProperty
           );
@@ -253,7 +259,7 @@ function App() {
       onError: (err, newRealEstateProperty, context) => {
         console.error("Error deleting record:", err, newRealEstateProperty);
         if (context?.previousRealEstateProperty) {
-          queryClient.setQueryData<RealEstateProperty>(
+          queryClient.setQueryData(
             ["realEstateProperties", context.newRealEstateProperty.id],
             context.previousRealEstateProperty
           );
@@ -261,11 +267,14 @@ function App() {
       },
       // Always refetch after error or success:
       onSettled: (newRealEstateProperty) => {
-        queryClient.invalidateQueries({
-          // TODO: fix type
-          // @ts-ignore
-          queryKey: ["realEstateProperties", newRealEstateProperty.id],
-        });
+        if (newRealEstateProperty) {
+          queryClient.invalidateQueries({
+            queryKey: ["realEstateProperties", newRealEstateProperty.id],
+          });
+          queryClient.invalidateQueries({
+            queryKey: ["realEstateProperties"],
+          });
+        }
       },
     });
 
