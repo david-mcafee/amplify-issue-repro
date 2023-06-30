@@ -270,8 +270,7 @@ function App() {
                 "Updating Real Estate Property..."
               ) : (
                 <>
-                  {updateMutation.isError &&
-                  updateMutation.error instanceof Error ? (
+                  {updateMutation.isError && updateMutation.error ? (
                     <div>An error occurred: {updateMutation.error.message}</div>
                   ) : null}
 

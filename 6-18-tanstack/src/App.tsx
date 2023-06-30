@@ -12,7 +12,6 @@ import {
   DeleteRealEstatePropertyMutation,
   GetRealEstatePropertyQuery,
   ListRealEstatePropertiesQuery,
-  RealEstateProperty,
   UpdateRealEstatePropertyInput,
   UpdateRealEstatePropertyMutation,
 } from "./API";
