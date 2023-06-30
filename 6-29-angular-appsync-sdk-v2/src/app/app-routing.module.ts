@@ -7,10 +7,6 @@ const routes: Routes = [
     path: 'todo',
     component: TodoComponent,
   },
-  {
-    path: '',
-    component: AuthComponent,
-  },
 ];
 
 @NgModule({

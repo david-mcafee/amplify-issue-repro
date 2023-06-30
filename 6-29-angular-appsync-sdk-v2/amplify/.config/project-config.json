@@ -6,7 +6,7 @@
     "framework": "angular",
     "config": {
       "SourceDir": "src",
-      "DistributionDir": "dist",
+      "DistributionDir": "dist/6-29-angular-appsync-sdk-v2",
       "BuildCommand": "npm run-script build",
       "StartCommand": "ng serve"
     }
