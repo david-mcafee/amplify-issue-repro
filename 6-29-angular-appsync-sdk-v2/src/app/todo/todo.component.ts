@@ -1,14 +1,8 @@
-// import { createTodoInput } from './../../graphql/inputs';
 import { Component, OnInit } from '@angular/core';
 import { AppsyncService } from '../appsync.service';
-// import * as mutations from '../../graphql/mutations';
-// import * as queries from '../../graphql/queries';
-// import { APIService, Todo } from '../API.service';
 import { buildMutation } from 'aws-appsync';
 import gql from 'graphql-tag';
-import { CreateTodoInput } from '../API.service';
 
-// Import gql helper and craft a GraphQL query
 const query = gql(`query ListTodos(
   $filter: ModelTodoFilterInput
   $limit: Int
@@ -35,8 +29,6 @@ const subquery =
     id
     name
     description
-    createdAt
-    updatedAt
     __typename
   }
 }`);
@@ -44,7 +36,6 @@ const subquery =
 const createTodoInput = `input CreteTodoInput {
     id: ID
     name: String!
-    description: String
   }`;
 
 @Component({
@@ -58,22 +49,10 @@ export class TodoComponent implements OnInit {
 
   ngOnInit() {
     // @ts-ignore
-    this.appsync.funchc().then((client) => {
-      // TODO: what's this?
-      // const observable = client.watchQuery({
-      //   query: listTodos,
-      //   fetchPolicy: 'cache-and-network',
-      // });
-
-      // @ts-ignore
-      // observable.subscribe(({ data }) => {
-      //   this.allTodos = data.listTodos.items;
-      // });
-
-      //Now run a query
+    this.appsync.initClient().then((client) => {
+      // Now run a query
       client
         .query({ query: query })
-        //client.query({ query: query, fetchPolicy: 'network-only' })   //Uncomment for AWS Lambda
         // @ts-ignore
         .then(function logData(data) {
           console.log('results of query: ', data);
@@ -99,7 +78,7 @@ export class TodoComponent implements OnInit {
     const todoName = `test ${Date.now()}`;
     if (todoName) {
       // NOTE: we wait for the client to be initialized prior to performing a mutation
-      const client = await this.appsync.funchc();
+      const client = await this.appsync.initClient();
 
       const result = await client.mutate(
         buildMutation(
@@ -111,9 +90,6 @@ export class TodoComponent implements OnInit {
             createTodo(input: $input, condition: $condition) {
               id
               name
-              description
-              createdAt
-              updatedAt
               __typename
             }
           }`),
