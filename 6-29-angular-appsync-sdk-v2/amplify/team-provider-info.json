@@ -1,0 +1,20 @@
+{
+  "dev": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-629angularappsyncsdk-dev-170359-authRole",
+      "UnauthRoleArn": "arn:aws:iam::055345086115:role/amplify-629angularappsyncsdk-dev-170359-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::055345086115:role/amplify-629angularappsyncsdk-dev-170359-authRole",
+      "Region": "us-west-2",
+      "DeploymentBucketName": "amplify-629angularappsyncsdk-dev-170359-deployment",
+      "UnauthRoleName": "amplify-629angularappsyncsdk-dev-170359-unauthRole",
+      "StackName": "amplify-629angularappsyncsdk-dev-170359",
+      "StackId": "arn:aws:cloudformation:us-west-2:055345086115:stack/amplify-629angularappsyncsdk-dev-170359/9e729dd0-16d9-11ee-a895-0a280535335d",
+      "AmplifyAppId": "dbpvhlxjagfnm"
+    },
+    "categories": {
+      "api": {
+        "629angularappsyncsdk": {}
+      }
+    }
+  }
+}
