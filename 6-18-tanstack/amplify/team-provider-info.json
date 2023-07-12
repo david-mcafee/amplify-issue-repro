@@ -10,6 +10,11 @@
       "StackName": "amplify-618tanstack-dev-160624",
       "StackId": "arn:aws:cloudformation:us-west-2:055345086115:stack/amplify-618tanstack-dev-160624/bbc67be0-1c51-11ee-a80e-06c51447e351",
       "AmplifyAppId": "dium3eta4js5w"
+    },
+    "categories": {
+      "api": {
+        "618tanstack": {}
+      }
     }
   }
 }
