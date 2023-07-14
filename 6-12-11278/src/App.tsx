@@ -12,6 +12,11 @@ import OrderDishList from "./Components/OrderDishList";
 // Hard coding restaurant id so we have it on sub instantiation:
 const restaurantId = "a50ae53a-cae8-4391-8df5-ab9f7fb5902b";
 
+// region: https://github.com/aws-amplify/amplify-js/issues/11594
+const start = "2023-07-13T01:21:54.908Z";
+const end = "2023-07-15T01:21:54.908Z";
+// endregion
+
 function App() {
   const [orders, setOrders] = useState<Order[]>([]);
 
@@ -26,6 +31,11 @@ function App() {
   }
 
   async function queryAll() {
+    // region: https://github.com/aws-amplify/amplify-js/issues/11594
+    console.log("start", start);
+    console.log("end", end);
+    // endregion
+
     const orders = await DataStore.query(Order);
     console.log("Orders", orders);
     setOrders(orders);
@@ -89,17 +99,48 @@ function App() {
   }
   //endregion
 
+  // Original sub test:
+  // useEffect(() => {
+  //   if (!restaurantId) {
+  //     return;
+  //   }
+
+  //   /**
+  //    * Observe Model Order
+  //    * ACCEPTED, NEW, COOKING AND READY_FOR_PICKUP ORDERS
+  //    */
+  //   const subscription = DataStore.observeQuery(Order, (order) =>
+  //     order.and((order) => [
+  //       order.restaurantOrdersId.eq(restaurantId),
+  //       order.or((o) => [
+  //         o.status.eq(OrderStatus.ACCEPTED),
+  //         o.status.eq(OrderStatus.COOKING),
+  //         o.status.eq(OrderStatus.NEW),
+  //         o.status.eq(OrderStatus.READY_FOR_PICKUP),
+  //       ]),
+  //     ])
+  //   ).subscribe((snapshot) => {
+  //     const { items, isSynced } = snapshot;
+  //     console.log(
+  //       `[Snapshot] Orders fetched: ${items.length}, isSynced: ${isSynced}`
+  //     );
+
+  //     setOrders(items);
+  //   });
+
+  //   return () => {
+  //     subscription.unsubscribe();
+  //   };
+  // }, []);
+
   useEffect(() => {
     if (!restaurantId) {
       return;
     }
 
-    /**
-     * Observe Model Order
-     * ACCEPTED, NEW, COOKING AND READY_FOR_PICKUP ORDERS
-     */
     const subscription = DataStore.observeQuery(Order, (order) =>
       order.and((order) => [
+        order.createdAt.between(start, end), // breaks the observer
         order.restaurantOrdersId.eq(restaurantId),
         order.or((o) => [
           o.status.eq(OrderStatus.ACCEPTED),
@@ -131,6 +172,67 @@ function App() {
     );
   }
 
+  // https://github.com/aws-amplify/amplify-js/issues/11552
+  async function checkStaleDeletedData() {
+    // Add children to parent:
+    await DataStore.save(
+      new Order({
+        name: "Order 1",
+        status: OrderStatus.NEW,
+        restaurantOrdersId: restaurantId,
+      })
+    );
+    await DataStore.save(
+      new Order({
+        name: "Order 2",
+        status: OrderStatus.NEW,
+        restaurantOrdersId: restaurantId,
+      })
+    );
+    await DataStore.save(
+      new Order({
+        name: "Order 3",
+        status: OrderStatus.NEW,
+        restaurantOrdersId: restaurantId,
+      })
+    );
+
+    // Query parent:
+    const queriedParent = await DataStore.query(Restaurant, restaurantId);
+
+    // Retrieve children:
+    const children: Order[] | undefined = await queriedParent?.orders.toArray();
+
+    // Delete children if they exist:
+    if (!children) {
+      return;
+    }
+
+    await Promise.all(children?.map(async (o) => await DataStore.delete(o)));
+
+    // Retrieve children again:
+    const reQueredChildren = await queriedParent?.orders.toArray();
+
+    // Children are still present locally, even though they are deleted:
+    console.log("Re-queried children:", reQueredChildren);
+
+    /**
+     * Lazy loaded properties are memoized to align more with the immutable
+     * nature of our model instances. I.e., once you look at an instances
+     * properties, they will not change.
+     *
+     */
+
+    // Re-query parent:
+    const reQueriedParent = await DataStore.query(Restaurant, restaurantId);
+
+    // Retrieve children from re-queried parent:
+    const ordersFromRequeriedParent = await reQueriedParent?.orders.toArray();
+
+    // Children are no longer present locally:
+    console.log("Re-queried children:", ordersFromRequeriedParent);
+  }
+
   return (
     <div className="App">
       <header className="App-header">
@@ -148,6 +250,8 @@ function App() {
             </Box>
           ))}
         </List>
+        <h3>Issue 11552</h3>
+        <button onClick={checkStaleDeletedData}>checkStaleDeletedData</button>
       </header>
     </div>
   );
