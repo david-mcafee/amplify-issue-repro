@@ -213,15 +213,13 @@ function App() {
     // Retrieve children again:
     const reQueredChildren = await queriedParent?.orders.toArray();
 
-    // Children are still present locally, even though they are deleted:
-    console.log("Re-queried children:", reQueredChildren);
-
     /**
-     * Lazy loaded properties are memoized to align more with the immutable
-     * nature of our model instances. I.e., once you look at an instances
-     * properties, they will not change.
-     *
+     * Children are still present locally, even though they are deleted.
+     * This is because lazy loaded properties are memoized to align more with
+     * the immutable nature of our model instances. I.e., once you look at an
+     * instance's properties, they will not change.
      */
+    console.log("Re-queried children:", reQueredChildren);
 
     // Re-query parent:
     const reQueriedParent = await DataStore.query(Restaurant, restaurantId);
@@ -231,6 +229,53 @@ function App() {
 
     // Children are no longer present locally:
     console.log("Re-queried children:", ordersFromRequeriedParent);
+  }
+
+  // https://github.com/aws-amplify/amplify-js/issues/11552
+  async function checkStaleDeletedData2() {
+    // Add children to parent:
+    await DataStore.save(
+      new Order({
+        name: "Order 1",
+        status: OrderStatus.NEW,
+        restaurantOrdersId: restaurantId,
+      })
+    );
+    await DataStore.save(
+      new Order({
+        name: "Order 2",
+        status: OrderStatus.NEW,
+        restaurantOrdersId: restaurantId,
+      })
+    );
+    await DataStore.save(
+      new Order({
+        name: "Order 3",
+        status: OrderStatus.NEW,
+        restaurantOrdersId: restaurantId,
+      })
+    );
+
+    // Query parent:
+    const queriedParent = await DataStore.query(Restaurant, restaurantId);
+
+    // Retrieve children:
+    const children: Order[] | undefined = await queriedParent?.orders.toArray();
+
+    // Delete children if they exist:
+    if (!children) {
+      return;
+    }
+
+    await Promise.all(children?.map(async (o) => await DataStore.delete(o)));
+
+    // Option 3:
+    const reQueriedChildren = await DataStore.query(Order, (o) =>
+      o.restaurant.id.eq(restaurantId)
+    );
+
+    // Children are not present, as they have been directly queried:
+    console.log("Re-queried children:", reQueriedChildren);
   }
 
   return (
@@ -252,6 +297,7 @@ function App() {
         </List>
         <h3>Issue 11552</h3>
         <button onClick={checkStaleDeletedData}>checkStaleDeletedData</button>
+        <button onClick={checkStaleDeletedData2}>checkStaleDeletedData2</button>
       </header>
     </div>
   );
