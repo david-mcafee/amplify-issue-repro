@@ -1,5 +1,6 @@
 {
   "AppSyncApiName": "618tanstack",
   "DynamoDBBillingMode": "PAY_PER_REQUEST",
-  "DynamoDBEnableServerSideEncryption": false
+  "DynamoDBEnableServerSideEncryption": false,
+  "AuthModeLastUpdated": "2023-07-19T00:09:22.307Z"
 }
