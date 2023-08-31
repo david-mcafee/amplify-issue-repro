@@ -14,32 +14,11 @@ function App() {
   async function onCreate() {
     await DataStore.save(
       new Todo({
+        id: `${Date.now()}`,
         name: `name ${Date.now()}`,
         description: `description ${Date.now()}`,
       })
     );
-  }
-
-  async function onCreateThenStop() {
-    DataStore.save(
-      new Todo({
-        name: `name ${Date.now()}`,
-        description: `description ${Date.now()}`,
-      })
-    );
-
-    DataStore.stop();
-  }
-
-  async function onCreateThenClear() {
-    DataStore.save(
-      new Todo({
-        name: `name ${Date.now()}`,
-        description: `description ${Date.now()}`,
-      })
-    );
-
-    DataStore.clear();
   }
 
   async function updateLastTodo() {
