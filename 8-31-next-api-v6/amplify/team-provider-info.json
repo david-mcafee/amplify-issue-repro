@@ -1,0 +1,20 @@
+{
+  "dev": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-831nextapiv6-dev-182531-authRole",
+      "UnauthRoleArn": "arn:aws:iam::325800432239:role/amplify-831nextapiv6-dev-182531-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::325800432239:role/amplify-831nextapiv6-dev-182531-authRole",
+      "Region": "ca-central-1",
+      "DeploymentBucketName": "amplify-831nextapiv6-dev-182531-deployment",
+      "UnauthRoleName": "amplify-831nextapiv6-dev-182531-unauthRole",
+      "StackName": "amplify-831nextapiv6-dev-182531",
+      "StackId": "arn:aws:cloudformation:ca-central-1:325800432239:stack/amplify-831nextapiv6-dev-182531/73bf6050-4866-11ee-b487-06104b231ad0",
+      "AmplifyAppId": "d1akcm3cmvpapx"
+    },
+    "categories": {
+      "api": {
+        "831nextapiv6": {}
+      }
+    }
+  }
+}
