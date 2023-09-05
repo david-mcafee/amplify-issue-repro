@@ -1,56 +1,65 @@
-import { useEffect, useState } from "react";
+// import { useEffect, useState } from "react";
+import { useState } from "react";
 import "./App.css";
 import { API, graphqlOperation } from "aws-amplify";
-import { GraphQLQuery, GraphQLSubscription } from "@aws-amplify/api";
+// import { GraphQLQuery, GraphQLSubscription } from "@aws-amplify/api";
+import { GraphQLQuery } from "@aws-amplify/api";
 import {
   CreateTodoInput,
   CreateTodoMutation,
   DeleteTodoInput,
   DeleteTodoMutation,
   ListTodosQuery,
-  OnCreateTodoSubscription,
+  // OnCreateTodoSubscription,
 } from "./API";
 import * as queries from "./graphql/queries";
 import * as mutations from "./graphql/mutations";
-import * as subscriptions from "./graphql/subscriptions";
+// import * as subscriptions from "./graphql/subscriptions";
 
 function App() {
   const [todos, setTodos] = useState<any[]>([]);
 
-  useEffect(() => {
-    // Subscribe to creation of Todo
-    const sub = API.graphql<GraphQLSubscription<OnCreateTodoSubscription>>(
-      graphqlOperation(subscriptions.onCreateTodo)
-    ).subscribe({
-      next: (payload) => {
-        const createdTodo = payload.value.data?.onCreateTodo;
-        console.log(createdTodo);
-      },
-    });
+  // useEffect(() => {
+  //   // Subscribe to creation of Todo
+  //   const sub = API.graphql<GraphQLSubscription<OnCreateTodoSubscription>>(
+  //     graphqlOperation(subscriptions.onCreateTodo)
+  //   ).subscribe({
+  //     next: (payload) => {
+  //       const createdTodo = payload.value.data?.onCreateTodo;
+  //       console.log(createdTodo);
+  //     },
+  //   });
 
-    // Stop receiving data updates from the subscription
-    return () => sub.unsubscribe();
-  }, []);
+  //   // Stop receiving data updates from the subscription
+  //   return () => sub.unsubscribe();
+  // }, []);
 
   const createTodo = async () => {
-    const todo: CreateTodoInput = {
-      name: "My first todo",
-      description: "Hello world!",
+    const todoDetails: CreateTodoInput = {
+      name: "Todo 1",
+      description: "Learn AWS AppSync",
     };
 
-    await API.graphql<GraphQLQuery<CreateTodoMutation>>(
-      graphqlOperation(createTodo, { input: todo })
-    );
+    const newTodo = await API.graphql<GraphQLQuery<CreateTodoMutation>>({
+      query: mutations.createTodo,
+      variables: { input: todoDetails },
+    });
+
+    console.log("newTodo", newTodo);
+    return newTodo;
   };
 
   const getTodos = async () => {
-    const todos = await API.graphql<GraphQLQuery<ListTodosQuery>>(
+    const response = await API.graphql<GraphQLQuery<ListTodosQuery>>(
       graphqlOperation(queries.listTodos)
     );
 
-    if (todos.data?.listTodos?.items) {
-      setTodos(todos.data?.listTodos?.items);
-      return todos.data?.listTodos?.items;
+    const todos = response.data?.listTodos?.items;
+
+    if (todos) {
+      setTodos(todos);
+      console.log("todos", todos);
+      return todos;
     }
   };
 
@@ -60,18 +69,26 @@ function App() {
       query: queries.listTodos,
     });
 
+    console.log("first query:", response);
+
+    const todos = response?.data?.listTodos?.items;
+
     // Delete all records:
-    if (response?.data?.listTodos) {
-      response.data.listTodos.items.forEach(async (todo) => {
+    if (todos) {
+      todos.forEach(async (todo) => {
         if (todo) {
           const todoDetails: DeleteTodoInput = {
             id: todo.id,
           };
 
-          await API.graphql<GraphQLQuery<DeleteTodoMutation>>({
+          const deleteResponse = await API.graphql<
+            GraphQLQuery<DeleteTodoMutation>
+          >({
             query: mutations.deleteTodo,
             variables: { input: todoDetails },
           });
+
+          console.log("deleteResponse", deleteResponse);
         }
       });
     }
@@ -80,6 +97,8 @@ function App() {
     const secondResponse = await API.graphql<GraphQLQuery<ListTodosQuery>>({
       query: queries.listTodos,
     });
+
+    console.log("second query:", secondResponse);
 
     const allDeleted = secondResponse?.data?.listTodos?.items.length === 0;
 
