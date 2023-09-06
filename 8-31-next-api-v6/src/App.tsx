@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { ZenObservable } from "zen-observable-ts";
 import { Amplify, API as _API } from "aws-amplify";
 import * as queries from "./graphql/queries";
 import * as mutations from "./graphql/mutations";
-// import * as subscription from "./graphql/subscriptions";
+import * as subscription from "./graphql/subscriptions";
 
 // import { schema as modelIntrospectionSchema } from "./models/schema.js";
 
@@ -28,7 +29,6 @@ Amplify.configure({
   // },
 });
 
-// V6:
 const client = _API.generateClient();
 
 // ?
@@ -36,32 +36,59 @@ const client = _API.generateClient();
 //   return items.filter((x) => x) as any;
 // }
 
+const subs: ZenObservable.Subscription[] = [];
+
 function App() {
   const [todos, setTodos] = useState<any[]>([]);
   const [currentTodo, setCurrentTodo] = useState<any>();
+  const [subMessages, setSubMessages] = useState<any[]>([]);
 
-  // useEffect(() => {
-  //   // V5
-  //   const sub = API.graphql<GraphQLSubscription<OnCreateTodoSubscription>>(
-  //     graphqlOperation(subscriptions.onCreateTodo)
-  //   ).subscribe({
-  //     next: (payload) => {
-  //       const createdTodo = payload.value.data?.onCreateTodo;
-  //       console.log(createdTodo);
-  //     },
-  //   });
+  useEffect(() => {
+    subs.push(
+      // @ts-ignore
+      client.graphql({ query: subscription.onCreateTodo }).subscribe({
+        // @ts-ignore
+        next: (payload) => {
+          console.log("onCreate payload", payload);
+          const todo = payload.value.data.onCreateTodo;
+          console.log("onCreate", todo);
+          setSubMessages((prev) => [...prev, todo]);
+        },
+        // @ts-ignore
+        error: (error) => console.warn(error),
+      })
+    );
 
-  // V6
-  // const sub = client.graphql({ query: subscription.onCreateTodo }).subscribe({
-  //   next(message: any) {
-  //     const todo = message.value.data.onCreateTodo;
-  //     console.log("onCreate", todo);
-  //   },
-  // });
+    subs.push(
+      // @ts-ignore
+      client.graphql({ query: subscription.onDeleteTodo }).subscribe({
+        // @ts-ignore
+        next: (payload) => {
+          const todo = payload.value.data.onDeleteTodo;
+          console.log("onDelete", todo);
+          setSubMessages((prev) => [...prev, todo]);
+        },
+        // @ts-ignore
+        error: (error) => console.warn(error),
+      })
+    );
 
-  //   // Stop receiving data updates from the subscription
-  //   return () => sub.unsubscribe();
-  // }, []);
+    subs.push(
+      // @ts-ignore
+      client.graphql({ query: subscription.onUpdateTodo }).subscribe({
+        // @ts-ignore
+        next: (payload) => {
+          const todo = payload.value.data.onUpdateTodo;
+          console.log("onUpdate", todo);
+          setSubMessages((prev) => [...prev, todo]);
+        },
+        // @ts-ignore
+        error: (error) => console.warn(error),
+      })
+    );
+
+    return () => subs.forEach((sub) => sub.unsubscribe());
+  }, []);
 
   const createTodo = async () => {
     const mutationResult = await client.graphql({
@@ -76,8 +103,8 @@ function App() {
 
     // @ts-ignore
     const createdTodo = mutationResult.data?.createTodo!;
-    setCurrentTodo(createdTodo);
     console.log("createdTodo", createdTodo);
+    setCurrentTodo(createdTodo);
     return createdTodo;
   };
 
@@ -133,8 +160,8 @@ function App() {
     // @ts-ignore
     const deletedTodo = deleteResult.data?.deleteTodo;
 
-    setCurrentTodo(undefined);
     console.log("deletedTodo", deletedTodo);
+    setCurrentTodo(undefined);
     return deletedTodo;
   };
 
@@ -213,7 +240,6 @@ function App() {
   //   console.log(`isCancelled: ${isCancelled}`);
   // };
 
-  // PRE V6:
   async function deleteAll(): Promise<boolean> {
     const response = await getTodos();
 
@@ -245,6 +271,7 @@ function App() {
 
     console.log("allDeleted", allDeleted);
 
+    setCurrentTodo(undefined);
     return allDeleted;
   }
 
@@ -288,8 +315,16 @@ function App() {
       <button onClick={deleteAll} style={{ margin: ".5rem" }}>
         Delete All
       </button>
-      <pre>currentTodo: {JSON.stringify(currentTodo, null, 2)}</pre>
-      <pre>todos: {JSON.stringify(todos, null, 2)}</pre>
+      <button onClick={() => setSubMessages([])} style={{ margin: ".5rem" }}>
+        Clear subs
+      </button>
+      <pre style={{ border: "1px solid black", margin: ".5rem" }}>
+        currentTodo: {JSON.stringify(currentTodo, null, 2)}
+      </pre>
+      <div style={{ display: "flex", flexDirection: "row" }}>
+        <pre>todos: {JSON.stringify(todos, null, 2)}</pre>
+        <pre>sub payloads: {JSON.stringify(subMessages, null, 2)}</pre>
+      </div>
     </div>
   );
 }
