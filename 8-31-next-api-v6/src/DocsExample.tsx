@@ -1,37 +1,37 @@
 import React, { useState } from "react";
 // import "./App.css";
 import { API, graphqlOperation } from "aws-amplify";
-// import { GraphQLQuery, GraphQLSubscription } from "@aws-amplify/api";
-import { GraphQLQuery } from "@aws-amplify/api";
+import { GraphQLQuery, GraphQLSubscription } from "@aws-amplify/api";
+// import { GraphQLQuery } from "@aws-amplify/api";
 import {
   CreateTodoInput,
   CreateTodoMutation,
   DeleteTodoInput,
   DeleteTodoMutation,
   ListTodosQuery,
-  // OnCreateTodoSubscription,
+  OnCreateTodoSubscription,
 } from "./API";
 import * as queries from "./graphql/queries";
 import * as mutations from "./graphql/mutations";
-// import * as subscriptions from "./graphql/subscriptions";
+import * as subscriptions from "./graphql/subscriptions";
 
 function App() {
   const [todos, setTodos] = useState<any[]>([]);
 
-  // useEffect(() => {
-  //   // Subscribe to creation of Todo
-  //   const sub = API.graphql<GraphQLSubscription<OnCreateTodoSubscription>>(
-  //     graphqlOperation(subscriptions.onCreateTodo)
-  //   ).subscribe({
-  //     next: (payload) => {
-  //       const createdTodo = payload.value.data?.onCreateTodo;
-  //       console.log(createdTodo);
-  //     },
-  //   });
+  useEffect(() => {
+    // Subscribe to creation of Todo
+    const sub = API.graphql<GraphQLSubscription<OnCreateTodoSubscription>>(
+      graphqlOperation(subscriptions.onCreateTodo)
+    ).subscribe({
+      next: (payload) => {
+        const createdTodo = payload.value.data?.onCreateTodo;
+        console.log(createdTodo);
+      },
+    });
 
-  //   // Stop receiving data updates from the subscription
-  //   return () => sub.unsubscribe();
-  // }, []);
+    // Stop receiving data updates from the subscription
+    return () => sub.unsubscribe();
+  }, []);
 
   const createTodo = async () => {
     const todoDetails: CreateTodoInput = {

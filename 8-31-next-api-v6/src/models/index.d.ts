@@ -4,7 +4,33 @@ import { LazyLoading, LazyLoadingDisabled } from "@aws-amplify/datastore";
 
 
 
+type EagerPostmanGetArgs = {
+  readonly key?: string | null;
+}
 
+type LazyPostmanGetArgs = {
+  readonly key?: string | null;
+}
+
+export declare type PostmanGetArgs = LazyLoading extends LazyLoadingDisabled ? EagerPostmanGetArgs : LazyPostmanGetArgs
+
+export declare const PostmanGetArgs: (new (init: ModelInit<PostmanGetArgs>) => PostmanGetArgs)
+
+type EagerPostmanEcho = {
+  readonly args?: PostmanGetArgs | null;
+  readonly headers?: string | null;
+  readonly url?: string | null;
+}
+
+type LazyPostmanEcho = {
+  readonly args?: PostmanGetArgs | null;
+  readonly headers?: string | null;
+  readonly url?: string | null;
+}
+
+export declare type PostmanEcho = LazyLoading extends LazyLoadingDisabled ? EagerPostmanEcho : LazyPostmanEcho
+
+export declare const PostmanEcho: (new (init: ModelInit<PostmanEcho>) => PostmanEcho)
 
 type EagerTodo = {
   readonly [__modelMeta__]: {

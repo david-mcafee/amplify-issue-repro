@@ -52,7 +52,48 @@ export const schema = {
         }
     },
     "enums": {},
-    "nonModels": {},
+    "nonModels": {
+        "PostmanGetArgs": {
+            "name": "PostmanGetArgs",
+            "fields": {
+                "key": {
+                    "name": "key",
+                    "isArray": false,
+                    "type": "String",
+                    "isRequired": false,
+                    "attributes": []
+                }
+            }
+        },
+        "PostmanEcho": {
+            "name": "PostmanEcho",
+            "fields": {
+                "args": {
+                    "name": "args",
+                    "isArray": false,
+                    "type": {
+                        "nonModel": "PostmanGetArgs"
+                    },
+                    "isRequired": false,
+                    "attributes": []
+                },
+                "headers": {
+                    "name": "headers",
+                    "isArray": false,
+                    "type": "AWSJSON",
+                    "isRequired": false,
+                    "attributes": []
+                },
+                "url": {
+                    "name": "url",
+                    "isArray": false,
+                    "type": "String",
+                    "isRequired": false,
+                    "attributes": []
+                }
+            }
+        }
+    },
     "codegenVersion": "3.4.4",
-    "version": "4401034582a70c60713e1f7f9da3b752"
+    "version": "52a20bb91bf766b76b2a73536fe482a1"
 };

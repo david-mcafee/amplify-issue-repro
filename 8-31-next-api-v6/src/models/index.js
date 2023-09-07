@@ -4,8 +4,10 @@ import { schema } from './schema';
 
 
 
-const { Todo } = initSchema(schema);
+const { Todo, PostmanGetArgs, PostmanEcho } = initSchema(schema);
 
 export {
-  Todo
+  Todo,
+  PostmanGetArgs,
+  PostmanEcho
 };
