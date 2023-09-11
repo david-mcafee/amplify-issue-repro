@@ -5,28 +5,19 @@ import * as queries from "./graphql/queries";
 import * as mutations from "./graphql/mutations";
 import * as subscription from "./graphql/subscriptions";
 
-// import { schema as modelIntrospectionSchema } from "./models/schema.js";
-
-// `next` branch testing:
+// For testing `next` JS implementation of auth and REST API in isolation:
 // import { fetchAuthSession } from "aws-amplify/auth";
 // import { post, cancel, isCancel } from "@aws-amplify/api-rest";
-
-//region test utils
-// TODO
-//endregion
 
 import awsConfig from "./aws-exports";
 
 Amplify.configure({
   ...awsConfig,
-
-  // for `generateClient()`:
-  modelIntrospection: {
-    models: {},
+  API: {
+    AppSync: {
+      modelIntrospectionSchema,
+    },
   },
-  // API: {
-  //   modelIntrospectionSchema,
-  // },
 });
 
 const client = _API.generateClient();
