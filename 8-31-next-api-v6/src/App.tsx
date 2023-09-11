@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { ZenObservable } from "zen-observable-ts";
-import { Amplify, API as _API } from "aws-amplify";
+import { Amplify } from "aws-amplify";
+import { API as _API } from "aws-amplify/api";
 import * as queries from "./graphql/queries";
 import * as mutations from "./graphql/mutations";
 import * as subscription from "./graphql/subscriptions";
@@ -15,7 +16,9 @@ Amplify.configure({
   ...awsConfig,
   API: {
     AppSync: {
-      modelIntrospectionSchema,
+      modelIntrospectionSchema: {
+        models: {},
+      },
     },
   },
 });
@@ -37,35 +40,48 @@ function App() {
   useEffect(() => {
     subs.push(
       // TODO: tagged CLI release? Check with Studio what they'll use
-      client.graphql({ query: subscription.onCreateTodo }).subscribe({
-        next: (payload) => {
-          console.log("onCreate payload", payload);
-          const todo = payload.value.data.onCreateTodo;
-          console.log("onCreate", todo);
-          setSubMessages((prev) => [...prev, todo]);
-        },
-        error: (error) => console.warn(error),
-      })
+      client
+        .graphql({
+          query: subscription.onCreateTodo,
+        })
+        // @ts-ignore
+        .subscribe({
+          // @ts-ignore
+          next: (payload) => {
+            console.log("onCreate payload", payload);
+            const todo = payload.value.data.onCreateTodo;
+            console.log("onCreate", todo);
+            setSubMessages((prev) => [...prev, todo]);
+          },
+          // @ts-ignore
+          error: (error) => console.warn(error),
+        })
     );
 
     subs.push(
+      // @ts-ignore
       client.graphql({ query: subscription.onDeleteTodo }).subscribe({
+        // @ts-ignore
         next: (payload) => {
           const todo = payload.value.data.onDeleteTodo;
           console.log("onDelete", todo);
           setSubMessages((prev) => [...prev, todo]);
         },
+        // @ts-ignore
         error: (error) => console.warn(error),
       })
     );
 
     subs.push(
+      // @ts-ignore
       client.graphql({ query: subscription.onUpdateTodo }).subscribe({
+        // @ts-ignore
         next: (payload) => {
           const todo = payload.value.data.onUpdateTodo;
           console.log("onUpdate", todo);
           setSubMessages((prev) => [...prev, todo]);
         },
+        // @ts-ignore
         error: (error) => console.warn(error),
       })
     );
@@ -84,6 +100,7 @@ function App() {
       },
     });
 
+    // @ts-ignore
     const createdTodo = mutationResult.data?.createTodo!;
     console.log("createdTodo", createdTodo);
     setCurrentTodo(createdTodo);
@@ -100,6 +117,7 @@ function App() {
       },
     });
 
+    // @ts-ignore
     const fetchedTodos = listResult.data?.listTodos?.items!;
 
     if (fetchedTodos) {
@@ -118,6 +136,7 @@ function App() {
       },
     });
 
+    // @ts-ignore
     const fetchedTodo = queryResult.data?.getTodo!;
 
     setCurrentTodo(fetchedTodo);
@@ -137,6 +156,7 @@ function App() {
       },
     });
 
+    // @ts-ignore
     const deletedTodo = deleteResult.data?.deleteTodo;
 
     console.log("deletedTodo", deletedTodo);
@@ -235,6 +255,7 @@ function App() {
             },
           });
 
+          // @ts-ignore
           console.log("deletedPost", deleteResponse.data?.deletePost);
         })
       );
