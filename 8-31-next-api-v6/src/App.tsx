@@ -1,108 +1,82 @@
-import { useEffect, useState } from "react";
-import { ZenObservable } from "zen-observable-ts";
+import { useState } from "react";
+// import { ZenObservable } from "zen-observable-ts";
 import { Amplify } from "aws-amplify";
-import { API as _API } from "aws-amplify/api";
+import { generateClient } from "aws-amplify/api";
 import * as queries from "./graphql/queries";
 import * as mutations from "./graphql/mutations";
-import * as subscription from "./graphql/subscriptions";
-// TODO: doesn't work:
+// import * as subscription from "./graphql/subscriptions";
 import { parseAWSExports } from "@aws-amplify/core";
-
-// For testing `next` JS implementation of auth and REST API in isolation:
-// import { fetchAuthSession } from "aws-amplify/auth";
-// import { post, cancel, isCancel } from "@aws-amplify/api-rest";
 
 import awsConfig from "./aws-exports";
 
-// `parseAWSExports` not parsing API config correctly:
-// const config = {
-//   API: {
-//     AppSync: {
-//       graphqlEndpoint: awsConfig.aws_appsync_graphqlEndpoint,
-//       region: awsConfig.aws_appsync_region,
-//       authenticationType: awsConfig.aws_appsync_authenticationType,
-//     },
-//   },
-// };
-
-// Shouldn't be needed:
-// API: {
-//   AppSync: {
-//     modelIntrospectionSchema: {
-//       models: {},
-//     },
-//   },
-// },
-
-// TODO: this isn't working as expected:
 const config = parseAWSExports(awsConfig);
 Amplify.configure(config);
 
-const client = _API.generateClient();
+const client = generateClient();
 
 // ?
 // function withoutNulls<T>(items: T[]): Exclude<T, null | undefined>[] {
 //   return items.filter((x) => x) as any;
 // }
 
-const subs: ZenObservable.Subscription[] = [];
+// const subs: ZenObservable.Subscription[] = [];
 
 function App() {
   const [todos, setTodos] = useState<any[]>([]);
   const [currentTodo, setCurrentTodo] = useState<any>();
   const [subMessages, setSubMessages] = useState<any[]>([]);
 
-  useEffect(() => {
-    subs.push(
-      // TODO: tagged CLI release? Check with Studio what they'll use
-      client
-        .graphql({
-          query: subscription.onCreateTodo,
-        })
-        // @ts-ignore
-        .subscribe({
-          // @ts-ignore
-          next: (payload) => {
-            console.log("onCreate payload", payload);
-            const todo = payload.value.data.onCreateTodo;
-            console.log("onCreate", todo);
-            setSubMessages((prev) => [...prev, todo]);
-          },
-          // @ts-ignore
-          error: (error) => console.warn(error),
-        })
-    );
+  // useEffect(() => {
+  //   subs.push(
+  //     // TODO: tagged CLI release? Check with Studio what they'll use
+  //     client
+  //       .graphql({
+  //         query: subscription.onCreateTodo,
+  //       })
+  //       // @ts-ignore
+  //       .subscribe({
+  //         // @ts-ignore
+  //         next: (payload) => {
+  //           console.log("onCreate payload", payload);
+  //           const todo = payload.value.data.onCreateTodo;
+  //           console.log("onCreate", todo);
+  //           setSubMessages((prev) => [...prev, todo]);
+  //         },
+  //         // @ts-ignore
+  //         error: (error) => console.warn(error),
+  //       })
+  //   );
 
-    subs.push(
-      // @ts-ignore
-      client.graphql({ query: subscription.onDeleteTodo }).subscribe({
-        // @ts-ignore
-        next: (payload) => {
-          const todo = payload.value.data.onDeleteTodo;
-          console.log("onDelete", todo);
-          setSubMessages((prev) => [...prev, todo]);
-        },
-        // @ts-ignore
-        error: (error) => console.warn(error),
-      })
-    );
+  //   subs.push(
+  //     // @ts-ignore
+  //     client.graphql({ query: subscription.onDeleteTodo }).subscribe({
+  //       // @ts-ignore
+  //       next: (payload) => {
+  //         const todo = payload.value.data.onDeleteTodo;
+  //         console.log("onDelete", todo);
+  //         setSubMessages((prev) => [...prev, todo]);
+  //       },
+  //       // @ts-ignore
+  //       error: (error) => console.warn(error),
+  //     })
+  //   );
 
-    subs.push(
-      // @ts-ignore
-      client.graphql({ query: subscription.onUpdateTodo }).subscribe({
-        // @ts-ignore
-        next: (payload) => {
-          const todo = payload.value.data.onUpdateTodo;
-          console.log("onUpdate", todo);
-          setSubMessages((prev) => [...prev, todo]);
-        },
-        // @ts-ignore
-        error: (error) => console.warn(error),
-      })
-    );
+  //   subs.push(
+  //     // @ts-ignore
+  //     client.graphql({ query: subscription.onUpdateTodo }).subscribe({
+  //       // @ts-ignore
+  //       next: (payload) => {
+  //         const todo = payload.value.data.onUpdateTodo;
+  //         console.log("onUpdate", todo);
+  //         setSubMessages((prev) => [...prev, todo]);
+  //       },
+  //       // @ts-ignore
+  //       error: (error) => console.warn(error),
+  //     })
+  //   );
 
-    return () => subs.forEach((sub) => sub.unsubscribe());
-  }, []);
+  //   return () => subs.forEach((sub) => sub.unsubscribe());
+  // }, []);
 
   const createTodo = async () => {
     const mutationResult = await client.graphql({
