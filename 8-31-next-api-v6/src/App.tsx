@@ -5,6 +5,8 @@ import { API as _API } from "aws-amplify/api";
 import * as queries from "./graphql/queries";
 import * as mutations from "./graphql/mutations";
 import * as subscription from "./graphql/subscriptions";
+// TODO: doesn't work:
+import { parseAWSExports } from "@aws-amplify/core";
 
 // For testing `next` JS implementation of auth and REST API in isolation:
 // import { fetchAuthSession } from "aws-amplify/auth";
@@ -12,16 +14,29 @@ import * as subscription from "./graphql/subscriptions";
 
 import awsConfig from "./aws-exports";
 
-Amplify.configure({
-  ...awsConfig,
-  API: {
-    AppSync: {
-      modelIntrospectionSchema: {
-        models: {},
-      },
-    },
-  },
-});
+// `parseAWSExports` not parsing API config correctly:
+// const config = {
+//   API: {
+//     AppSync: {
+//       graphqlEndpoint: awsConfig.aws_appsync_graphqlEndpoint,
+//       region: awsConfig.aws_appsync_region,
+//       authenticationType: awsConfig.aws_appsync_authenticationType,
+//     },
+//   },
+// };
+
+// Shouldn't be needed:
+// API: {
+//   AppSync: {
+//     modelIntrospectionSchema: {
+//       models: {},
+//     },
+//   },
+// },
+
+// TODO: this isn't working as expected:
+const config = parseAWSExports(awsConfig);
+Amplify.configure(config);
 
 const client = _API.generateClient();
 

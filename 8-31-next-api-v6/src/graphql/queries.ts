@@ -2,6 +2,19 @@
 /* eslint-disable */
 // this is an auto generated file. This will be overwritten
 
+export const postmanEcho = /* GraphQL */ `
+  query PostmanEcho($params: QueryPostmanEchoParamsInput!) {
+    postmanEcho(params: $params) {
+      args {
+        key
+        __typename
+      }
+      headers
+      url
+      __typename
+    }
+  }
+`;
 export const getTodo = /* GraphQL */ `
   query GetTodo($id: ID!) {
     getTodo(id: $id) {

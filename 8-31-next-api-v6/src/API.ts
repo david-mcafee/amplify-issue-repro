@@ -75,6 +75,22 @@ export type DeleteTodoInput = {
   id: string,
 };
 
+export type QueryPostmanEchoParamsInput = {
+  value: string,
+};
+
+export type PostmanEcho = {
+  __typename: "PostmanEcho",
+  args?: PostmanGetArgs | null,
+  headers?: string | null,
+  url?: string | null,
+};
+
+export type PostmanGetArgs = {
+  __typename: "PostmanGetArgs",
+  key?: string | null,
+};
+
 export type ModelTodoFilterInput = {
   id?: ModelIDInput | null,
   name?: ModelStringInput | null,
@@ -189,6 +205,22 @@ export type DeleteTodoMutation = {
     description?: string | null,
     createdAt: string,
     updatedAt: string,
+  } | null,
+};
+
+export type PostmanEchoQueryVariables = {
+  params: QueryPostmanEchoParamsInput,
+};
+
+export type PostmanEchoQuery = {
+  postmanEcho?:  {
+    __typename: "PostmanEcho",
+    args?:  {
+      __typename: "PostmanGetArgs",
+      key?: string | null,
+    } | null,
+    headers?: string | null,
+    url?: string | null,
   } | null,
 };
 
