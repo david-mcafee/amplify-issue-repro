@@ -90,11 +90,10 @@ function App() {
     });
 
     console.log("mutationResult", mutationResult);
-    // // @ts-ignore
-    // const createdTodo = mutationResult.data?.data?.createTodo!;
-    // console.log("createdTodo", createdTodo);
-    // setCurrentTodo(createdTodo);
-    // return createdTodo;
+    const createdTodo = mutationResult.data?.createTodo!;
+    console.log("createdTodo", createdTodo);
+    setCurrentTodo(createdTodo);
+    return createdTodo;
   };
 
   const getTodos = async () => {
@@ -108,6 +107,8 @@ function App() {
     });
 
     console.log("listResult", listResult);
+    const fetchedTodos = listResult.data?.listTodos?.items!;
+    return fetchedTodos;
   };
 
   const getTodo = async () => {
@@ -120,11 +121,11 @@ function App() {
     });
 
     console.log("queryResult", queryResult);
-    // const fetchedTodo = queryResult.data?.getTodo!;
+    const fetchedTodo = queryResult.data?.getTodo!;
 
-    // setCurrentTodo(fetchedTodo);
-    // console.log("fetchedTodo", fetchedTodo);
-    // return fetchedTodo;
+    setCurrentTodo(fetchedTodo);
+    console.log("fetchedTodo", fetchedTodo);
+    return fetchedTodo;
   };
 
   const deleteTodo = async () => {
@@ -140,11 +141,11 @@ function App() {
     });
 
     console.log("deleteResult", deleteResult);
-    // const deletedTodo = deleteResult.data?.deleteTodo;
+    const deletedTodo = deleteResult.data?.deleteTodo;
 
-    // console.log("deletedTodo", deletedTodo);
-    // setCurrentTodo(undefined);
-    // return deletedTodo;
+    console.log("deletedTodo", deletedTodo);
+    setCurrentTodo(undefined);
+    return deletedTodo;
   };
 
   const customQuery = async () => {
