@@ -51,9 +51,7 @@ function App() {
         .subscribe({
           next: (payload) => {
             console.log("onCreate payload", payload);
-            const todo = payload.data?.onCreateTodo;
-            console.log("onCreate", todo);
-            setSubMessages((prev) => [...prev, todo]);
+            // setSubMessages((prev) => [...prev, todo]);
           },
           error: (error) => console.warn(error),
         })
@@ -62,9 +60,7 @@ function App() {
     subs.push(
       client.graphql({ query: subscription.onDeleteTodo }).subscribe({
         next: (payload) => {
-          const todo = payload.data?.onDeleteTodo;
-          console.log("onDelete", todo);
-          setSubMessages((prev) => [...prev, todo]);
+          console.log("onDelete payload", payload);
         },
         error: (error) => console.warn(error),
       })
@@ -73,9 +69,7 @@ function App() {
     subs.push(
       client.graphql({ query: subscription.onUpdateTodo }).subscribe({
         next: (payload) => {
-          const todo = payload.data?.onUpdateTodo;
-          console.log("onUpdate", todo);
-          setSubMessages((prev) => [...prev, todo]);
+          console.log("onUpdate payload", payload);
         },
         error: (error) => console.warn(error),
       })
@@ -96,11 +90,11 @@ function App() {
     });
 
     console.log("mutationResult", mutationResult);
-    // @ts-ignore
-    const createdTodo = mutationResult.data?.data?.createTodo!;
-    console.log("createdTodo", createdTodo);
-    setCurrentTodo(createdTodo);
-    return createdTodo;
+    // // @ts-ignore
+    // const createdTodo = mutationResult.data?.data?.createTodo!;
+    // console.log("createdTodo", createdTodo);
+    // setCurrentTodo(createdTodo);
+    // return createdTodo;
   };
 
   const getTodos = async () => {

@@ -10,6 +10,11 @@
       "StackName": "amplify-913nextapiv6apikey-dev-153924",
       "StackId": "arn:aws:cloudformation:ca-central-1:325800432239:stack/amplify-913nextapiv6apikey-dev-153924/65535740-5286-11ee-a4e0-0e769c54d7f0",
       "AmplifyAppId": "de8ksabzruuge"
+    },
+    "categories": {
+      "api": {
+        "913nextapiv6apikey": {}
+      }
     }
   }
 }
