@@ -38,7 +38,7 @@ const client = generateClient();
 const subs: ZenObservable.Subscription[] = [];
 
 function App() {
-  const [todos, setTodos] = useState<any[]>([]);
+  // const [todos, setTodos] = useState<any[]>([]);
   const [currentTodo, setCurrentTodo] = useState<any>();
   const [subMessages, setSubMessages] = useState<any[]>([]);
 
@@ -93,11 +93,11 @@ function App() {
           description: `Description ${Date.now()}`,
         },
       },
-      // authMode: GRAPHQL_AUTH_MODE.AWS_IAM,
     });
 
     console.log("mutationResult", mutationResult);
-    const createdTodo = mutationResult.data?.createTodo!;
+    // @ts-ignore
+    const createdTodo = mutationResult.data?.data?.createTodo!;
     console.log("createdTodo", createdTodo);
     setCurrentTodo(createdTodo);
     return createdTodo;
@@ -113,13 +113,7 @@ function App() {
       },
     });
 
-    const fetchedTodos = listResult.data?.listTodos?.items!;
-
-    if (fetchedTodos) {
-      setTodos(fetchedTodos);
-      console.log("fetchedTodos", fetchedTodos);
-      return fetchedTodos;
-    }
+    console.log("listResult", listResult);
   };
 
   const getTodo = async () => {
@@ -131,11 +125,12 @@ function App() {
       },
     });
 
-    const fetchedTodo = queryResult.data?.getTodo!;
+    console.log("queryResult", queryResult);
+    // const fetchedTodo = queryResult.data?.getTodo!;
 
-    setCurrentTodo(fetchedTodo);
-    console.log("fetchedTodo", fetchedTodo);
-    return fetchedTodo;
+    // setCurrentTodo(fetchedTodo);
+    // console.log("fetchedTodo", fetchedTodo);
+    // return fetchedTodo;
   };
 
   const deleteTodo = async () => {
@@ -150,11 +145,12 @@ function App() {
       },
     });
 
-    const deletedTodo = deleteResult.data?.deleteTodo;
+    console.log("deleteResult", deleteResult);
+    // const deletedTodo = deleteResult.data?.deleteTodo;
 
-    console.log("deletedTodo", deletedTodo);
-    setCurrentTodo(undefined);
-    return deletedTodo;
+    // console.log("deletedTodo", deletedTodo);
+    // setCurrentTodo(undefined);
+    // return deletedTodo;
   };
 
   const customQuery = async () => {
@@ -232,39 +228,40 @@ function App() {
   //   console.log(`isCancelled: ${isCancelled}`);
   // };
 
-  async function deleteAll(): Promise<boolean> {
-    const response = await getTodos();
+  // async function deleteAll(): Promise<boolean> {
+  //   const response = await getTodos();
 
-    console.log("first query:", response);
+  //   console.log("first query:", response);
 
-    // Delete all records:
-    if (response) {
-      await Promise.all(
-        response?.map(async (todo: any) => {
-          const deleteResponse = await client.graphql({
-            query: mutations.deleteTodo,
-            variables: {
-              input: { id: todo.id },
-            },
-          });
+  //   // Delete all records:
+  //   if (response) {
+  //     await Promise.all(
+  //       response?.map(async (todo: any) => {
+  //         const deleteResponse = await client.graphql({
+  //           query: mutations.deleteTodo,
+  //           variables: {
+  //             input: { id: todo.id },
+  //           },
+  //         });
 
-          console.log("deletedTodo", deleteResponse.data?.deleteTodo);
-        })
-      );
-    }
+  //         console.log("deletedTodo", deleteResponse.data?.deleteTodo);
+  //       })
+  //     );
+  //   }
 
-    // Verify all records have been deleted:
-    const secondResponse = await getTodos();
+  //   // Verify all records have been deleted:
+  //   const secondResponse = await getTodos();
 
-    console.log("second query:", secondResponse);
+  //   console.log("second query:", secondResponse);
 
-    const allDeleted = secondResponse?.length === 0;
+  //   // @ts-ignore
+  //   const allDeleted = secondResponse?.length === 0;
 
-    console.log("allDeleted", allDeleted);
+  //   console.log("allDeleted", allDeleted);
 
-    setCurrentTodo(undefined);
-    return allDeleted;
-  }
+  //   setCurrentTodo(undefined);
+  //   return allDeleted;
+  // }
 
   return (
     <div style={{ padding: "1rem" }}>
@@ -303,9 +300,9 @@ function App() {
         Is Cancel Request
       </button> */}
       <br />
-      <button onClick={deleteAll} style={{ margin: ".5rem" }}>
+      {/* <button onClick={deleteAll} style={{ margin: ".5rem" }}>
         Delete All
-      </button>
+      </button> */}
       <button onClick={() => setSubMessages([])} style={{ margin: ".5rem" }}>
         Clear subs
       </button>
@@ -313,7 +310,7 @@ function App() {
         currentTodo: {JSON.stringify(currentTodo, null, 2)}
       </pre>
       <div style={{ display: "flex", flexDirection: "row" }}>
-        <pre>todos: {JSON.stringify(todos, null, 2)}</pre>
+        {/* <pre>todos: {JSON.stringify(todos, null, 2)}</pre> */}
         <pre>sub payloads: {JSON.stringify(subMessages, null, 2)}</pre>
       </div>
     </div>
