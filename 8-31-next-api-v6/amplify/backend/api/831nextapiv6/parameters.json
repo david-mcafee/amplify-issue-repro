@@ -2,5 +2,5 @@
   "AppSyncApiName": "831nextapiv6",
   "DynamoDBBillingMode": "PAY_PER_REQUEST",
   "DynamoDBEnableServerSideEncryption": false,
-  "AuthModeLastUpdated": "2023-09-12T17:37:56.037Z"
+  "AuthModeLastUpdated": "2023-09-13T04:45:40.568Z"
 }

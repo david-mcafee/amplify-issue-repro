@@ -1,5 +1,6 @@
+// import { useEffect, useState } from "react";
 import { useState } from "react";
-// import { ZenObservable } from "zen-observable-ts";
+import { ZenObservable } from "zen-observable-ts";
 import { Amplify } from "aws-amplify";
 import { generateClient } from "aws-amplify/api";
 import * as queries from "./graphql/queries";
@@ -14,11 +15,6 @@ Amplify.configure(config);
 
 const client = generateClient();
 
-// ?
-// function withoutNulls<T>(items: T[]): Exclude<T, null | undefined>[] {
-//   return items.filter((x) => x) as any;
-// }
-
 // const subs: ZenObservable.Subscription[] = [];
 
 function App() {
@@ -28,7 +24,6 @@ function App() {
 
   // useEffect(() => {
   //   subs.push(
-  //     // TODO: tagged CLI release? Check with Studio what they'll use
   //     client
   //       .graphql({
   //         query: subscription.onCreateTodo,
@@ -87,8 +82,10 @@ function App() {
           description: `Description ${Date.now()}`,
         },
       },
+      // authMode: GRAPHQL_AUTH_MODE.AWS_IAM,
     });
 
+    console.log("mutationResult", mutationResult);
     // @ts-ignore
     const createdTodo = mutationResult.data?.createTodo!;
     console.log("createdTodo", createdTodo);

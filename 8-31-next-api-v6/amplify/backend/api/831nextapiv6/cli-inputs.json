@@ -4,10 +4,7 @@
     "apiName": "831nextapiv6",
     "serviceName": "AppSync",
     "defaultAuthType": {
-      "mode": "API_KEY",
-      "expirationTime": 365,
-      "apiKeyExpirationDate": "2024-09-11T17:37:52.960Z",
-      "keyDescription": ""
+      "mode": "AWS_IAM"
     },
     "conflictResolution": {},
     "additionalAuthTypes": []
