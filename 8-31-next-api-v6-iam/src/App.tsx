@@ -43,37 +43,36 @@ function App() {
   const [subMessages, setSubMessages] = useState<any[]>([]);
 
   useEffect(() => {
-    subs.push(
-      client
-        .graphql({
-          query: subscription.onCreateTodo,
-        })
-        .subscribe({
-          next: (payload) => {
-            console.log("onCreate payload", payload);
-            // setSubMessages((prev) => [...prev, todo]);
-          },
-          error: (error) => console.warn(error),
-        })
-    );
-
-    subs.push(
-      client.graphql({ query: subscription.onDeleteTodo }).subscribe({
+  subs.push(
+    client
+      .graphql({
+        query: subscription.onCreateTodo,
+      })
+      .subscribe({
         next: (payload) => {
-          console.log("onDelete payload", payload);
+          console.log("onCreate payload", payload);
         },
         error: (error) => console.warn(error),
       })
-    );
+  );
 
-    subs.push(
-      client.graphql({ query: subscription.onUpdateTodo }).subscribe({
-        next: (payload) => {
-          console.log("onUpdate payload", payload);
-        },
-        error: (error) => console.warn(error),
-      })
-    );
+  subs.push(
+    client.graphql({ query: subscription.onDeleteTodo }).subscribe({
+      next: (payload) => {
+        console.log("onDelete payload", payload);
+      },
+      error: (error) => console.warn(error),
+    })
+  );
+
+  subs.push(
+    client.graphql({ query: subscription.onUpdateTodo }).subscribe({
+      next: (payload) => {
+        console.log("onUpdate payload", payload);
+      },
+      error: (error) => console.warn(error),
+    })
+  );
 
     return () => subs.forEach((sub) => sub.unsubscribe());
   }, []);
