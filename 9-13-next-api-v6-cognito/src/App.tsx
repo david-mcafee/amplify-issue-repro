@@ -6,6 +6,7 @@ import * as queries from "./graphql/queries";
 import * as mutations from "./graphql/mutations";
 import * as subscription from "./graphql/subscriptions";
 import { parseAWSExports } from "@aws-amplify/core";
+import { signInWithRedirect } from "aws-amplify/auth";
 
 import awsConfig from "./aws-exports";
 
@@ -300,6 +301,13 @@ function App() {
       </button> */}
       <button onClick={() => setSubMessages([])} style={{ margin: ".5rem" }}>
         Clear subs
+      </button>
+      <button
+        onClick={() => {
+          signInWithRedirect();
+        }}
+      >
+        sign in
       </button>
       <pre style={{ border: "1px solid black", margin: ".5rem" }}>
         currentTodo: {JSON.stringify(currentTodo, null, 2)}

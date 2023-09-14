@@ -1,5 +1,12 @@
 {
   "AppSyncApiName": "913nextapiv6cognito",
   "DynamoDBBillingMode": "PAY_PER_REQUEST",
-  "DynamoDBEnableServerSideEncryption": false
+  "DynamoDBEnableServerSideEncryption": false,
+  "AuthCognitoUserPoolId": {
+    "Fn::GetAtt": [
+      "auth913nextapiv6cognitodfda7845",
+      "Outputs.UserPoolId"
+    ]
+  },
+  "AuthModeLastUpdated": "2023-09-14T00:04:14.900Z"
 }
