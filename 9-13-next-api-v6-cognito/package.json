@@ -1,5 +1,5 @@
 {
-  "name": "8-31-next-api-v6",
+  "name": "8-31-next-api-v6-cognito",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
@@ -10,7 +10,7 @@
     "@types/node": "^16.18.46",
     "@types/react": "^18.2.21",
     "@types/react-dom": "^18.2.7",
-    "aws-amplify": "^5.3.10",
+    "aws-amplify": "console-preview",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-scripts": "5.0.1",
