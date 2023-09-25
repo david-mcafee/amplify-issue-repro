@@ -5,33 +5,10 @@ import { generateClient } from "aws-amplify/api";
 import * as queries from "./graphql/queries";
 import * as mutations from "./graphql/mutations";
 import * as subscription from "./graphql/subscriptions";
-import { parseAWSExports } from "@aws-amplify/core";
 
 import awsConfig from "./aws-exports";
 
-const config = parseAWSExports(awsConfig);
-console.log("config", config);
-
-Amplify.configure(config);
-
-// Tempo workaround
-// Amplify.configure({
-//   API: {
-//     AppSync: {
-//       endpoint: awsConfig.aws_appsync_graphqlEndpoint,
-//       defaultAuthMode: {
-//         type: "iam",
-//       },
-//       region: awsConfig.aws_appsync_region,
-//     },
-//   },
-//   Auth: {
-//     Cognito: {
-//       identityPoolId: awsConfig.aws_cognito_identity_pool_id,
-//       allowGuestAccess: true,
-//     },
-//   },
-// });
+Amplify.configure(awsConfig);
 
 const client = generateClient();
 
