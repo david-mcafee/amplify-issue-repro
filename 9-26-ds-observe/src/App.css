@@ -1,0 +1,23 @@
+.container {
+  display: flex;
+  flex-direction: row;
+  text-align: center;
+  justify-content: center;
+  width: 100vw;
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  width: 50vw;
+  font-size: 12px;
+  color: black;
+}
+
+.buttons {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  width: 100%;
+  padding: 10px;
+}
