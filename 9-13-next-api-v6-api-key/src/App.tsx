@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { ZenObservable } from "zen-observable-ts";
+// import { ZenObservable } from "zen-observable-ts";
 import { Amplify } from "aws-amplify";
 import { generateClient } from "aws-amplify/api";
 import * as queries from "./graphql/queries";
@@ -30,7 +30,7 @@ Amplify.configure(awsConfig);
 
 const client = generateClient();
 
-const subs: ZenObservable.Subscription[] = [];
+const subs: any[] = [];
 
 function App() {
   // const [todos, setTodos] = useState<any[]>([]);
@@ -228,24 +228,11 @@ function App() {
       },
     });
 
-    // const cancelResult = await client.cancel(promise);
-
-    // try {
-    const result = promise;
-    console.log(result);
-    const cancelResult = client.cancel(promise, "my message for cancellation");
+    const cancelResult = await client.cancel(
+      promise,
+      "my message for cancellation"
+    );
     console.log(cancelResult);
-    // } catch (error) {
-    //   console.log(error);
-    //   // If the error is because the request was cancelled you can confirm here.
-    //   if (client.isCancel(error)) {
-    //     console.log(error); // "my message for cancellation"
-    //     // handle user cancellation logic
-    //   }
-    // }
-
-    // To cancel the above request
-    // client.cancel(promise, "my message for cancellation");
   }
 
   return (
