@@ -218,20 +218,21 @@ function App() {
   // }
 
   async function postThenCancel() {
-    const promise = client.graphql({
-      query: mutations.createTodo,
-      variables: {
-        input: {
-          name: `Name ${Date.now()}`,
-          description: `Description ${Date.now()}`,
-        },
-      },
-    });
-
-    console.log("promise", promise);
     try {
+      const promise = client.graphql({
+        query: mutations.createTodo,
+        variables: {
+          input: {
+            name: `Name ${Date.now()}`,
+            description: `Description ${Date.now()}`,
+          },
+        },
+      });
+
+      console.log("promise", promise);
       client.cancel(promise, "my message for cancellation");
     } catch (error) {
+      // NOTE WE DO NOT GET HERE
       const isCancelErrorResult = client.isCancelError(error);
       console.log("isCancelErrorResult", isCancelErrorResult);
     }
