@@ -32,6 +32,9 @@ const client = generateClient();
 
 const subs: any[] = [];
 
+//@ts-ignore
+let promiseToCancel;
+
 function App() {
   // const [todos, setTodos] = useState<any[]>([]);
   const [currentTodo, setCurrentTodo] = useState<any>();
@@ -218,6 +221,17 @@ function App() {
   // }
 
   async function postThenCancel() {
+    makeCancellableRequest();
+
+    const cancelResult = client.cancel(
+      // @ts-ignore
+      promiseToCancel,
+      "my message for cancellation"
+    );
+    console.log("Response from 'client.cancel':", cancelResult);
+  }
+
+  async function makeCancellableRequest() {
     try {
       const promise = client.graphql({
         query: mutations.createTodo,
@@ -228,13 +242,13 @@ function App() {
           },
         },
       });
-
-      console.log("promise", promise);
-      client.cancel(promise, "my message for cancellation");
+      promiseToCancel = promise;
+      await promise;
     } catch (error) {
-      // NOTE WE DO NOT GET HERE
       const isCancelErrorResult = client.isCancelError(error);
-      console.log("isCancelErrorResult", isCancelErrorResult);
+      if (isCancelErrorResult) {
+        console.error("Error is a result of request cancellation:", error);
+      }
     }
   }
 
