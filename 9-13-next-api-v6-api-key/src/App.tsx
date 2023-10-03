@@ -228,11 +228,37 @@ function App() {
       },
     });
 
+    console.log("promise", promise);
+
+    debugger;
+    const cancelResult = client.cancel(promise, "my message for cancellation");
+
+    debugger;
+    console.log("cancelResult", cancelResult);
+  }
+
+  async function postThenDoubleCancel() {
+    const promise = client.graphql({
+      query: mutations.createTodo,
+      variables: {
+        input: {
+          name: `Name ${Date.now()}`,
+          description: `Description ${Date.now()}`,
+        },
+      },
+    });
+
     const cancelResult = await client.cancel(
       promise,
       "my message for cancellation"
     );
+
+    const cancelResult2 = await client.cancel(
+      promise,
+      "my message for cancellation"
+    );
     console.log(cancelResult);
+    console.log(cancelResult2);
   }
 
   return (
@@ -243,6 +269,9 @@ function App() {
       </button>
       <button onClick={postThenCancel} style={{ margin: ".5rem" }}>
         postThenCancel
+      </button>
+      <button onClick={postThenDoubleCancel} style={{ margin: ".5rem" }}>
+        postThenDoubleCancel
       </button>
       <button onClick={getTodos} style={{ margin: ".5rem" }}>
         Get Todos
