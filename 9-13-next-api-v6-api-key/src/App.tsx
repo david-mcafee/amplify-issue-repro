@@ -229,12 +229,12 @@ function App() {
     });
 
     console.log("promise", promise);
-
-    debugger;
-    const cancelResult = client.cancel(promise, "my message for cancellation");
-
-    debugger;
-    console.log("cancelResult", cancelResult);
+    try {
+      client.cancel(promise, "my message for cancellation");
+    } catch (error) {
+      const isCancelErrorResult = client.isCancelError(error);
+      console.log("isCancelErrorResult", isCancelErrorResult);
+    }
   }
 
   async function postThenDoubleCancel() {
