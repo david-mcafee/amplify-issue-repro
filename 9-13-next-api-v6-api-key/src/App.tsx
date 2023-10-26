@@ -6,6 +6,7 @@ import * as queries from "./graphql/queries";
 import * as mutations from "./graphql/mutations";
 import * as subscription from "./graphql/subscriptions";
 import awsConfig from "./aws-exports";
+// import { Logger } from "@aws-amplify/core/internals/utils";
 
 Amplify.configure(awsConfig);
 

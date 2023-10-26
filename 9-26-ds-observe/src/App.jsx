@@ -5,7 +5,7 @@ import Viewport from "./Components/Viewport";
 import Nav from "./Components/Nav";
 import ErrorBoundary from "./Components/ErrorBoundary";
 // import { AmplifyProvider } from "@aws-amplify/ui-react";
-import "@aws-amplify/ui-react/styles.css";
+// import "@aws-amplify/ui-react/styles.css";
 // import { theme } from "./theme";
 
 const TodoComponent = React.lazy(() => import("./Components/Todo"));

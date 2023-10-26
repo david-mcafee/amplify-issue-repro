@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import "../../App.css";
 
-import { DataStore, Predicates } from "aws-amplify";
+import { DataStore, Predicates } from "aws-amplify/datastore";
 import { Project, Company, CompanyProject, Status } from "../../models";
 
 function BelongsToComponent() {

@@ -1,14 +1,6 @@
-import { Alert } from "@aws-amplify/ui-react";
-
 const Banner = () => {
   return (
-    <Alert
-      isDismissible={true}
-      hasIcon={true}
-      heading="Amplify DataStore observe / observeQuery Demo "
-    >
-      Used for testing and debugging (i.e. subject to break, a lot)
-    </Alert>
+    <div>Used for testing and debugging (i.e. subject to break, a lot)</div>
   );
 };
 

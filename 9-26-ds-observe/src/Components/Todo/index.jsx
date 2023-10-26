@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import "../../App.css";
 
-import { DataStore, Predicates } from "aws-amplify";
+import { DataStore, Predicates } from "aws-amplify/datastore";
 import { Todo } from "../../models";
 
 function TodoComponent() {
@@ -66,9 +66,16 @@ function TodoComponent() {
   useEffect(() => {
     setSnapshots([]);
     getTodos();
-    const subscription = DataStore.observeQuery(Todo).subscribe((data) => {
+    // const subscription = DataStore.observeQuery(Todo).subscribe((data) => {
+    //   console.log("DATA FROM OBSERVE QUERY:", data);
+    //   //setSnapshots((prev) => [...prev, data]);
+    // });
+    const subscription = DataStore.observe(
+      Todo,
+      "79c53350-94c8-4d30-8c95-d9c211a468ae"
+    ).subscribe((data) => {
       console.log("DATA FROM OBSERVE:", data);
-      setSnapshots((prev) => [...prev, data]);
+      // setSnapshots((prev) => [...prev, data]);
     });
 
     return () => subscription.unsubscribe();
