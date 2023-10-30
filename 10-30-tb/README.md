@@ -1,9 +1,18 @@
 # 10-30-tb
 
+## Setup:
+
+Get started with Samsara:
+
 ```bash
 npx create-next-app # then cd into app directory
+# The following will pull in all the latest dependencies you'll need.
+npm create amplify@alpha
+# To deploy it to a Sandbox, you'll need to run
 npx amplify sandbox
 ```
+
+Note: Your TB schema will be in `amplify/data/resource.ts`.
 
 If you run into `The given region has not been bootstrapped. Sign in to console as a Root user or Admin to complete the bootstrap process and re-run the amplify sandbox command.`, use the following command:
 
