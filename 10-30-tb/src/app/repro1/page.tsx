@@ -13,7 +13,7 @@ export default function Page({
   children: React.ReactNode;
 }) {
   useEffect(() => {
-    console.log("client", client.models.Todo);
+    console.log("client", client.models);
   }, []);
   // const { todos } = client.models.query;
   return (
