@@ -2,7 +2,7 @@
 
 ## Setup:
 
-Get started with Samsara:
+1. Get started with Samsara:
 
 ```bash
 npx create-next-app # then cd into app directory
@@ -12,13 +12,21 @@ npm create amplify@alpha
 npx amplify sandbox
 ```
 
-Note: Your TB schema will be in `amplify/data/resource.ts`.
-
-If you run into `The given region has not been bootstrapped. Sign in to console as a Root user or Admin to complete the bootstrap process and re-run the amplify sandbox command.`, use the following command:
+2. If you run into `The given region has not been bootstrapped. Sign in to console as a Root user or Admin to complete the bootstrap process and re-run the amplify sandbox command.`, use the following command:
 
 ```bash
 npx cdk@latest bootstrap aws://[account id]/[account region]
 ```
+
+3. dd `package.json` to `amplify` folder, set `"type": "module"`.
+
+4. Configure Amplify with `amplifyconfiguration.json`: `const config = require("../../amplifyconfiguration.json");`
+
+5. May need to use Next 13?
+
+## Schema:
+
+Your TB schema will be in `amplify/data/resource.ts`.
 
 ## Auth:
 
