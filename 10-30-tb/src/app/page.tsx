@@ -11,6 +11,7 @@ export default function Page({
 }) {
   return (
     <section>
+      <h1>TypeBeast testing</h1>
       <Link href="/repro1">repro1</Link>
       {children}
     </section>

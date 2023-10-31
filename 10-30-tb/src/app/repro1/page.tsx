@@ -18,6 +18,7 @@ export default function Page({
   // const { todos } = client.models.query;
   return (
     <section>
+      <h1>TypeBeast Testing</h1>
       <Link href="/">home</Link>
       {/* {todos.map((todo: any) => (
         <li key={todo.id}>{todo.content}</li>
