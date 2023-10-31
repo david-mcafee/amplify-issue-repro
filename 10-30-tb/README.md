@@ -1,59 +1,3 @@
-# 10-30-tb
-
-## Setup:
-
-1. Create a Next.js app:
-
-```bash
-npx create-next-app
-
-# `cd` into app directory
-```
-
-2. **Downgrade `Next` to `13.5.4`**
-
-3. Get started with Samsara:
-
-```bash
-# The following will pull in all the latest dependencies you'll need.
-npm create amplify@alpha
-# To deploy it to a Sandbox, you'll need to run
-npx amplify sandbox
-```
-
-3. If you run into `The given region has not been bootstrapped. Sign in to console as a Root user or Admin to complete the bootstrap process and re-run the amplify sandbox command.`, use the following command:
-
-```bash
-npx cdk@latest bootstrap aws://[account id]/[account region]
-```
-
-4. **Add `package.json` to `amplify` folder, set `"type": "module"`.**
-
-5. Configure Amplify with `amplifyconfiguration.json`: `const config = require("../../amplifyconfiguration.json");`
-
-6. Update schema to use API key auth:
-
-The default auth mode with Samsara is Cognito. You can override it to API key by adding the following to your TB schema file:
-
-```typescript
-import { Duration } from "aws-cdk-lib";
-
-export const data = defineData({
-  schema,
-  authorizationModes: {
-    defaultAuthorizationMode: "API_KEY",
-    apiKeyConfig: {
-      expires: Duration.days(30),
-      description: "my api key",
-    },
-  },
-});
-```
-
-7. Edit your TB schema in `amplify/data/resource.ts`.
-
-# Next.js README:
-
 This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
 ## Getting Started
@@ -66,13 +10,15 @@ npm run dev
 yarn dev
 # or
 pnpm dev
-# or
-bun dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+You can start editing the page by modifying `pages/index.tsx`. The page auto-updates as you edit the file.
+
+[API routes](https://nextjs.org/docs/api-routes/introduction) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.ts`.
+
+The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/api-routes/introduction) instead of React pages.
 
 This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
 
