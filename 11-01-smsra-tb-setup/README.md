@@ -71,3 +71,16 @@ const backend = defineBackend({
   data,
 });
 ```
+
+## Schema:
+
+```typescript
+const schema = a.schema({
+  Todo: a
+    .model({
+      name: a.string(),
+      description: a.string(),
+    })
+    .authorization([a.allow.owner()]),
+});
+```
