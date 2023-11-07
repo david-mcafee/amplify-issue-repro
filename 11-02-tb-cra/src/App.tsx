@@ -6,7 +6,6 @@ import config from "./amplifyconfiguration.json";
 import { generateClient } from "aws-amplify/api";
 import type { Schema } from "../amplify/data/resource";
 
-// @ts-ignore
 Amplify.configure(config);
 
 const client = generateClient<Schema>();
@@ -47,9 +46,20 @@ function App() {
   const [todos, setTodos] = useState([]);
 
   useEffect(() => {
-    client.models.Todo.observeQuery().subscribe((r) => {
+    client.models.Todo.observeQuery({
+      initialValues: [
+        {
+          id: '12345',
+          name: "initial value 1",
+          description: "initial value 1",
+          createdAt: '2021-01-01T00:00:00.000Z',
+          updatedAt: '2021-01-01T00:00:00.000Z',
+        },
+      ],
+    }).subscribe((r: any) => {
       console.log("observeQuery items:", r.items);
       // console.log("isSynced", r.isSynced);
+      setTodos(r.items);
     });
   }, []);
 
@@ -84,6 +94,7 @@ function App() {
         <button onClick={deleteAll}>Delete All</button>
       </div>
       {/* <TodosOwnerSelectionSet /> */}
+      <pre>{JSON.stringify(todos, null, 2)}</pre>
     </div>
   );
 }

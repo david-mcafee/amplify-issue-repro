@@ -84,3 +84,9 @@ const schema = a.schema({
     .authorization([a.allow.owner()]),
 });
 ```
+
+8. Local dev:
+
+```bash
+cd /Users/mcafd/workplace/origin/amplify-js && yarn clean && git clean -xdf && yarn setup-dev && cd /Users/mcafd/workplace/origin/amplify-api-next/packages/amplify-api-next-types && yarn && yarn link && cd /Users/mcafd/workplace/origin/amplify-api-next/packages/amplify-api-next && yarn && yarn link "@aws-amplify/amplify-api-next-types-alpha" && yarn link && cd /Users/mcafd/workplace/origin/amplify-js/packages/api-graphql && yarn link "@aws-amplify/amplify-api-next-types-alpha" && yarn link "@aws-amplify/amplify-api-next-alpha" && cd /Users/mcafd/workplace/amplify-issue-repro/11-02-tb-cra && rm -rf node_modules && yarn && yarn link @aws-amplify/core @aws-amplify/api-rest @aws-amplify/api-graphql @aws-amplify/api @aws-amplify/amplify-api-next-types-alpha @aws-amplify/amplify-api-next-alpha aws-amplify && yarn start
+```
