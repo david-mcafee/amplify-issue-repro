@@ -8,7 +8,28 @@ import type { Schema } from "../amplify/data/resource";
 
 Amplify.configure(config);
 
-const client = generateClient<Schema>();
+// Client without headers:
+// const client = generateClient<Schema>();
+
+// Static client headers:
+const client = generateClient<Schema>(
+  {
+    headers: {
+      "lower-precedence": "12345",
+    },
+  }
+);
+
+// Programatic client headers:
+// const client = generateClient<Schema>(
+//   {
+//     headers: () => {
+//       return {
+//         "lower-precedence": "12345",
+//       };
+//     },
+//   }
+// );
 
 // function TodosOwnerSelectionSet() {
 //   useEffect(() => {
@@ -45,17 +66,30 @@ const client = generateClient<Schema>();
 function App() {
   const [todos, setTodos] = useState([]);
 
+  // Initial values:
+  // useEffect(() => {
+  //   client.models.Todo.observeQuery({
+  //     initialValues: [
+  //       {
+  //         id: '12345',
+  //         name: "initial value 1",
+  //         description: "initial value 1",
+  //         createdAt: '2021-01-01T00:00:00.000Z',
+  //         updatedAt: '2021-01-01T00:00:00.000Z',
+  //       },
+  //     ],
+  //   }).subscribe((r: any) => {
+  //     console.log("observeQuery items:", r.items);
+  //     // console.log("isSynced", r.isSynced);
+  //     setTodos(r.items);
+  //   });
+  // }, []);
+
   useEffect(() => {
     client.models.Todo.observeQuery({
-      initialValues: [
-        {
-          id: '12345',
-          name: "initial value 1",
-          description: "initial value 1",
-          createdAt: '2021-01-01T00:00:00.000Z',
-          updatedAt: '2021-01-01T00:00:00.000Z',
-        },
-      ],
+      headers: {
+        'highest-precedence': 'my value'
+      }
     }).subscribe((r: any) => {
       console.log("observeQuery items:", r.items);
       // console.log("isSynced", r.isSynced);
@@ -64,18 +98,35 @@ function App() {
   }, []);
 
   const listTodos = () => {
-    client.models.Todo.list().then(({ data }) => {
+    client.models.Todo.list({
+      headers: {
+        'highest-precedence': 'my value'
+      }
+    }).then(({ data }) => {
       console.log("list", data);
       //@ts-ignore
       setTodos(data);
     });
   };
 
+  const listTodosGraphQL = () => {
+    // TODO
+  };
+
   const createTodo = () => {
     client.models.Todo.create({
       name: `New Todo ${Math.random()}`,
       description: `New Todo ${Math.random()}`,
+    },
+    {
+      headers: {
+        'highest-precedence': 'my value'
+      }
     });
+  };
+
+  const createTodoGraphQL = () => {
+    // TODO
   };
 
   const deleteAll = () => {
@@ -86,12 +137,18 @@ function App() {
     });
   };
 
+  const deleteAllGraphQL = () => {
+  };
+
   return (
     <div className="App">
       <div>
         <button onClick={listTodos}>List Todos</button>
         <button onClick={createTodo}>Create Todo</button>
         <button onClick={deleteAll}>Delete All</button>
+        <button onClick={listTodosGraphQL}>List Todos GraphQL</button>
+        <button onClick={createTodoGraphQL}>Create Todo GraphQL</button>
+        <button onClick={deleteAllGraphQL}>Delete All GraphQL</button>
       </div>
       {/* <TodosOwnerSelectionSet /> */}
       <pre>{JSON.stringify(todos, null, 2)}</pre>
