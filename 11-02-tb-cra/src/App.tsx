@@ -97,23 +97,65 @@ function App() {
     });
   }, []);
 
-  const listTodos = () => {
-    client.models.Todo.list({
-      headers: {
-        'highest-precedence': 'my value'
-      }
-    }).then(({ data }) => {
+  // Validating that client headers are sent:
+  const listTodosNoHeaders = () => {
+    client.models.Todo.list().then(({ data }) => {
       console.log("list", data);
       //@ts-ignore
       setTodos(data);
     });
   };
 
-  const listTodosGraphQL = () => {
-    // TODO
+  const getTodoNoHeaders = () => {
+    client.models.Todo.list().then(({ data }) => {
+      console.log("list", data);
+
+      const todoId = data[0].id;
+
+      if (!todoId) return;
+
+      client.models.Todo.get({ id: todoId }).then(({ data }) => {
+        console.log("get", data);
+        //@ts-ignore
+        // setTodos(data);
+      });
+    });
+
   };
 
-  const createTodo = () => {
+  const createTodoNoHeaders = () => {
+    client.models.Todo.create({
+      name: `New Todo ${Math.random()}`,
+      description: `New Todo ${Math.random()}`,
+    });
+  };
+
+  const getTodoWithHeaders = () => {
+    client.models.Todo.list({
+      headers: {
+        'highest-precedence': 'my value'
+      }
+    }).then(({ data }) => {
+      console.log("list", data);
+
+      const todoId = data[0].id;
+
+      if (!todoId) return;
+
+      client.models.Todo.get({ id: todoId }, {
+        headers: {
+          'highest-precedence': 'my value'
+        }
+      }).then(({ data }) => {
+        console.log("get", data);
+        //@ts-ignore
+        // setTodos(data);
+      });
+    });
+
+  };
+
+  const createTodoWithHeaders = () => {
     client.models.Todo.create({
       name: `New Todo ${Math.random()}`,
       description: `New Todo ${Math.random()}`,
@@ -125,9 +167,31 @@ function App() {
     });
   };
 
+  const listTodosWithHeaders = () => {
+    client.models.Todo.list(
+      {
+        headers: {
+          'highest-precedence': 'my value'
+        }
+      }
+    ).then(({ data }) => {
+      console.log("list", data);
+      //@ts-ignore
+      setTodos(data);
+    });
+  };
+
+  const listTodosGraphQL = () => {
+    // TODO
+  };
+
   const createTodoGraphQL = () => {
     // TODO
   };
+
+  const getTodoGraphQL = () => {
+    // TODO
+  }
 
   const deleteAll = () => {
     client.models.Todo.list().then(({ data }) => {
@@ -143,12 +207,17 @@ function App() {
   return (
     <div className="App">
       <div>
-        <button onClick={listTodos}>List Todos</button>
-        <button onClick={createTodo}>Create Todo</button>
+        <button onClick={createTodoNoHeaders}>Create Todo (no headers)</button>
+        <button onClick={listTodosNoHeaders}>List Todos (no headers)</button>
+        <button onClick={getTodoNoHeaders}>Get Todo (no headers)</button>
+        <button onClick={createTodoWithHeaders}>Create Todo (with headers)</button>
+        <button onClick={listTodosWithHeaders}>List Todos (with headers)</button>
+        <button onClick={getTodoWithHeaders}>Get Todo (with headers)</button>
         <button onClick={deleteAll}>Delete All</button>
-        <button onClick={listTodosGraphQL}>List Todos GraphQL</button>
-        <button onClick={createTodoGraphQL}>Create Todo GraphQL</button>
-        <button onClick={deleteAllGraphQL}>Delete All GraphQL</button>
+        <button disabled onClick={createTodoGraphQL}>Create Todo GraphQL</button>
+        <button disabled onClick={listTodosGraphQL}>List Todos GraphQL</button>
+        <button disabled onClick={getTodoGraphQL}>Get Todo GraphQL</button>
+        <button disabled onClick={deleteAllGraphQL}>Delete All GraphQL</button>
       </div>
       {/* <TodosOwnerSelectionSet /> */}
       <pre>{JSON.stringify(todos, null, 2)}</pre>
