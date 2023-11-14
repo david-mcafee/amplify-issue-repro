@@ -86,11 +86,7 @@ function App() {
   // }, []);
 
   useEffect(() => {
-    client.models.Todo.observeQuery({
-      headers: {
-        'highest-precedence': 'my value'
-      }
-    }).subscribe((r: any) => {
+    client.models.Todo.observeQuery().subscribe((r: any) => {
       console.log("observeQuery items:", r.items);
       // console.log("isSynced", r.isSynced);
       setTodos(r.items);
@@ -192,6 +188,24 @@ function App() {
   const getTodoGraphQL = () => {
     // TODO
   }
+
+  const onCreateSubWithStaticHeader = () => {
+    client.models.Todo.onCreate({
+      filter: {
+					name: { contains: 'Name' },
+      },
+      headers: {
+        'highest-precedence': 'my value'
+      }
+    }).subscribe({
+      next(value) {
+        console.log('onCreate', value);
+      },
+      error(error) {
+        console.error(error);
+      },
+    });
+  };
 
   const deleteAll = () => {
     client.models.Todo.list().then(({ data }) => {
