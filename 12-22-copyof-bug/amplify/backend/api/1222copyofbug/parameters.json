@@ -1,0 +1,12 @@
+{
+  "AppSyncApiName": "1222copyofbug",
+  "DynamoDBBillingMode": "PAY_PER_REQUEST",
+  "DynamoDBEnableServerSideEncryption": false,
+  "AuthCognitoUserPoolId": {
+    "Fn::GetAtt": [
+      "auth1222copyofbuge80b08c3",
+      "Outputs.UserPoolId"
+    ]
+  },
+  "AuthModeLastUpdated": "2023-12-22T18:38:24.816Z"
+}
