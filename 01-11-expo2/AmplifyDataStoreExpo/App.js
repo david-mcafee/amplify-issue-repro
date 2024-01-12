@@ -3,6 +3,7 @@ import "core-js/full/symbol/async-iterator";
 import React, { useState } from "react";
 import { StatusBar } from "expo-status-bar";
 import { StyleSheet, Text, View } from "react-native";
+
 import { Amplify } from "aws-amplify";
 import amplifyconfig from "./src/amplifyconfiguration.json";
 import { DataStore } from "aws-amplify/datastore";
