@@ -2,8 +2,12 @@ import "@azure/core-asynciterator-polyfill";
 
 import { Amplify } from "aws-amplify";
 import { DataStore } from "aws-amplify/datastore";
+// import { ConsoleLogger } from "aws-amplify/utils"
 import amplifyconfig from "./src/amplifyconfiguration.json";
 Amplify.configure(amplifyconfig);
+
+// ConsoleLogger.LOG_LEVEL = "DEBUG";
+window.LOG_LEVEL = 'DEBUG';
 
 import { StatusBar } from "expo-status-bar";
 import { StyleSheet, Text, View, Button } from "react-native";
