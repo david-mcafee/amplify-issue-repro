@@ -1,6 +1,6 @@
 import "./App.css";
 
-import { generateClient } from "aws-amplify/api";
+import { generateClient, GraphQLQuery } from "aws-amplify/api";
 import * as mutations from "./graphql/mutations";
 import gql from "graphql-tag";
 
@@ -22,14 +22,18 @@ function App() {
     console.log(newTodo.data.createTodo);
   }
 
-  // Works, but with TS error on result:
   async function createTodoStringQuery() {
     const todoDetails = {
       name: `${Date.now()}`,
       description: `${Date.now()}`,
     };
 
-    const newTodo = await client.graphql({
+    type MyTodoType = {
+      createTodo: { name: string; description: string };
+    };
+
+    // now newTodo has the expected type and accessing `newTodo.data.createTodo` won't surface an error:
+    const newTodo = await client.graphql<GraphQLQuery<MyTodoType>>({
       query: `mutation CreateTodo(
         $input: CreateTodoInput!
         $condition: ModelTodoConditionInput
@@ -48,17 +52,15 @@ function App() {
     });
 
     /**
+     * Now we no longer get the following error:
      * `Property 'data' does not exist on type 'GraphQLResult<any> | GraphqlSubscriptionResult<any>'.
      *    Property 'data' does not exist on type 'GraphqlSubscriptionResult<any>'.`
      */
-    // @ts-expect-error - see above
     console.log(newTodo.data.createTodo);
   }
 
   /**
-   * Works, but there are two TS errors:
-   * 1. Error on `query` (see below)
-   * 2. Error on result (see below)
+   * Works, but there is an error on `query`:
    */
   async function createTodoGQLQuery() {
     const todoDetails = {
@@ -66,7 +68,11 @@ function App() {
       description: `${Date.now()}`,
     };
 
-    const newTodo = await client.graphql({
+    type MyTodoType = {
+      createTodo: { name: string; description: string };
+    };
+
+    const newTodo = await client.graphql<GraphQLQuery<MyTodoType>>({
       //@ts-expect-error - `Type 'DocumentNode' is not assignable to type 'string | DocumentNode'.`
       query: gql`
         mutation CreateTodo(
@@ -87,10 +93,10 @@ function App() {
     });
 
     /**
+     * Now we no longer get the following error:
      * `Property 'data' does not exist on type 'GraphQLResult<any> | GraphqlSubscriptionResult<any>'.
      *    Property 'data' does not exist on type 'GraphqlSubscriptionResult<any>'.`
      */
-    // @ts-expect-error - see above
     console.log(newTodo.data.createTodo);
   }
 
