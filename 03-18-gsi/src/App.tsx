@@ -25,7 +25,6 @@ export default function GSIListSort() {
 
   const fetchTodosSortASC = async () => {
     const { data: items } = await client.models.Todo.list({
-      //@ts-expect-error - test
       todoId: "1",
       sortDirection: "ASC",
     });
@@ -34,9 +33,16 @@ export default function GSIListSort() {
 
   const fetchTodosSortDESC = async () => {
     const { data: items } = await client.models.Todo.list({
-      //@ts-expect-error - test
       todoId: "1",
       sortDirection: "DESC",
+    });
+    setTodos(items);
+  };
+
+  const test123 = async () => {
+    const { data: items } = await client.models.Todo.get({
+      todoId: "1",
+      status: "a",
     });
     setTodos(items);
   };
