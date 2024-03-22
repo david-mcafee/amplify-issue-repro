@@ -7,16 +7,72 @@ specify that owners, authenticated via your Auth resource can "create",
 "read", "update", and "delete" their own records. Public users,
 authenticated via an API key, can only "read" records.
 =========================================================================*/
-const schema = a.schema({
-  Todo: a
-    .model({
-      todoId: a.id().required(),
-      status: a.string().required(),
-      content: a.string(),
-    })
-    .identifier(["todoId", "status"])
-    .authorization([a.allow.public()]),
-});
+const schema = a
+  .schema({
+    Todo: a
+      .model({
+        todoId: a.id().required(),
+        status: a.string().required(),
+        content: a.string(),
+      })
+      .identifier(["todoId", "status"]),
+    Todo3: a
+      .model({
+        status: a.id().required(),
+        content: a.string(),
+      })
+      .secondaryIndexes((index) => [index("status")]),
+    // widget: a
+    //   .model({
+    //     title: a.string().required(),
+    //     description: a.string().required(),
+    //     timestamp: a.integer().required(),
+    //   })
+    //   .identifier(["title"])
+    //   .secondaryIndexes((index) => [
+    //     index("title")
+    //       .name("myGSI")
+    //       .sortKeys(["description", "timestamp"])
+    //       .queryField("byTitleDescTs"),
+    //   ]),
+    AnotherOne: a
+      .model({
+        title: a.string().required(),
+      })
+      .secondaryIndexes((index) => [index("title")]),
+    Post: a.model({
+      title: a.string().required(),
+      comments: a.hasMany("Comment"),
+    }),
+    Comment: a
+      .model({
+        content: a.string(),
+        postID: a.id(),
+      })
+      .secondaryIndexes((index) => [
+        index("postID")
+          .name("byPost")
+          .sortKeys(["content"])
+          .queryField("commentsByPostIDByContent"),
+      ]),
+    Todo4: a
+      .model({
+        todoId: a.id().required(),
+        status: a.string().required(),
+        content: a.string(),
+      })
+      .identifier(["todoId", "status"]),
+    Customer: a
+      .model({
+        name: a.string(),
+        phoneNumber: a.phone().required(),
+        accountRepresentativeId: a.id().required(),
+      })
+      .secondaryIndexes((index) => [
+        index("accountRepresentativeId").sortKeys(["name"]),
+      ]),
+  })
+  .authorization([a.allow.public()]);
 
 export type Schema = ClientSchema<typeof schema>;
 
