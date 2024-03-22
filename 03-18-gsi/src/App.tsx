@@ -23,9 +23,19 @@ export default function GSIListSort() {
     return items;
   };
 
-  const fetchTodosSort = async () => {
+  const fetchTodosSortASC = async () => {
     const { data: items } = await client.models.Todo.list({
       //@ts-expect-error - test
+      todoId: "1",
+      sortDirection: "ASC",
+    });
+    setTodos(items);
+  };
+
+  const fetchTodosSortDESC = async () => {
+    const { data: items } = await client.models.Todo.list({
+      //@ts-expect-error - test
+      todoId: "1",
       sortDirection: "DESC",
     });
     setTodos(items);
@@ -66,7 +76,7 @@ export default function GSIListSort() {
       query: listTodosQuery,
       variables: {
         sortDirection: "ASC",
-        todoId: "1", // Provide a default value for todoId
+        todoId: "1",
       },
     });
     console.log("fetchTodosGQL", items.listTodos.items);
@@ -284,11 +294,14 @@ export default function GSIListSort() {
       <h2>Todo</h2>
       <button onClick={createTodos}>Add new todos</button>
       <button onClick={fetchTodos}>List todos</button>
-      <button onClick={fetchTodosSort}>List todos (sort)</button>
+      <button onClick={fetchTodosSortASC}>List todos sort ASC</button>
+      <button onClick={fetchTodosSortDESC}>List todos sort DESC</button>
+      {/* <button onClick={fetchTodosPK}>List todos PK</button> */}
       <button onClick={fetchTodosGQLDesc}>fetchTodosGQLDesc</button>
       <button onClick={fetchTodosGQLAsc}>fetchTodosGQLAsc</button>
       <ul>
-        {todos.length > 0 &&
+        {todos &&
+          todos.length > 0 &&
           todos.map(({ todoId, content, status }) => (
             <div style={{ border: `1px solid black` }}>
               <li key={`${todoId}-content`}>{content}</li>
