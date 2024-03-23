@@ -65,7 +65,6 @@ const schema = a
     Customer: a
       .model({
         name: a.string(),
-        phoneNumber: a.phone().required(),
         accountRepresentativeId: a.id().required(),
       })
       .secondaryIndexes((index) => [

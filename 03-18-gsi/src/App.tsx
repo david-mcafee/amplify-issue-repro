@@ -9,14 +9,13 @@ const client = generateClient<Schema>();
 
 export default function GSIListSort() {
   const [todos, setTodos] = useState<Schema["Todo"][]>([]);
-  const [todo3s, setTodo3s] = useState<Schema["Todo3"][]>([]);
-  const [anotherOnes, setAnotherOnes] = useState<Schema["AnotherOne"][]>([]);
+  const [customers, setCustomers] = useState<Schema["Customer"][]>([]);
 
   useEffect(() => {
-    fetchTodos();
+    fetchAll();
   }, []);
 
-  //region Todo
+  // #region Todo
   const fetchTodos = async () => {
     const { data: items } = await client.models.Todo.list();
     setTodos(items);
@@ -35,14 +34,6 @@ export default function GSIListSort() {
     const { data: items } = await client.models.Todo.list({
       todoId: "1",
       sortDirection: "DESC",
-    });
-    setTodos(items);
-  };
-
-  const test123 = async () => {
-    const { data: items } = await client.models.Todo.get({
-      todoId: "1",
-      status: "a",
     });
     setTodos(items);
   };
@@ -76,31 +67,31 @@ export default function GSIListSort() {
     }
   `;
 
-  const fetchTodosGQLAsc = async () => {
-    //@ts-expect-error - test
-    const { data: items } = await client.graphql({
-      query: listTodosQuery,
-      variables: {
-        sortDirection: "ASC",
-        todoId: "1",
-      },
-    });
-    console.log("fetchTodosGQL", items.listTodos.items);
-    setTodos(items.listTodos.items);
-  };
+  // const fetchTodosGQLAsc = async () => {
+  //   //@ts-expect-error - test
+  //   const { data: items } = await client.graphql({
+  //     query: listTodosQuery,
+  //     variables: {
+  //       sortDirection: "ASC",
+  //       todoId: "1",
+  //     },
+  //   });
+  //   console.log("fetchTodosGQL", items.listTodos.items);
+  //   setTodos(items.listTodos.items);
+  // };
 
-  const fetchTodosGQLDesc = async () => {
-    //@ts-expect-error - test
-    const { data: items } = await client.graphql({
-      query: listTodosQuery,
-      variables: {
-        sortDirection: "DESC",
-        todoId: "1", // Provide a default value for todoId
-      },
-    });
-    console.log("fetchTodosGQL", items.listTodos.items);
-    setTodos(items.listTodos.items);
-  };
+  // const fetchTodosGQLDesc = async () => {
+  //   //@ts-expect-error - test
+  //   const { data: items } = await client.graphql({
+  //     query: listTodosQuery,
+  //     variables: {
+  //       sortDirection: "DESC",
+  //       todoId: "1", // Provide a default value for todoId
+  //     },
+  //   });
+  //   console.log("fetchTodosGQL", items.listTodos.items);
+  //   setTodos(items.listTodos.items);
+  // };
 
   const createTodos = async () => {
     await client.models.Todo.create({
@@ -153,146 +144,99 @@ export default function GSIListSort() {
       console.log("Failed to delete all todos");
     }
   }
-  //endregion
+  // #endregion
 
-  //region Todo3
-  const fetchTodo3s = async () => {
-    const { data: items } = await client.models.Todo3.list();
-    setTodo3s(items);
+  // #region Customer
+  const customersIndexQuerySortASC = async () => {
+    const { data: items } =
+      await client.models.Customer.listByAccountRepresentativeIdAndName(
+        {
+          accountRepresentativeId: "1",
+          name: { beginsWith: "a" },
+        },
+        {
+          sortDirection: "ASC",
+        }
+      );
+    setCustomers(items);
     return items;
   };
 
-  const fetchTodo3sSort = async () => {
-    const { data: items } = await client.models.Todo3.list({
-      //@ts-expect-error - test
-      sortDirection: "DESC",
-    });
-    setTodo3s(items);
+  const customersIndexQuerySortDESC = async () => {
+    const { data: items } =
+      await client.models.Customer.listByAccountRepresentativeIdAndName(
+        {
+          accountRepresentativeId: "1",
+          name: { beginsWith: "a" },
+        },
+        {
+          sortDirection: "DESC",
+        }
+      );
+    setCustomers(items);
+    return items;
   };
 
-  const createTodo3s = async () => {
-    await client.models.Todo3.create({
-      content: `Todo3 ${Date.now()}`,
-      status: "a",
+  const createCustomers = async () => {
+    await client.models.Customer.create({
+      name: `aa`,
+      accountRepresentativeId: "1",
     });
 
-    await client.models.Todo3.create({
-      content: `Todo3 ${Date.now()}`,
-      status: "b",
+    await client.models.Customer.create({
+      name: `ab`,
+      accountRepresentativeId: "1",
     });
 
-    await client.models.Todo3.create({
-      content: `Todo3 ${Date.now()}`,
-      status: "c",
+    await client.models.Customer.create({
+      name: `ac`,
+      accountRepresentativeId: "1",
     });
 
-    fetchTodo3s();
+    customersIndexQuerySortASC();
   };
 
-  async function deleteAllTodo3s() {
-    const res = await fetchTodo3s();
+  async function deleteAllCustomers() {
+    const res = await customersIndexQuerySortASC();
 
     if (!res) {
       return false;
     }
 
-    const toDeleteKeys = res.map((todo3) => {
-      return { pk: todo3?.id };
-    });
-    // .filter((id) => id);
+    const toDeleteKeys = res
+      .map((customer) => {
+        return { pk: customer?.id };
+      })
+      .filter((customerId) => customerId);
 
     console.log("toDeleteKeys", toDeleteKeys);
 
     const deletePromises = toDeleteKeys?.map(async (keys) => {
-      await client.models.Todo3.delete({ id: keys.pk });
+      await client.models.Customer.delete({
+        id: keys.pk,
+      });
     });
 
     await Promise.all(deletePromises);
 
-    const checkRes = await fetchTodo3s();
+    const checkRes = await customersIndexQuerySortASC();
 
     if (checkRes.length === 0) {
-      console.log("All todo3s deleted");
+      console.log("All customers deleted");
     } else {
-      console.log("Failed to delete all todo3s");
+      console.log("Failed to delete all customers");
     }
   }
-  //endregion
-
-  //region AnotherOne
-  const fetchAnotherOnes = async () => {
-    const { data: items } = await client.models.AnotherOne.list();
-    setAnotherOnes(items);
-    return items;
-  };
-
-  const fetchAnotherOnesSort = async () => {
-    const { data: items } = await client.models.AnotherOne.list({
-      //@ts-expect-error - test
-      sortDirection: "ASC",
-    });
-    setTodo3s(items);
-  };
-
-  const createAnotherOnes = async () => {
-    await client.models.AnotherOne.create({
-      content: `Todo3 ${Date.now()}`,
-      status: "a",
-    });
-
-    await client.models.AnotherOne.create({
-      content: `Todo3 ${Date.now()}`,
-      status: "b",
-    });
-
-    await client.models.AnotherOne.create({
-      content: `Todo3 ${Date.now()}`,
-      status: "c",
-    });
-
-    fetchAnotherOnes();
-  };
-
-  async function deleteAllAnotherOnes() {
-    const res = await fetchAnotherOnes();
-
-    if (!res) {
-      return false;
-    }
-
-    const toDeleteKeys = res.map((todo3) => {
-      return { pk: todo3?.id };
-    });
-    // .filter((id) => id);
-
-    console.log("toDeleteKeys", toDeleteKeys);
-
-    const deletePromises = toDeleteKeys?.map(async (keys) => {
-      await client.models.AnotherOne.delete({ id: keys.pk });
-    });
-
-    await Promise.all(deletePromises);
-
-    const checkRes = await fetchAnotherOnes();
-
-    if (checkRes.length === 0) {
-      console.log("All AnotherOnes deleted");
-    } else {
-      console.log("Failed to delete all AnotherOnes");
-    }
-  }
-  //endregion
+  // #endregion
 
   async function deleteAll() {
     await deleteAllTodos();
-    await deleteAllTodo3s();
-    await deleteAllAnotherOnes();
+    await deleteAllCustomers();
   }
 
   async function fetchAll() {
     await fetchTodos();
-    await fetchTodo3s();
-    await fetchAnotherOnes();
+    await customersIndexQuerySortASC();
   }
 
   return (
@@ -303,8 +247,8 @@ export default function GSIListSort() {
       <button onClick={fetchTodosSortASC}>List todos sort ASC</button>
       <button onClick={fetchTodosSortDESC}>List todos sort DESC</button>
       {/* <button onClick={fetchTodosPK}>List todos PK</button> */}
-      <button onClick={fetchTodosGQLDesc}>fetchTodosGQLDesc</button>
-      <button onClick={fetchTodosGQLAsc}>fetchTodosGQLAsc</button>
+      {/* <button onClick={fetchTodosGQLDesc}>fetchTodosGQLDesc</button> */}
+      {/* <button onClick={fetchTodosGQLAsc}>fetchTodosGQLAsc</button> */}
       <ul>
         {todos &&
           todos.length > 0 &&
@@ -315,23 +259,25 @@ export default function GSIListSort() {
             </div>
           ))}
       </ul>
-      <h2>Todo3</h2>
-      <button onClick={createTodo3s}>Add new todo3s</button>
-      <button onClick={fetchTodo3s}>List todo3s</button>
-      <button onClick={fetchTodo3sSort}>List todo3s (sort)</button>
+      <h2>Customer</h2>
+      <button onClick={createCustomers}>Add new customers</button>
+      <button onClick={customersIndexQuerySortASC}>
+        customersIndexQuerySortASC
+      </button>
+      <button onClick={customersIndexQuerySortDESC}>
+        customersIndexQuerySortDESC
+      </button>
       <ul>
-        {todo3s.map(({ id, content }) => (
-          <li key={id}>{content}</li>
-        ))}
-      </ul>
-      <h2>AnotherOne</h2>
-      <button onClick={createAnotherOnes}>Add new AnotherOnes</button>
-      <button onClick={fetchAnotherOnes}>List AnotherOnes</button>
-      <button onClick={fetchAnotherOnesSort}>List AnotherOnes (sort)</button>
-      <ul>
-        {anotherOnes.map(({ id, title }) => (
-          <li key={id}>{title}</li>
-        ))}
+        {customers &&
+          customers.length > 0 &&
+          customers.map(({ id, name, accountRepresentativeId }) => (
+            <div style={{ border: `1px solid black` }}>
+              <li key={`${id}-name`}>{name}</li>
+              <li key={`${id}-accountRepresentativeId`}>
+                {accountRepresentativeId}
+              </li>
+            </div>
+          ))}
       </ul>
       <h2>All</h2>
       <button onClick={deleteAll}>Delete All</button>
