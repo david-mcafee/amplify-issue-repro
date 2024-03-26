@@ -22,21 +22,21 @@ export default function GSIListSort() {
     return items;
   };
 
-  const fetchTodosSortASC = async () => {
-    const { data: items } = await client.models.Todo.list({
-      todoId: "1",
-      sortDirection: "ASC",
-    });
-    setTodos(items);
-  };
+  // const fetchTodosSortASC = async () => {
+  //   const { data: items } = await client.models.Todo.list({
+  //     todoId: "1",
+  //     sortDirection: "ASC",
+  //   });
+  //   setTodos(items);
+  // };
 
-  const fetchTodosSortDESC = async () => {
-    const { data: items } = await client.models.Todo.list({
-      todoId: "1",
-      sortDirection: "DESC",
-    });
-    setTodos(items);
-  };
+  // const fetchTodosSortDESC = async () => {
+  //   const { data: items } = await client.models.Todo.list({
+  //     todoId: "1",
+  //     sortDirection: "DESC",
+  //   });
+  //   setTodos(items);
+  // };
 
   // const listTodosQuery = /* GraphQL */ `
   //   query ListTodos(
@@ -93,25 +93,25 @@ export default function GSIListSort() {
   //   setTodos(items.listTodos.items);
   // };
 
-  const createTodos = async () => {
-    await client.models.Todo.create({
-      todoId: "1",
-      content: `Todo ${Date.now()}`,
-      status: "a",
-    });
+  // const createTodos = async () => {
+  //   await client.models.Todo.create({
+  //     todoId: "1",
+  //     content: `Todo ${Date.now()}`,
+  //     status: "a",
+  //   });
 
-    await client.models.Todo.create({
-      todoId: "1",
-      content: `Todo ${Date.now()}`,
-      status: "b",
-    });
+  //   await client.models.Todo.create({
+  //     todoId: "1",
+  //     content: `Todo ${Date.now()}`,
+  //     status: "a",
+  //   });
 
-    await client.models.Todo.create({
-      todoId: "1",
-      content: `Todo ${Date.now()}`,
-      status: "c",
-    });
-  };
+  //   await client.models.Todo.create({
+  //     todoId: "1",
+  //     content: `Todo ${Date.now()}`,
+  //     status: "a",
+  //   });
+  // };
 
   async function deleteAllTodos() {
     const res = await fetchTodos();
@@ -190,8 +190,6 @@ export default function GSIListSort() {
       name: `ac`,
       accountRepresentativeId: "1",
     });
-
-    customersIndexQuerySortASC();
   };
 
   async function deleteAllCustomers() {
@@ -238,16 +236,17 @@ export default function GSIListSort() {
   }
 
   return (
-    <div>
-      <h2>Todo</h2>
-      <button onClick={createTodos}>Add new todos</button>
-      <button onClick={fetchTodos}>List todos</button>
+    <div style={{ margin: "10rem" }}>
+      <h1>Sort on GSI Demo</h1>
+      {/* <h2>Todo</h2>
+      <button onClick={createTodos}>Add new todos</button> */}
+      {/* <button onClick={fetchTodos}>List todos</button>
       <button onClick={fetchTodosSortASC}>List todos sort ASC</button>
-      <button onClick={fetchTodosSortDESC}>List todos sort DESC</button>
+      <button onClick={fetchTodosSortDESC}>List todos sort DESC</button> */}
       {/* <button onClick={fetchTodosPK}>List todos PK</button> */}
       {/* <button onClick={fetchTodosGQLDesc}>fetchTodosGQLDesc</button> */}
       {/* <button onClick={fetchTodosGQLAsc}>fetchTodosGQLAsc</button> */}
-      <ul>
+      {/* <ul>
         {todos &&
           todos.length > 0 &&
           todos.map(({ todoId, content, status }) => (
@@ -256,7 +255,7 @@ export default function GSIListSort() {
               <li key={`${todoId}-status`}>SK: {status}</li>
             </div>
           ))}
-      </ul>
+      </ul> */}
       <h2>Customer</h2>
       <button onClick={createCustomers}>Add new customers</button>
       <button onClick={customersIndexQuerySortASC}>
