@@ -38,34 +38,34 @@ export default function GSIListSort() {
     setTodos(items);
   };
 
-  const listTodosQuery = /* GraphQL */ `
-    query ListTodos(
-      $filter: ModelTodoFilterInput
-      $sortDirection: ModelSortDirection
-      $todoId: ID
-      $limit: Int
-      $nextToken: String
-    ) {
-      listTodos(
-        filter: $filter
-        sortDirection: $sortDirection
-        todoId: $todoId
-        limit: $limit
-        nextToken: $nextToken
-      ) {
-        items {
-          todoId
-          status
-          content
-          createdAt
-          updatedAt
-          __typename
-        }
-        nextToken
-        __typename
-      }
-    }
-  `;
+  // const listTodosQuery = /* GraphQL */ `
+  //   query ListTodos(
+  //     $filter: ModelTodoFilterInput
+  //     $sortDirection: ModelSortDirection
+  //     $todoId: ID
+  //     $limit: Int
+  //     $nextToken: String
+  //   ) {
+  //     listTodos(
+  //       filter: $filter
+  //       sortDirection: $sortDirection
+  //       todoId: $todoId
+  //       limit: $limit
+  //       nextToken: $nextToken
+  //     ) {
+  //       items {
+  //         todoId
+  //         status
+  //         content
+  //         createdAt
+  //         updatedAt
+  //         __typename
+  //       }
+  //       nextToken
+  //       __typename
+  //     }
+  //   }
+  // `;
 
   // const fetchTodosGQLAsc = async () => {
   //   //@ts-expect-error - test
@@ -111,8 +111,6 @@ export default function GSIListSort() {
       content: `Todo ${Date.now()}`,
       status: "c",
     });
-
-    fetchTodos();
   };
 
   async function deleteAllTodos() {
