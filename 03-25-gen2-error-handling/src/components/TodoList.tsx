@@ -1,10 +1,14 @@
+/* eslint-disable */
 import { useState, useEffect } from "react";
 import { generateClient } from "aws-amplify/data";
 import type { Schema } from "../../amplify/data/resource";
 
 export default function TodoList() {
   // generate your data client using the Schema from your backend
-  const client = generateClient<Schema>();
+  // const client = generateClient<Schema>();
+
+  // Intentional failure:
+  const client = generateClient<Schema>({ authMode: "iam" });
 
   const [todos, setTodos] = useState<Schema["Todo"][]>([]);
 
@@ -42,9 +46,9 @@ export default function TodoList() {
       </button>
 
       <ul>
-        {todos.map((todo) => (
-          <li key={todo.id}>{todo.content}</li>
-        ))}
+        {todos &&
+          todos.length > 0 &&
+          todos.map((todo) => <li key={todo.id}>{todo.content}</li>)}
       </ul>
     </div>
   );
