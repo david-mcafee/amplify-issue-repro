@@ -3,10 +3,10 @@ import { generateClient } from "aws-amplify/data";
 import type { Schema } from "../../amplify/data/resource";
 
 export default function TodoList() {
-  // generate your data client using the Schema from your backend
-  const client = generateClient<Schema>();
+  // const client = generateClient<Schema>();
+
   // Intentional error:
-  // const client = generateClient<Schema>({ authMode: "iam" });
+  const client = generateClient<Schema>({ authMode: "iam" });
 
   const [todos, setTodos] = useState<Schema["Todo"][]>([]);
 
