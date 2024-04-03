@@ -15,6 +15,13 @@ const schema = a.schema({
       priority: a.enum(['low', 'medium', 'high']),
     })
     .authorization([a.allow.public()]),
+  Todo2: a
+    .model({
+      content: a.string(),
+      done: a.boolean(),
+      priority: a.enum(['low', 'medium', 'high']),
+    })
+    .authorization([a.allow.private('iam')]),
 });
 
 export type Schema = ClientSchema<typeof schema>;
