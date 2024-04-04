@@ -22,6 +22,30 @@ const schema = a.schema({
       priority: a.enum(['low', 'medium', 'high']),
     })
     .authorization([a.allow.private('iam')]),
+  Todo3: a
+    .model({
+      content: a.string(),
+      description: a.string(),
+      additionalInfo: a.hasOne('Note'),
+    })
+    .authorization([a.allow.public()]),
+  Note: a
+    .model({
+      content: a.string(),
+    })
+    .authorization([a.allow.public().to(['create']), a.allow.owner()]),
+  Todo4: a
+    .model({
+      content: a.string(),
+      description: a.string(),
+      additionalInfo: a.hasOne('Note4'),
+    })
+    .authorization([a.allow.public()]),
+  Note4: a
+    .model({
+      content: a.string(),
+    })
+    .authorization([a.allow.private('iam')]),
 });
 
 export type Schema = ClientSchema<typeof schema>;
