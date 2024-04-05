@@ -3,34 +3,23 @@ import { generateClient } from "aws-amplify/data";
 import type { Schema } from "../../amplify/data/resource";
 
 export default function Todo3List() {
-  // generate your data client using the Schema from your backend
   const client = generateClient<Schema>();
-  // Intentional error:
-  // const client = generateClient<Schema>({ authMode: "iam" });
 
-  // const [todo3s, setTodo3s] = useState<Schema["Todo3"][]>([]);
   const [todoId, setTodoId] = useState<string>('');
 
   async function getTodo() {
-    // fetch all todo3s
     const response = await client.models.Todo3.get({ id: todoId }, { 
       selectionSet: ["id", "content", "additionalInfo.*"],
     });
     console.log('response', response);
   }
 
-  // useEffect(() => {
-  //   listTodo3s();
-  // }, []);
-    
-//   useEffect(() => {
-//     listTodo3s()
-//     const sub = client.models.Todo3.observeQuery().subscribe(({ items }) =>
-//     setTodo3s([...items])
-//     );
-
-//     return () => sub.unsubscribe();
-//   }, []);
+  async function listTodos() {
+    const response = await client.models.Todo3.list({ 
+      selectionSet: ["id", "content", "additionalInfo.*"],
+    });
+    console.log('response', response);
+  }
 
   return (
     <div>
@@ -40,26 +29,30 @@ export default function Todo3List() {
           content: 'note content',
         });
 
+        if (!note) {
+          console.error('note is not created');
+          return;
+        }
+
         // create a new Todo3 with the following attributes
         const {data: todo} = await client.models.Todo3.create({
           // prompt the user to enter the title
           content: `${Date.now()}`,
           additionalInfo: note
         })
-        // console.log('response.data', response.data)
-        // console.log('response.errors', response.errors)
 
         console.log('todo', todo);
         console.log('note', note);
 
+        if (!todo) {
+          console.error('todo is not created');
+          return;
+        }
+
         setTodoId(todo.id);
       }}>Create</button>
       <button onClick={getTodo}>get todo and note</button>
-      {/* <ul>
-        {todo3s && todo3s.length && todo3s.map((todo3) => (
-          <li key={todo3.id}>{todo3.content}</li>
-        ))}
-      </ul> */}
+      <button onClick={listTodos}>list todos and notes</button>
     </div>
   );
 }

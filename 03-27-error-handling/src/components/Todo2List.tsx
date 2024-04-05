@@ -1,36 +1,24 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { generateClient } from "aws-amplify/data";
 import type { Schema } from "../../amplify/data/resource";
 
 export default function Todo2List() {
-  // generate your data client using the Schema from your backend
   const client = generateClient<Schema>();
-  // Intentional error:
-  // const client = generateClient<Schema>({ authMode: "iam" });
 
   const [todo2s, setTodo2s] = useState<Schema["Todo2"][]>([]);
+  const [todoId, setTodoId] = useState<string>('');
 
   async function listTodo2s() {
-    // fetch all todo2s
     const response = await client.models.Todo2.list();
-    console.log('response.data', response.data)
-    console.log('response.errors', response.errors)
-    // // @ts-expect-error - test
+
+    console.log('response', response);
     setTodo2s(response?.data);
   }
 
-  useEffect(() => {
-    listTodo2s();
-  }, []);
-    
-//   useEffect(() => {
-//     listTodo2s()
-//     const sub = client.models.Todo2.observeQuery().subscribe(({ items }) =>
-//     setTodo2s([...items])
-//     );
-
-//     return () => sub.unsubscribe();
-//   }, []);
+  async function getTodo() {
+    const response = await client.models.Todo3.get({ id: todoId });
+    console.log('response', response);
+  }
 
   return (
     <div>
@@ -43,11 +31,21 @@ export default function Todo2List() {
           done: false,
           priority: 'medium'
         })
-        // console.log('response.data', response.data)
-        // console.log('response.errors', response.errors)
+
         console.log(response)
+
+        const { data: todo2 } = response;
+        
+        if (!todo2) {
+          console.error('todo2 is not created');
+          return;
+        }
+
+        setTodoId(todo2.id);
+        
       }}>Create</button>
       <button onClick={listTodo2s}>fetch todo2s</button>
+      <button onClick={getTodo}>get todo2</button>
       <ul>
         {todo2s && todo2s.length && todo2s.map((todo2) => (
           <li key={todo2.id}>{todo2.content}</li>
