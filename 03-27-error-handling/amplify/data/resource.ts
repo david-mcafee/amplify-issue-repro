@@ -46,6 +46,22 @@ const schema = a.schema({
       content: a.string(),
     })
     .authorization([a.allow.private('iam')]),
+  Customer: a.model({
+    name: a.string(),
+    phoneNumber: a.phone(),
+    accountRepresentativeId: a.id().required()
+  }).secondaryIndexes(index => [
+    index('accountRepresentativeId')
+  ])
+   .authorization([a.allow.public()]),
+  Customer2: a.model({
+    name: a.string(),
+    phoneNumber: a.phone(),
+    accountRepresentativeId: a.id().required()
+  }).secondaryIndexes(index => [
+    index('accountRepresentativeId')
+  ])
+   .authorization([a.allow.private('iam')]),
 });
 
 export type Schema = ClientSchema<typeof schema>;
