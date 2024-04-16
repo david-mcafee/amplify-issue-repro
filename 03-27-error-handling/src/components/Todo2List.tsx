@@ -8,6 +8,9 @@ export default function Todo2List() {
   const [todo2s, setTodo2s] = useState<Schema["Todo2"][]>([]);
   const [todoId, setTodoId] = useState<string>('');
 
+  /**
+   * Without flattening, response is `data: listTodos: null`
+   */
   async function listTodo2s() {
     const response = await client.models.Todo2.list();
 

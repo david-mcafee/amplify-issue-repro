@@ -1,0 +1,836 @@
+{
+  "aws_project_region": "us-west-2",
+  "aws_user_pools_id": "us-west-2_syd6wuXVw",
+  "aws_cognito_region": "us-west-2",
+  "aws_user_pools_web_client_id": "pimsfu7ldqfpdfdb7b5dgmnfd",
+  "aws_cognito_identity_pool_id": "us-west-2:e321f65b-b55f-4075-9fb7-9ce3ccb90851",
+  "allowUnauthenticatedIdentities": "true",
+  "aws_cognito_signup_attributes": [
+    "EMAIL"
+  ],
+  "aws_cognito_username_attributes": [
+    "EMAIL"
+  ],
+  "aws_cognito_verification_mechanisms": [
+    "EMAIL"
+  ],
+  "aws_cognito_password_protection_settings": {
+    "passwordPolicyMinLength": 8,
+    "passwordPolicyCharacters": [
+      "REQUIRES_NUMBERS",
+      "REQUIRES_LOWERCASE",
+      "REQUIRES_UPPERCASE",
+      "REQUIRES_SYMBOLS"
+    ]
+  },
+  "aws_appsync_authenticationType": "API_KEY",
+  "aws_appsync_region": "us-west-2",
+  "aws_appsync_graphqlEndpoint": "https://smcs7kvd6bhjznijz46khqyk5i.appsync-api.us-west-2.amazonaws.com/graphql",
+  "modelIntrospection": {
+    "version": 1,
+    "models": {
+      "Todo": {
+        "name": "Todo",
+        "fields": {
+          "id": {
+            "name": "id",
+            "isArray": false,
+            "type": "ID",
+            "isRequired": true,
+            "attributes": []
+          },
+          "content": {
+            "name": "content",
+            "isArray": false,
+            "type": "String",
+            "isRequired": false,
+            "attributes": []
+          },
+          "done": {
+            "name": "done",
+            "isArray": false,
+            "type": "Boolean",
+            "isRequired": false,
+            "attributes": []
+          },
+          "priority": {
+            "name": "priority",
+            "isArray": false,
+            "type": {
+              "enum": "TodoPriority"
+            },
+            "isRequired": false,
+            "attributes": []
+          },
+          "createdAt": {
+            "name": "createdAt",
+            "isArray": false,
+            "type": "AWSDateTime",
+            "isRequired": false,
+            "attributes": [],
+            "isReadOnly": true
+          },
+          "updatedAt": {
+            "name": "updatedAt",
+            "isArray": false,
+            "type": "AWSDateTime",
+            "isRequired": false,
+            "attributes": [],
+            "isReadOnly": true
+          }
+        },
+        "syncable": true,
+        "pluralName": "Todos",
+        "attributes": [
+          {
+            "type": "model",
+            "properties": {}
+          },
+          {
+            "type": "auth",
+            "properties": {
+              "rules": [
+                {
+                  "allow": "public",
+                  "operations": [
+                    "create",
+                    "update",
+                    "delete",
+                    "read"
+                  ]
+                }
+              ]
+            }
+          }
+        ],
+        "primaryKeyInfo": {
+          "isCustomPrimaryKey": false,
+          "primaryKeyFieldName": "id",
+          "sortKeyFieldNames": []
+        }
+      },
+      "Todo2": {
+        "name": "Todo2",
+        "fields": {
+          "id": {
+            "name": "id",
+            "isArray": false,
+            "type": "ID",
+            "isRequired": true,
+            "attributes": []
+          },
+          "content": {
+            "name": "content",
+            "isArray": false,
+            "type": "String",
+            "isRequired": false,
+            "attributes": []
+          },
+          "done": {
+            "name": "done",
+            "isArray": false,
+            "type": "Boolean",
+            "isRequired": false,
+            "attributes": []
+          },
+          "priority": {
+            "name": "priority",
+            "isArray": false,
+            "type": {
+              "enum": "Todo2Priority"
+            },
+            "isRequired": false,
+            "attributes": []
+          },
+          "createdAt": {
+            "name": "createdAt",
+            "isArray": false,
+            "type": "AWSDateTime",
+            "isRequired": false,
+            "attributes": [],
+            "isReadOnly": true
+          },
+          "updatedAt": {
+            "name": "updatedAt",
+            "isArray": false,
+            "type": "AWSDateTime",
+            "isRequired": false,
+            "attributes": [],
+            "isReadOnly": true
+          }
+        },
+        "syncable": true,
+        "pluralName": "Todo2s",
+        "attributes": [
+          {
+            "type": "model",
+            "properties": {}
+          },
+          {
+            "type": "auth",
+            "properties": {
+              "rules": [
+                {
+                  "allow": "private",
+                  "provider": "iam",
+                  "operations": [
+                    "create",
+                    "update",
+                    "delete",
+                    "read"
+                  ]
+                }
+              ]
+            }
+          }
+        ],
+        "primaryKeyInfo": {
+          "isCustomPrimaryKey": false,
+          "primaryKeyFieldName": "id",
+          "sortKeyFieldNames": []
+        }
+      },
+      "Todo3": {
+        "name": "Todo3",
+        "fields": {
+          "id": {
+            "name": "id",
+            "isArray": false,
+            "type": "ID",
+            "isRequired": true,
+            "attributes": []
+          },
+          "content": {
+            "name": "content",
+            "isArray": false,
+            "type": "String",
+            "isRequired": false,
+            "attributes": []
+          },
+          "description": {
+            "name": "description",
+            "isArray": false,
+            "type": "String",
+            "isRequired": false,
+            "attributes": []
+          },
+          "additionalInfo": {
+            "name": "additionalInfo",
+            "isArray": false,
+            "type": {
+              "model": "Note"
+            },
+            "isRequired": false,
+            "attributes": [],
+            "association": {
+              "connectionType": "HAS_ONE",
+              "associatedWith": [
+                "id"
+              ],
+              "targetNames": [
+                "todo3AdditionalInfoId"
+              ]
+            }
+          },
+          "todo3AdditionalInfoId": {
+            "name": "todo3AdditionalInfoId",
+            "isArray": false,
+            "type": "ID",
+            "isRequired": false,
+            "attributes": []
+          },
+          "createdAt": {
+            "name": "createdAt",
+            "isArray": false,
+            "type": "AWSDateTime",
+            "isRequired": false,
+            "attributes": [],
+            "isReadOnly": true
+          },
+          "updatedAt": {
+            "name": "updatedAt",
+            "isArray": false,
+            "type": "AWSDateTime",
+            "isRequired": false,
+            "attributes": [],
+            "isReadOnly": true
+          }
+        },
+        "syncable": true,
+        "pluralName": "Todo3s",
+        "attributes": [
+          {
+            "type": "model",
+            "properties": {}
+          },
+          {
+            "type": "auth",
+            "properties": {
+              "rules": [
+                {
+                  "allow": "public",
+                  "operations": [
+                    "create",
+                    "update",
+                    "delete",
+                    "read"
+                  ]
+                }
+              ]
+            }
+          }
+        ],
+        "primaryKeyInfo": {
+          "isCustomPrimaryKey": false,
+          "primaryKeyFieldName": "id",
+          "sortKeyFieldNames": []
+        }
+      },
+      "Note": {
+        "name": "Note",
+        "fields": {
+          "id": {
+            "name": "id",
+            "isArray": false,
+            "type": "ID",
+            "isRequired": true,
+            "attributes": []
+          },
+          "content": {
+            "name": "content",
+            "isArray": false,
+            "type": "String",
+            "isRequired": false,
+            "attributes": []
+          },
+          "createdAt": {
+            "name": "createdAt",
+            "isArray": false,
+            "type": "AWSDateTime",
+            "isRequired": false,
+            "attributes": [],
+            "isReadOnly": true
+          },
+          "updatedAt": {
+            "name": "updatedAt",
+            "isArray": false,
+            "type": "AWSDateTime",
+            "isRequired": false,
+            "attributes": [],
+            "isReadOnly": true
+          }
+        },
+        "syncable": true,
+        "pluralName": "Notes",
+        "attributes": [
+          {
+            "type": "model",
+            "properties": {}
+          },
+          {
+            "type": "auth",
+            "properties": {
+              "rules": [
+                {
+                  "allow": "public",
+                  "operations": [
+                    "create"
+                  ]
+                },
+                {
+                  "provider": "userPools",
+                  "ownerField": "owner",
+                  "allow": "owner",
+                  "identityClaim": "cognito:username",
+                  "operations": [
+                    "create",
+                    "update",
+                    "delete",
+                    "read"
+                  ]
+                }
+              ]
+            }
+          }
+        ],
+        "primaryKeyInfo": {
+          "isCustomPrimaryKey": false,
+          "primaryKeyFieldName": "id",
+          "sortKeyFieldNames": []
+        }
+      },
+      "Todo4": {
+        "name": "Todo4",
+        "fields": {
+          "id": {
+            "name": "id",
+            "isArray": false,
+            "type": "ID",
+            "isRequired": true,
+            "attributes": []
+          },
+          "content": {
+            "name": "content",
+            "isArray": false,
+            "type": "String",
+            "isRequired": false,
+            "attributes": []
+          },
+          "description": {
+            "name": "description",
+            "isArray": false,
+            "type": "String",
+            "isRequired": false,
+            "attributes": []
+          },
+          "additionalInfo": {
+            "name": "additionalInfo",
+            "isArray": false,
+            "type": {
+              "model": "Note4"
+            },
+            "isRequired": false,
+            "attributes": [],
+            "association": {
+              "connectionType": "HAS_ONE",
+              "associatedWith": [
+                "id"
+              ],
+              "targetNames": [
+                "todo4AdditionalInfoId"
+              ]
+            }
+          },
+          "todo4AdditionalInfoId": {
+            "name": "todo4AdditionalInfoId",
+            "isArray": false,
+            "type": "ID",
+            "isRequired": false,
+            "attributes": []
+          },
+          "createdAt": {
+            "name": "createdAt",
+            "isArray": false,
+            "type": "AWSDateTime",
+            "isRequired": false,
+            "attributes": [],
+            "isReadOnly": true
+          },
+          "updatedAt": {
+            "name": "updatedAt",
+            "isArray": false,
+            "type": "AWSDateTime",
+            "isRequired": false,
+            "attributes": [],
+            "isReadOnly": true
+          }
+        },
+        "syncable": true,
+        "pluralName": "Todo4s",
+        "attributes": [
+          {
+            "type": "model",
+            "properties": {}
+          },
+          {
+            "type": "auth",
+            "properties": {
+              "rules": [
+                {
+                  "allow": "public",
+                  "operations": [
+                    "create",
+                    "update",
+                    "delete",
+                    "read"
+                  ]
+                }
+              ]
+            }
+          }
+        ],
+        "primaryKeyInfo": {
+          "isCustomPrimaryKey": false,
+          "primaryKeyFieldName": "id",
+          "sortKeyFieldNames": []
+        }
+      },
+      "Note4": {
+        "name": "Note4",
+        "fields": {
+          "id": {
+            "name": "id",
+            "isArray": false,
+            "type": "ID",
+            "isRequired": true,
+            "attributes": []
+          },
+          "content": {
+            "name": "content",
+            "isArray": false,
+            "type": "String",
+            "isRequired": false,
+            "attributes": []
+          },
+          "createdAt": {
+            "name": "createdAt",
+            "isArray": false,
+            "type": "AWSDateTime",
+            "isRequired": false,
+            "attributes": [],
+            "isReadOnly": true
+          },
+          "updatedAt": {
+            "name": "updatedAt",
+            "isArray": false,
+            "type": "AWSDateTime",
+            "isRequired": false,
+            "attributes": [],
+            "isReadOnly": true
+          }
+        },
+        "syncable": true,
+        "pluralName": "Note4s",
+        "attributes": [
+          {
+            "type": "model",
+            "properties": {}
+          },
+          {
+            "type": "auth",
+            "properties": {
+              "rules": [
+                {
+                  "allow": "private",
+                  "provider": "iam",
+                  "operations": [
+                    "create",
+                    "update",
+                    "delete",
+                    "read"
+                  ]
+                }
+              ]
+            }
+          }
+        ],
+        "primaryKeyInfo": {
+          "isCustomPrimaryKey": false,
+          "primaryKeyFieldName": "id",
+          "sortKeyFieldNames": []
+        }
+      },
+      "Customer": {
+        "name": "Customer",
+        "fields": {
+          "id": {
+            "name": "id",
+            "isArray": false,
+            "type": "ID",
+            "isRequired": true,
+            "attributes": []
+          },
+          "name": {
+            "name": "name",
+            "isArray": false,
+            "type": "String",
+            "isRequired": false,
+            "attributes": []
+          },
+          "phoneNumber": {
+            "name": "phoneNumber",
+            "isArray": false,
+            "type": "AWSPhone",
+            "isRequired": false,
+            "attributes": []
+          },
+          "accountRepresentativeId": {
+            "name": "accountRepresentativeId",
+            "isArray": false,
+            "type": "ID",
+            "isRequired": true,
+            "attributes": []
+          },
+          "createdAt": {
+            "name": "createdAt",
+            "isArray": false,
+            "type": "AWSDateTime",
+            "isRequired": false,
+            "attributes": [],
+            "isReadOnly": true
+          },
+          "updatedAt": {
+            "name": "updatedAt",
+            "isArray": false,
+            "type": "AWSDateTime",
+            "isRequired": false,
+            "attributes": [],
+            "isReadOnly": true
+          }
+        },
+        "syncable": true,
+        "pluralName": "Customers",
+        "attributes": [
+          {
+            "type": "model",
+            "properties": {}
+          },
+          {
+            "type": "key",
+            "properties": {
+              "name": "customersByAccountRepresentativeId",
+              "queryField": "listByAccountRepresentativeId",
+              "fields": [
+                "accountRepresentativeId"
+              ]
+            }
+          },
+          {
+            "type": "auth",
+            "properties": {
+              "rules": [
+                {
+                  "allow": "public",
+                  "operations": [
+                    "create",
+                    "update",
+                    "delete",
+                    "read"
+                  ]
+                }
+              ]
+            }
+          }
+        ],
+        "primaryKeyInfo": {
+          "isCustomPrimaryKey": false,
+          "primaryKeyFieldName": "id",
+          "sortKeyFieldNames": []
+        }
+      },
+      "Customer2": {
+        "name": "Customer2",
+        "fields": {
+          "id": {
+            "name": "id",
+            "isArray": false,
+            "type": "ID",
+            "isRequired": true,
+            "attributes": []
+          },
+          "name": {
+            "name": "name",
+            "isArray": false,
+            "type": "String",
+            "isRequired": false,
+            "attributes": []
+          },
+          "phoneNumber": {
+            "name": "phoneNumber",
+            "isArray": false,
+            "type": "AWSPhone",
+            "isRequired": false,
+            "attributes": []
+          },
+          "accountRepresentative2Id": {
+            "name": "accountRepresentative2Id",
+            "isArray": false,
+            "type": "ID",
+            "isRequired": true,
+            "attributes": []
+          },
+          "createdAt": {
+            "name": "createdAt",
+            "isArray": false,
+            "type": "AWSDateTime",
+            "isRequired": false,
+            "attributes": [],
+            "isReadOnly": true
+          },
+          "updatedAt": {
+            "name": "updatedAt",
+            "isArray": false,
+            "type": "AWSDateTime",
+            "isRequired": false,
+            "attributes": [],
+            "isReadOnly": true
+          }
+        },
+        "syncable": true,
+        "pluralName": "Customer2s",
+        "attributes": [
+          {
+            "type": "model",
+            "properties": {}
+          },
+          {
+            "type": "key",
+            "properties": {
+              "name": "customer2sByAccountRepresentative2Id",
+              "queryField": "listByAccountRepresentative2Id",
+              "fields": [
+                "accountRepresentative2Id"
+              ]
+            }
+          },
+          {
+            "type": "auth",
+            "properties": {
+              "rules": [
+                {
+                  "allow": "private",
+                  "provider": "iam",
+                  "operations": [
+                    "create",
+                    "update",
+                    "delete",
+                    "read"
+                  ]
+                }
+              ]
+            }
+          }
+        ],
+        "primaryKeyInfo": {
+          "isCustomPrimaryKey": false,
+          "primaryKeyFieldName": "id",
+          "sortKeyFieldNames": []
+        }
+      },
+      "Customer4": {
+        "name": "Customer4",
+        "fields": {
+          "id": {
+            "name": "id",
+            "isArray": false,
+            "type": "ID",
+            "isRequired": true,
+            "attributes": []
+          },
+          "name": {
+            "name": "name",
+            "isArray": false,
+            "type": "String",
+            "isRequired": false,
+            "attributes": []
+          },
+          "phoneNumber": {
+            "name": "phoneNumber",
+            "isArray": false,
+            "type": "AWSPhone",
+            "isRequired": false,
+            "attributes": []
+          },
+          "accountRepresentative4Id": {
+            "name": "accountRepresentative4Id",
+            "isArray": false,
+            "type": "ID",
+            "isRequired": true,
+            "attributes": []
+          },
+          "additionalInfo": {
+            "name": "additionalInfo",
+            "isArray": false,
+            "type": {
+              "model": "Note4"
+            },
+            "isRequired": false,
+            "attributes": [],
+            "association": {
+              "connectionType": "HAS_ONE",
+              "associatedWith": [
+                "id"
+              ],
+              "targetNames": [
+                "customer4AdditionalInfoId"
+              ]
+            }
+          },
+          "customer4AdditionalInfoId": {
+            "name": "customer4AdditionalInfoId",
+            "isArray": false,
+            "type": "ID",
+            "isRequired": false,
+            "attributes": []
+          },
+          "createdAt": {
+            "name": "createdAt",
+            "isArray": false,
+            "type": "AWSDateTime",
+            "isRequired": false,
+            "attributes": [],
+            "isReadOnly": true
+          },
+          "updatedAt": {
+            "name": "updatedAt",
+            "isArray": false,
+            "type": "AWSDateTime",
+            "isRequired": false,
+            "attributes": [],
+            "isReadOnly": true
+          }
+        },
+        "syncable": true,
+        "pluralName": "Customer4s",
+        "attributes": [
+          {
+            "type": "model",
+            "properties": {}
+          },
+          {
+            "type": "key",
+            "properties": {
+              "name": "customer4sByAccountRepresentative4Id",
+              "queryField": "listByAccountRepresentative4Id",
+              "fields": [
+                "accountRepresentative4Id"
+              ]
+            }
+          },
+          {
+            "type": "auth",
+            "properties": {
+              "rules": [
+                {
+                  "allow": "public",
+                  "operations": [
+                    "create",
+                    "update",
+                    "delete",
+                    "read"
+                  ]
+                }
+              ]
+            }
+          }
+        ],
+        "primaryKeyInfo": {
+          "isCustomPrimaryKey": false,
+          "primaryKeyFieldName": "id",
+          "sortKeyFieldNames": []
+        }
+      }
+    },
+    "enums": {
+      "TodoPriority": {
+        "name": "TodoPriority",
+        "values": [
+          "low",
+          "medium",
+          "high"
+        ]
+      },
+      "Todo2Priority": {
+        "name": "Todo2Priority",
+        "values": [
+          "low",
+          "medium",
+          "high"
+        ]
+      }
+    },
+    "nonModels": {}
+  },
+  "aws_appsync_apiKey": "da2-tfaqmhuemjfunkjbpdh6koji2m",
+  "aws_appsync_additionalAuthenticationTypes": "AMAZON_COGNITO_USER_POOLS,AWS_IAM"
+}

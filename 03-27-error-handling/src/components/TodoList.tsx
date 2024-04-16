@@ -14,6 +14,9 @@ export default function TodoList() {
     console.log('response', response);
   }
 
+  /**
+   * Without error handling, would return as empty object
+   */
   async function listTodos() {
     // fetch all todos
     const response = await client.models.Todo.list();

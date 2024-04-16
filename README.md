@@ -1,3 +1,3 @@
 # amplify-issue-repro
 
-on-call repro apps / general testing
+Sample apps for new feature testing and on-call issue reproduction

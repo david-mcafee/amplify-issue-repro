@@ -20,9 +20,13 @@ export default function Customer2List() {
     console.log('response', response);
   }
 
-  async function indexQueryWithAuth() {
-    const response = await client.models.Customer2.listByAccountRepresentativeId({
-      accountRepresentativeId: "YOUR_REP_ID"
+  /**
+   * Unlike `list`, index query does not return a populated `data` object with a `null` result
+   * so flattening is not required.
+   */
+  async function indexQueryWithoutAuth() {
+    const response = await client.models.Customer2.listByAccountRepresentative2Id({
+      accountRepresentative2Id: "123"
     });
 
     console.log('response', response);
@@ -36,7 +40,7 @@ export default function Customer2List() {
         const response = await client.models.Customer2.create({
           name: `${Date.now()}`,
           phoneNumber: '+1234567890',
-          accountRepresentativeId: '123'
+          accountRepresentative2Id: '123'
         })
 
         console.log(response)
@@ -53,7 +57,7 @@ export default function Customer2List() {
       }}>Create</button>
       <button onClick={listCustomer2s}>fetch customer2s</button>
       <button onClick={getCustomer2}>get customer2</button>
-      <button onClick={indexQueryWithAuth}>index Query (auth access)</button>
+      <button onClick={indexQueryWithoutAuth}>index Query (without auth access)</button>
       <ul>
         {customer2s && customer2s.length && customer2s.map((customer2) => (
           <li key={customer2.id}>{customer2.name}</li>

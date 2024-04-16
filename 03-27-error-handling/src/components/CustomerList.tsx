@@ -23,7 +23,7 @@ export default function CustomerList() {
 
   async function indexQueryWithAuth() {
     const response = await client.models.Customer.listByAccountRepresentativeId({
-      accountRepresentativeId: "YOUR_REP_ID"
+      accountRepresentativeId: "123"
     });
 
     console.log('response', response);

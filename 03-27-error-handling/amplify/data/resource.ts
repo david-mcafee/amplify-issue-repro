@@ -57,11 +57,19 @@ const schema = a.schema({
   Customer2: a.model({
     name: a.string(),
     phoneNumber: a.phone(),
-    accountRepresentativeId: a.id().required()
+    accountRepresentative2Id: a.id().required()
   }).secondaryIndexes(index => [
-    index('accountRepresentativeId')
+    index('accountRepresentative2Id')
   ])
-   .authorization([a.allow.private('iam')]),
+    .authorization([a.allow.private('iam')]),
+  Customer4: a.model({
+    name: a.string(),
+    phoneNumber: a.phone(),
+    accountRepresentative4Id: a.id().required(),
+    additionalInfo: a.hasOne('Note4'),
+  }).secondaryIndexes(index => [
+    index('accountRepresentative4Id')
+  ]).authorization([a.allow.public()]),
 });
 
 export type Schema = ClientSchema<typeof schema>;
