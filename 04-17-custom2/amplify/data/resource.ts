@@ -2,7 +2,7 @@ import {
   type ClientSchema,
   a,
   defineData,
-  defineFunction,
+  defineFunction, // 1.Import "defineFunction" to create new functions
 } from "@aws-amplify/backend";
 
 // 2. define a function
@@ -15,12 +15,14 @@ const schema = a.schema({
     content: a.string(),
     executionDuration: a.float(),
   }),
-  echo1: a
+
+  echo: a
     .query()
-    .arguments({ content: a.string().required() })
-    .handler(a.handler.function(echoHandler))
+    .arguments({ content: a.string() })
+    .returns(a.ref("EchoResponse"))
     .authorization([a.allow.public()])
-    .returns(a.ref("EchoResponse").required()),
+    // 3. set the function has the handler
+    .handler(a.handler.function(echoHandler)),
 });
 
 export type Schema = ClientSchema<typeof schema>;
