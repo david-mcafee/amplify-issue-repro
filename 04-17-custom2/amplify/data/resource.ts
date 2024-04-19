@@ -18,7 +18,7 @@ const schema = a.schema({
 
   echo: a
     .query()
-    .arguments({ content: a.string() })
+    .arguments({ content: a.string(), whatever: a.string() })
     .returns(a.ref("EchoResponse"))
     .authorization([a.allow.public()])
     // 3. set the function has the handler
