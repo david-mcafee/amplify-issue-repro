@@ -1,42 +1,19 @@
-import {
-  a,
-  defineData,
-  type ClientSchema,
-  defineFunction,
-} from "@aws-amplify/backend";
-
-// 2. define a function
-const echoHandler = defineFunction({
-  entry: "./echo-handler/handler.ts",
-});
+import { a, defineData, type ClientSchema } from "@aws-amplify/backend";
 
 const schema = a.schema({
   Todo: a
     .model({
-      content: a.string(),
-      isDone: a.boolean(),
+      title: a.string(),
+      content: a.hasOne("Content", "todoId"),
     })
     .authorization((allow) => [allow.publicApiKey()]),
-
-  // 1. Define your return type as a custom type
-  EchoResponse: a.customType({
-    content: a.string(),
-    executionDuration: a.float(),
-  }),
-
-  // 2. Define your query with the return type and, optionally, arguments
-  echo: a
-    .query()
-    // arguments that this query accepts
-    .arguments({
-      content: a.string(),
+  Content: a
+    .model({
+      todoId: a.id(),
+      todo: a.belongsTo("Todo", "todoId"),
+      text: a.string(),
     })
-    // return type of the query
-    .returns(a.ref("EchoResponse"))
-    // only allow signed-in users to call this API
-    .authorization((allow) => [allow.publicApiKey()])
-    // 3. set the function has the handler
-    .handler(a.handler.function(echoHandler)),
+    .authorization((allow) => [allow.publicApiKey()]),
 });
 
 // Used for code completion / highlighting when making requests from frontend
