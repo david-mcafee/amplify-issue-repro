@@ -29,14 +29,11 @@ function App() {
   }, []);
 
   async function retrieveChildRecords(items: any) {
-    debugger;
-    let childRecords = [];
-    for (const i of items) {
-      const result = await i.content();
-      childRecords.push(result);
-    }
+    const test = await Promise.all(
+      items.map(async (i: any) => await i.content())
+    );
 
-    console.log("child records:", childRecords);
+    console.log("child records", test);
   }
 
   async function getChildrenFromList() {
