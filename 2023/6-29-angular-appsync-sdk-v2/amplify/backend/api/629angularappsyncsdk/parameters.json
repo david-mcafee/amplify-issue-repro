@@ -1,5 +1,0 @@
-{
-  "AppSyncApiName": "629angularappsyncsdk",
-  "DynamoDBBillingMode": "PAY_PER_REQUEST",
-  "DynamoDBEnableServerSideEncryption": false
-}

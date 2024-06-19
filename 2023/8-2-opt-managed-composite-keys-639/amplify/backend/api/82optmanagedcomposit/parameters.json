@@ -1,5 +1,0 @@
-{
-  "AppSyncApiName": "82optmanagedcomposit",
-  "DynamoDBBillingMode": "PAY_PER_REQUEST",
-  "DynamoDBEnableServerSideEncryption": false
-}

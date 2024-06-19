@@ -1,5 +1,0 @@
-{
-  "AppSyncApiName": "1024codegen",
-  "DynamoDBBillingMode": "PAY_PER_REQUEST",
-  "DynamoDBEnableServerSideEncryption": false
-}
