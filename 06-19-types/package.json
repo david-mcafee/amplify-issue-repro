@@ -11,26 +11,26 @@
   },
   "dependencies": {
     "@aws-amplify/ui-react": "^6.1.9",
-    "aws-amplify": "^6.3.4",
+    "aws-amplify": "^6.3.7",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   },
   "devDependencies": {
-    "@aws-amplify/backend": "^1.0.2",
-    "@aws-amplify/backend-cli": "^1.0.3",
+    "@aws-amplify/backend": "^1.0.3",
+    "@aws-amplify/backend-cli": "^1.0.4",
     "@types/react": "^18.2.66",
     "@types/react-dom": "^18.2.22",
     "@typescript-eslint/eslint-plugin": "^7.2.0",
     "@typescript-eslint/parser": "^7.2.0",
     "@vitejs/plugin-react": "^4.2.1",
-    "aws-cdk": "^2.142.1",
-    "aws-cdk-lib": "^2.142.1",
+    "aws-cdk": "^2.144.0",
+    "aws-cdk-lib": "^2.144.0",
     "constructs": "^10.3.0",
     "esbuild": "^0.20.2",
     "eslint": "^8.57.0",
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.6",
-    "tsx": "^4.10.5",
+    "tsx": "^4.13.0",
     "typescript": "^5.4.5",
     "vite": "^5.2.0"
   }
