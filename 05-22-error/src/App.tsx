@@ -24,21 +24,26 @@ function App() {
     console.log("listTodos", data);
   }
 
-  useEffect(() => {
-    listTodos();
-  }, []);
+  // useEffect(() => {
+  //   listTodos();
+  // }, []);
 
   async function retrieveChildRecords(items: any) {
     const test = await Promise.all(
-      items.map(async (i: any) => await i.content())
+      items.map(async (i: any) => {
+        const result = await i.content();
+        console.log("child result", result);
+        return result;
+      })
     );
 
     console.log("child records", test);
   }
 
   async function getChildrenFromList() {
-    const { data } = await client.models.Todo.list();
+    const { data, errors: listErrors } = await client.models.Todo.list();
     console.log("list:", data);
+    console.log("listErrors", listErrors);
     await retrieveChildRecords(data);
   }
 
@@ -57,29 +62,29 @@ function App() {
   }
 
   useEffect(() => {
-    // const sub = client.models.Todo.observeQuery({
-    //   // Cx selectionSet results in following error:
-    //   // `The type is readonly and cannot be assigned to the mutable type:`
-    //   // selectionSet: selectionSet,
-    //   selectionSet: ["id", "title", "content.*"],
-    // }).subscribe(({ items, isSynced }) => {
-    const sub = client.models.Todo.observeQuery().subscribe(
-      ({ items, isSynced }) => {
-        console.log("observeQuery:", items);
-        console.log("isSynced", isSynced);
+    const sub = client.models.Todo.observeQuery({
+      // Cx selectionSet results in following error:
+      // `The type is readonly and cannot be assigned to the mutable type:`
+      // selectionSet: selectionSet,
+      // selectionSet: ["id", "title", "requiredField", "content.id"],
+      selectionSet: ["id", "title"],
+    }).subscribe(({ items, isSynced }) => {
+      // const sub = client.models.Todo.observeQuery().subscribe(
+      //   ({ items, isSynced }) => {
+      console.log("observeQuery:", items);
+      console.log("isSynced", isSynced);
 
-        // for (const i of items) {
-        //   if (typeof i.content === "function") {
-        //     // debugger;
-        //     // // @ts-ignore
-        //     // const test = await i.content();
-        //     // debugger;
-        //     test2(i);
-        //   }
-        // }
-        retrieveChildRecords(items);
-      }
-    );
+      // for (const i of items) {
+      //   if (typeof i.content === "function") {
+      //     // debugger;
+      //     // // @ts-ignore
+      //     // const test = await i.content();
+      //     // debugger;
+      //     // test2(i);
+      //   }
+      // }
+      // retrieveChildRecords(items);
+    });
 
     return () => sub.unsubscribe();
   }, []);
@@ -90,7 +95,7 @@ function App() {
       <button
         onClick={async () => {
           const { data: newTodo } = await client.models.Todo.create({
-            title: "Title",
+            requiredField: "test",
           });
 
           await client.models.Content.create({

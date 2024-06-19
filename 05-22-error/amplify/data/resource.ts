@@ -4,6 +4,7 @@ const schema = a.schema({
   Todo: a
     .model({
       title: a.string(),
+      requiredField: a.string().required(),
       content: a.hasOne("Content", "todoId"),
     })
     .authorization((allow) => [allow.publicApiKey()]),
