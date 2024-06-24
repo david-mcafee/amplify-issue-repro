@@ -20,7 +20,6 @@ function App() {
   const handleTest = async () => {
     const { data: newCategory } = await client.models.Category.create({
       name: `${Date.now()}`,
-      platform: "TEST2",
     });
 
     console.log(newCategory);
