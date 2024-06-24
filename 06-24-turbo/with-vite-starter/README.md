@@ -1,5 +1,7 @@
 # `Turborepo` Vite starter
 
+https://github.com/vercel/turbo/tree/main/examples/with-vite
+
 This is an official starter Turborepo.
 
 ## Using this example
